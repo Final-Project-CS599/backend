@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS student (
     s_password VARCHAR(255) NOT NULL,
     s_DOB  DATE NOT NULL,
     s_email VARCHAR(255) NOT NULL UNIQUE,
-    s_gender ENUM('Male', 'Female'),
+    s_gender ENUM('Male', 'Female') NOT NULL DEFAULT 'Male'
     s_department_id INT,
     s_admin_id INT,
     s_national_id VARCHAR(255) NOT NULL UNIQUE,
@@ -23,3 +23,7 @@ CREATE TABLE IF NOT EXISTS student_phone (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )`;
+
+// FOREIGN KEY (student_id) REFERENCES student(s_id)
+// FOREIGN KEY (s_department_id) REFERENCES department(d_id)
+// FOREIGN KEY (s_admin_id) REFERENCES admin(a_id)

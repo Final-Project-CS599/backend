@@ -6,3 +6,7 @@ export const createSendTableQuery = `CREATE TABLE IF NOT EXISTS send (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )`;
+
+// FOREIGN KEY (student_id) REFERENCES student(s_id)
+
+// FOREIGN KEY (instructor_id) REFERENCES instructor(i_id)
