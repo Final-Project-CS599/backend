@@ -1,5 +1,5 @@
 export const createAssignmentTableQuery = `CREATE TABLE IF NOT EXISTS assignments (
-  id INT PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   type VARCHAR(50) NOT NULL,
   end_date DATE NOT NULL,
@@ -13,7 +13,7 @@ export const createAssignmentTableQuery = `CREATE TABLE IF NOT EXISTS assignment
 )`;
 
 export const createTakesAssignmentTableQuery = `CREATE TABLE IF NOT EXISTS takes_assignments (
-  content_id INT PRIMARY KEY,
+  content_id AUTO_INCREMENT INT PRIMARY KEY,
   assignment_grade FLOAT,
   student_id INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

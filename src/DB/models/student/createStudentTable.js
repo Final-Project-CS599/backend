@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS student (
 
 export const createStudentPhoneTableQuery = `
 CREATE TABLE IF NOT EXISTS student_phone (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     S_phone INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
