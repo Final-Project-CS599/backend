@@ -1,3 +1,5 @@
+import { dbConfig } from './DB/connection.js';
+
 const bootstrap = (app, express) => {
   app.use(express.json());
 
@@ -9,6 +11,14 @@ const bootstrap = (app, express) => {
 
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
+  });
+
+  dbConfig.connect((err) => {
+    if (err) {
+      console.log('error on db connection ', err);
+    } else {
+      console.log('db connected');
+    }
   });
 };
 
