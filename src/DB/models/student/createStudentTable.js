@@ -1,16 +1,16 @@
-export const createStudentTableQuery = `
-CREATE TABLE IF NOT EXISTS student (
+export const createStudentTableQuery = `CREATE TABLE IF NOT EXISTS student (
     s_id INT AUTO_INCREMENT PRIMARY KEY,
     s_first_name VARCHAR(255) NOT NULL,
     s_last_name VARCHAR(255) NOT NULL,
     s_middle_name VARCHAR(255),
     s_password VARCHAR(255) NOT NULL,
-    s_DOB  DATE NOT NULL,
+    s_DOB DATE NOT NULL,
     s_email VARCHAR(255) NOT NULL UNIQUE,
-    s_gender ENUM('Male', 'Female') NOT NULL DEFAULT 'Male'
+    s_gender ENUM('Male', 'Female') NOT NULL DEFAULT 'Male',
     s_department_id INT,
     s_admin_id INT,
     s_national_id VARCHAR(255) NOT NULL UNIQUE,
+    FOREIGN KEY(s_admin_id) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE CASCADE ON UPDATE CASCADE,
     s_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     s_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )`;
@@ -20,10 +20,9 @@ CREATE TABLE IF NOT EXISTS student_phone (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     S_phone INT NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES student(s_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )`;
 
-// FOREIGN KEY (student_id) REFERENCES student(s_id)
 // FOREIGN KEY (s_department_id) REFERENCES department(d_id)
-// FOREIGN KEY (s_admin_id) REFERENCES admin(a_id)

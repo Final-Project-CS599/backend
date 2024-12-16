@@ -1,4 +1,5 @@
-import { dbConfig } from './DB/connection.js';
+import { dbConfig } from '../DB/connection.js';
+import { route as dbRoute } from './services/createTable/CreateTable.js';
 
 const bootstrap = (app, express) => {
   app.use(express.json());
@@ -8,6 +9,8 @@ const bootstrap = (app, express) => {
       .status(200)
       .json({ message: 'Welcome in node.js project powered by express and ES6' });
   });
+
+  app.use('/DB', dbRoute);
 
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
