@@ -8,7 +8,7 @@ export const createStudentTableQuery = `CREATE TABLE IF NOT EXISTS student (
     s_email VARCHAR(50) NOT NULL UNIQUE,
     s_gender ENUM('Male', 'Female') NOT NULL DEFAULT 'Male',
     s_department_id INT,
-    s_admin_id INT,
+    s_admin_id VARCHAR(14),
     s_national_id VARCHAR(14) NOT NULL UNIQUE,
     FOREIGN KEY(s_admin_id) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (s_department_id) REFERENCES department (d_id) ON DELETE SET NULL ON UPDATE CASCADE,

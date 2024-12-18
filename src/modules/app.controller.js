@@ -1,5 +1,5 @@
 import { dbConfig } from '../DB/connection.js';
-import { route as dbRoute } from './services/createTable/CreateTable.js';
+import { route as dbRoute } from './createTable/CreateTable.controller.js';
 
 const bootstrap = (app, express) => {
   app.use(express.json());

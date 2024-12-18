@@ -1,10 +1,10 @@
-import { dbConfig } from '../../../DB/connection.js';
+import { dbConfig } from '../../DB/connection.js';
 import {
   createTableSuperAdmin,
   createTableSuperAdminsPhones,
   createdTablHelpdesk,
-} from '../../../DB/models/admin/TableAdmin.model.js';
-import * as StudentModels from '../../../DB/models/student/index.js';
+} from '../../DB/models/admin/TableAdmin.model.js';
+import * as StudentModels from '../../DB/models/student/index.js';
 
 const createTable = async (query, tableName) => {
   try {
@@ -45,11 +45,11 @@ export const createdTables = async (req, res) => {
     const allSucceeded = results.every((result) => result.success);
     const hasFailures = results.some((result) => !result.success);
 
-    return res.status(hasFailures ? 500 : 201).json({
+    return res.status(hasFailures ? 409 : 201).json({
       success: allSucceeded,
       message: allSucceeded
         ? 'All tables processed successfully'
-        : 'Some tables could not be created',
+        : `Some tables could not be created, ${results.map((result) => result.message)}`,
       details: results,
     });
   } catch (error) {
