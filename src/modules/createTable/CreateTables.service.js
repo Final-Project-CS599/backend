@@ -29,6 +29,7 @@ export const createdTables = async (req, res) => {
   const tables = [
     { query: createTableSuperAdmin, name: 'Super Admin' },
     { query: createTableSuperAdminsPhones, name: 'Super Admin Phone' },
+    { query: StudentModels.createDepartmentTable, name: 'Department Table' },
     { query: createdTablHelpdesk, name: 'Helpdesk' },
     { query: StudentModels.createStudentTableQuery, name: 'Student' },
     { query: StudentModels.createStudentPhoneTableQuery, name: 'Student Phone' },
@@ -37,6 +38,7 @@ export const createdTables = async (req, res) => {
     { query: StudentModels.TakesAssignmentTable, name: 'Takes Assignment Table' },
     { query: StudentModels.PaymentTable, name: 'Payment Table' },
     { query: StudentModels.ExtraPaymentTable, name: 'Extra Payment Table' },
+    { query: StudentModels.createEnrollmentTable, name: 'Enrollment Table' }
   ];
 
   try {
