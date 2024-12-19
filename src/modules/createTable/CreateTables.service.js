@@ -47,7 +47,7 @@ export const createdTables = async (req, res) => {
     const allSucceeded = results.every((result) => result.success);
     const hasFailures = results.some((result) => !result.success);
 
-    return res.status(hasFailures ? 409 : 201).json({
+    return res.status(200).json({
       success: allSucceeded,
       message: allSucceeded
         ? 'All tables processed successfully'
