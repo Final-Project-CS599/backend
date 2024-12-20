@@ -6,6 +6,7 @@ import {
 } from '../../DB/models/admin/TableAdmin.model.js';
 import * as StudentModels from '../../DB/models/student/index.js';
 import * as InstructorModels from'../../DB/models/instructors/index.js'
+import { query } from 'express';
 const createTable = async (query, tableName) => {
   try {
     const [result] = await dbConfig.promise().execute(query);
@@ -30,6 +31,7 @@ export const createdTables = async (req, res) => {
     { query: createTableSuperAdmin, name: 'Super Admin' },
     { query: createTableSuperAdminsPhones, name: 'Super Admin Phone' },
     { query: createdTablHelpdesk, name: 'Helpdesk' },
+    { query: StudentModels.createDepartmentTable, name: 'Department' },
     { query: StudentModels.createStudentTableQuery, name: 'Student' },
     { query: StudentModels.createStudentPhoneTableQuery, name: 'Student Phone' },
     { query: StudentModels.createSendTableQuery, name: 'Send' },
@@ -37,6 +39,7 @@ export const createdTables = async (req, res) => {
     { query: StudentModels.TakesAssignmentTable, name: 'Takes Assignment Table' },
     { query: StudentModels.PaymentTable, name: 'Payment Table' },
     { query: StudentModels.ExtraPaymentTable, name: 'Extra Payment Table' },
+    { query: StudentModels.createEnrollmentTable, name: 'Enrollment' },
     {query:InstructorModels.instructorTable,name:'Instructor'},
     {query:InstructorModels.instructorPhoneTable,name:'Instructor Phone'},
     {query:InstructorModels.createContentTable,name:'Content'},
