@@ -6,8 +6,8 @@ export const createContentTable =
     c_uploaded_file VARCHAR(500) NOT NULL, 
     c_title VARCHAR(200) NOT NULL, 
     c_instructor_id INT,
-    FOREIGN KEY (c_instructor_id) REFERENCE Instructors(i_id) ON DELETE SET NULL,
+    FOREIGN KEY (c_instructor_id) REFERENCES Instructors(i_id) ON DELETE SET NULL,
     c_course_id INT,
-    FOREIGN KEY (c_course_id) REFERENCE courses(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (c_course_id) REFERENCES courses(id) ON DELETE CASCADE ON UPDATE CASCADE
   
   );`
