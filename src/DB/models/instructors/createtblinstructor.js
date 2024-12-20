@@ -8,7 +8,7 @@ export const instructorTable =  `CREATE TABLE IF NOT EXISTS Instructors (
     i_departmentId INT,
     FOREIGN KEY (i_departmentId) REFERENCES department(d_id) ON DELETE CASCADE ON UPDATE CASCADE,
     i_adminId INT,
-    FOREIGN KEY (i_adminId) REFERENCE ADMINS(a_id) ON DELETE SET NULL,
+    FOREIGN KEY (i_adminId) REFERENCES admin(a_id) ON DELETE SET NULL,
     i_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );`
