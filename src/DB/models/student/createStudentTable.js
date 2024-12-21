@@ -18,10 +18,10 @@ export const createStudentTableQuery = `CREATE TABLE IF NOT EXISTS student (
 
 export const createStudentPhoneTableQuery = `
 CREATE TABLE IF NOT EXISTS student_phone (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL,
-    S_phone INT NOT NULL,
-    FOREIGN KEY (student_id) REFERENCES student(s_id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    sp_id INT AUTO_INCREMENT PRIMARY KEY,
+    sp_student_id INT NOT NULL,
+    sp_phone INT NOT NULL,
+    FOREIGN KEY (sp_student_id) REFERENCES student(s_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    sp_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sp_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )`;
