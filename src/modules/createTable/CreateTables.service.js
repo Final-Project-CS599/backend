@@ -5,7 +5,7 @@ import {
   createdTablHelpdesk,
 } from '../../DB/models/admin/TableAdmin.model.js';
 import * as StudentModels from '../../DB/models/student/index.js';
-import * as InstructorModels from'../../DB/models/instructors/index.js'
+import * as InstructorModels from '../../DB/models/instructors/index.js'
 import { query } from 'express';
 const createTable = async (query, tableName) => {
   try {
@@ -40,12 +40,12 @@ export const createdTables = async (req, res) => {
     { query: StudentModels.PaymentTable, name: 'Payment Table' },
     { query: StudentModels.ExtraPaymentTable, name: 'Extra Payment Table' },
     { query: StudentModels.createEnrollmentTable, name: 'Enrollment' },
-    {query:InstructorModels.instructorTable,name:'Instructor'},
-    {query:InstructorModels.instructorPhoneTable,name:'Instructor Phone'},
-    {query:InstructorModels.createContentTable,name:'Content'},
-    {query:InstructorModels.createExamTable,name:'Exam'},
-    {query:InstructorModels.createMedia,name:'Media'},
-    {query:InstructorModels.createReceiveTable,name:'Receive'},
+    { query: InstructorModels.instructorTable, name: 'Instructor' },
+    { query: InstructorModels.instructorPhoneTable, name: 'Instructor Phone' },
+    { query: InstructorModels.createContentTable, name: 'Content' },
+    { query: InstructorModels.createExamTable, name: 'Exam' },
+    { query: InstructorModels.createMedia, name: 'Media' },
+    { query: InstructorModels.createReceiveTable, name: 'Receive' },
 
 
 
@@ -62,7 +62,7 @@ export const createdTables = async (req, res) => {
       success: allSucceeded,
       message: allSucceeded
         ? 'All tables processed successfully'
-        : `Some tables could not be created, ${results.map((result) => result.message)}`,
+        : `Some tables could not be created, ${results.map((result) => result.message + " ")}`,
       details: results,
     });
   } catch (error) {
