@@ -1,9 +1,5 @@
-import { dbConfig } from '../../DB/connection.js';
-import {
-  createTableSuperAdmin,
-  createTableSuperAdminsPhones,
-  createdTablHelpdesk,
-} from '../../DB/models/admin/TableAdmin.model.js';
+import  dbConfig from '../../DB/connection.js';
+import * as AdminModels from '../../DB/models/admin/index.js';
 import * as StudentModels from '../../DB/models/student/index.js';
 import * as InstructorModels from '../../DB/models/instructors/index.js'
 import { query } from 'express';
@@ -22,10 +18,10 @@ const createTable = async (query, tableName) => {
 
 export const createdTables = async (req, res) => {
   const tables = [
-    { query: createTableSuperAdmin, name: 'Super Admin' },
-    { query: createTableSuperAdminsPhones, name: 'Super Admin Phone' },
-    { query: createdTablHelpdesk, name: 'Helpdesk' },
-    { query: StudentModels.createDepartmentTable, name: 'Department' },
+    { query: AdminModels.createTableSuperAdmin, name: 'Super Admin' },
+    { query: AdminModels.createTableSuperAdminsPhones, name: 'Super Admin Phone' },
+    { query: AdminModels.createdTableHelpdesk, name: 'Helpdesk' },
+    { query: AdminModels.createDepartmentTable, name: 'Department' },
     { query: StudentModels.createStudentTableQuery, name: 'Student' },
     { query: StudentModels.createStudentPhoneTableQuery, name: 'Student Phone' },
     { query: StudentModels.createSendTableQuery, name: 'Send' },
