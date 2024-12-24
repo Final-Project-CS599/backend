@@ -2,7 +2,7 @@ import { dbConfig } from '../../DB/connection.js';
 import {
   createTableSuperAdmin,
   createTableSuperAdminsPhones,
-  createdTablHelpdesk,
+  createdTableHelpdesk,
 } from '../../DB/models/admin/TableAdmin.model.js';
 import * as StudentModels from '../../DB/models/student/index.js';
 import * as InstructorModels from'../../DB/models/instructors/index.js'
@@ -30,7 +30,7 @@ export const createdTables = async (req, res) => {
   const tables = [
     { query: createTableSuperAdmin, name: 'Super Admin' },
     { query: createTableSuperAdminsPhones, name: 'Super Admin Phone' },
-    { query: createdTablHelpdesk, name: 'Helpdesk' },
+    { query: createdTableHelpdesk, name: 'Helpdesk' },
     { query: StudentModels.createDepartmentTable, name: 'Department' },
     { query: StudentModels.createStudentTableQuery, name: 'Student' },
     { query: StudentModels.createStudentPhoneTableQuery, name: 'Student Phone' },
@@ -58,7 +58,7 @@ export const createdTables = async (req, res) => {
     const allSucceeded = results.every((result) => result.success);
     const hasFailures = results.some((result) => !result.success);
 
-    return res.status(hasFailures ? 409 : 201).json({
+    return res.status(200).json({
       success: allSucceeded,
       message: allSucceeded
         ? 'All tables processed successfully'

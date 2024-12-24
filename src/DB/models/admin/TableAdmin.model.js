@@ -17,7 +17,7 @@ export const createTableSuperAdminsPhones = `CREATE TABLE IF NOT EXISTS superAdm
     FOREIGN KEY (sAdmin_nationalID) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE CASCADE ON UPDATE CASCADE
 );`;
 
-export const createdTablHelpdesk = `CREATE TABLE IF NOT EXISTS helpdesk(
+export const createdTableHelpdesk = `CREATE TABLE IF NOT EXISTS helpdesk(
     hd_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL ,
     hd_title VARCHAR(100) NOT NULL ,
     hd_description VARCHAR(255) NOT NULL ,
