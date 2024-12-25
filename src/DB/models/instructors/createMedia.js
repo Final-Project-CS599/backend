@@ -4,6 +4,4 @@ export const createMedia =
     m_content_id INT ,
     FOREIGN KEY (m_content_id) REFERENCES content(c_id) ON DELETE CASCADE ON UPDATE CASCADE
 
-      
-
     ); `

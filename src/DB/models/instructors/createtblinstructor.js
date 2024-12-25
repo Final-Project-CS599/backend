@@ -13,11 +13,13 @@ export const instructorTable =  `CREATE TABLE IF NOT EXISTS Instructors (
     i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );`
 
-export const instructorPhoneTable = `
-        CREATE TABLE IF NOT EXISTS InstructorsPhone (
-            i_instructorPhone TEXT,
-            i_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            i_instructorId INT,
-            FOREIGN KEY (i_instructorId) REFERENCES Instructors(i_id) ON DELETE CASCADE ON UPDATE CASCADE
-            );`
+export const instructorPhoneTable = ` CREATE TABLE IF NOT EXISTS InstructorsPhone (
+    i_instructorPhone TEXT,
+    i_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    i_instructorId INT,
+    FOREIGN KEY (i_instructorId) REFERENCES Instructors(i_id) ON DELETE CASCADE ON UPDATE CASCADE
+);` ;
+
+
+

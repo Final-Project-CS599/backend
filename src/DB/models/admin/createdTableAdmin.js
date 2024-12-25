@@ -6,7 +6,7 @@ export const createTableSuperAdmin = `CREATE TABLE IF NOT EXISTS superAdmin(
     sAdmin_password VARCHAR(255) NOT NULL ,
     sAdmin_role ENUM('sAdmin' , 'admin') NOT NULL DEFAULT 'sAdmin',
     sAdmin_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    sAdmin_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    sAdmin_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )`;
 
 export const createTableSuperAdminsPhones = `CREATE TABLE IF NOT EXISTS superAdminsPhone (
