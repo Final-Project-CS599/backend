@@ -1,11 +1,15 @@
+import path from 'path';
 import mysql2 from 'mysql2';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+
+dotenv.config({path:(path.resolve('.env.dev'))})
+
 
 const dbConfig = mysql2.createConnection({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'projectbackend',
+  host: process.env.DB_HOST ,
+  user: process.env.DB_USER ,
+  password: process.env.DB_PASSWORD ,
+  database: process.env.DB_NAME ,
 });
 
 export default dbConfig;
