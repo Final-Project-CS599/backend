@@ -1,13 +1,12 @@
-import { dbConfig } from '../DB/connection.js';
+import dbConfig from '../DB/connection.js';
 import dbRoute from './createTable/CreateTable.controller.js';
+
 
 const bootstrap = (app, express) => {
   app.use(express.json());
 
   app.get('/', (req, res, next) => {
-    return res
-      .status(200)
-      .json({ message: 'Welcome in node.js project powered by express and ES6' });
+    return res.status(200).json({ message: 'Welcome in node.js project powered by express and ES6' });
   });
 
   app.use('/DB', dbRoute);
@@ -23,6 +22,11 @@ const bootstrap = (app, express) => {
       console.log('db connected');
     }
   });
+  
 };
 
 export default bootstrap;
+
+
+
+
