@@ -12,6 +12,6 @@ export const createCoursesTableQuery = `CREATE TABLE IF NOT EXISTS courses (
     c_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 )`;
 
-// FOREIGN KEY (i_id) REFERENCES instructors(id) ON DELETE SET NULL ON UPDATE CASCADE
-// FOREIGN KEY (s_student_id) REFERENCES students(id) ON DELETE SET NULL ON UPDATE CASCADE
-// FOREIGN KEY (a_admin_nid) REFERENCES admins(nid) ON DELETE SET NULL ON UPDATE CASCADE
+// FOREIGN KEY (c_instructor_id) REFERENCES instructors(i_id)  ON UPDATE CASCADE
+// FOREIGN KEY (c_student_id) REFERENCES students(s_id) ON UPDATE CASCADE
+// FOREIGN KEY (c_admin_nid) REFERENCES admins(sAdmin_nationalID) ON UPDATE CASCADE
