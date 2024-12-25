@@ -28,27 +28,25 @@ export const createdTables = async (req, res) => {
     { query: AdminModels.createTableSuperAdmin, name: 'Super Admin' },
     { query: AdminModels.createTableSuperAdminsPhones, name: 'Super Admin Phone' },
     { query: AdminModels.createDepartmentTable, name: 'Department' },
-    { query: InstructorModels.instructorTable, name: 'Instructor' },
-    { query: InstructorModels.instructorPhoneTable, name: 'Instructor Phone' },
-    { query: StudentModels.createStudentTableQuery, name: 'Student' },
-    { query: StudentModels.createStudentPhoneTableQuery, name: 'Student Phone' },
+    { query: AdminModels.createdTableHelpDesk, name: 'HelpDesk' },
     { query: AdminModels.createCoursesTableQuery, name: 'Courses' },
     { query: AdminModels.createAcademicTableQuery, name: 'Academic Courses' },
     { query: AdminModels.createExtraTableQuery, name: 'Extra Courses' },
-    { query: InstructorModels.createContentTable, name: 'Content' },
+    { query: StudentModels.createStudentTableQuery, name: 'Student' },
+    { query: StudentModels.createStudentPhoneTableQuery, name: 'Student Phone' },
+    { query: StudentModels.createSendTableQuery, name: 'Send' },
     { query: StudentModels.AssignmentTable, name: 'Assignment Table' },
     { query: StudentModels.TakesAssignmentTable, name: 'Takes Assignment Table' },
     { query: StudentModels.PaymentTable, name: 'Payment Table' },
     { query: StudentModels.ExtraPaymentTable, name: 'Extra Payment Table' },
     { query: StudentModels.createEnrollmentTable, name: 'Enrollment' },
+    { query: InstructorModels.instructorTable, name: 'Instructor' },
+    { query: InstructorModels.instructorPhoneTable, name: 'Instructor Phone' },
+    { query: InstructorModels.createContentTable, name: 'Content' },
     { query: InstructorModels.createExamTable, name: 'Exam' },
-    { query: InstructorModels.createTakesExamTable, name: 'Takes Exam'},
+    { query: InstructorModels.createTakesExamTable, name: 'Takes Exam' },
     { query: InstructorModels.createMedia, name: 'Media' },
     { query: InstructorModels.createReceiveTable, name: 'Receive' },
-    { query: StudentModels.createSendTableQuery, name: 'Send' },
-    { query: AdminModels.createdTableHelpDesk, name: 'HelpDesk' }
-
-
   ];
 
   try {
