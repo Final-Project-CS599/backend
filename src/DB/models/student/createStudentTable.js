@@ -10,7 +10,7 @@ export const createStudentTableQuery = `CREATE TABLE IF NOT EXISTS student (
     s_department_id INT,
     s_admin_id VARCHAR(14),
     s_national_id VARCHAR(14) NOT NULL UNIQUE,
-    FOREIGN KEY(s_admin_id) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(s_admin_id) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (s_department_id) REFERENCES department (d_id) ON DELETE SET NULL ON UPDATE CASCADE,
     s_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     s_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

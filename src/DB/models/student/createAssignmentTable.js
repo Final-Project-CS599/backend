@@ -8,6 +8,7 @@ export const AssignmentTable = `CREATE TABLE IF NOT EXISTS assignment(
  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   )`;
 
+
 export const TakesAssignmentTable = `CREATE TABLE IF NOT EXISTS takes_assignment(
   id INT AUTO_INCREMENT PRIMARY KEY,
   assignment_grade FLOAT NOT NULL,
@@ -17,3 +18,4 @@ export const TakesAssignmentTable = `CREATE TABLE IF NOT EXISTS takes_assignment
   FOREIGN KEY (student_id) REFERENCES student(s_id) ON DELETE CASCADE ON UPDATE CASCADE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)`;
+

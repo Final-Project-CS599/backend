@@ -4,7 +4,6 @@ export const instructorTable =  `CREATE TABLE IF NOT EXISTS Instructors (
     i_lastName VARCHAR(250) NOT NULL,
     i_email VARCHAR(255) UNIQUE,
     i_password VARCHAR(200),
-    i_rePassword BOOLEAN,
     i_departmentId INT,
     FOREIGN KEY (i_departmentId) REFERENCES department(d_id) ON DELETE CASCADE ON UPDATE CASCADE,
     i_adminId VARCHAR(14),
@@ -12,6 +11,8 @@ export const instructorTable =  `CREATE TABLE IF NOT EXISTS Instructors (
     i_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );`
+
+//picture
 
 export const instructorPhoneTable = ` CREATE TABLE IF NOT EXISTS InstructorsPhone (
     i_instructorPhone TEXT,

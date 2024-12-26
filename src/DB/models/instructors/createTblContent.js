@@ -8,4 +8,4 @@ export const createContentTable = `CREATE TABLE IF NOT EXISTS content (
     c_courseId INT , FOREIGN KEY (c_courseId) REFERENCES courses(c_id) ON DELETE SET NULL ON UPDATE CASCADE
   );`
 
-  
+   //content type
