@@ -11,5 +11,5 @@ export const createCoursesTableQuery = `CREATE TABLE IF NOT EXISTS courses (
     c_adminNid VARCHAR(14) , FOREIGN KEY (c_adminNid) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE SET NULL ON UPDATE CASCADE,
     c_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     c_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    
 )`;
-
