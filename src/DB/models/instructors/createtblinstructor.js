@@ -10,17 +10,12 @@ export const instructorTable =  `CREATE TABLE IF NOT EXISTS Instructors (
     FOREIGN KEY (i_adminId) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE SET NULL,
     i_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);`
+);`;
 
-//picture
 
 export const instructorPhoneTable = ` CREATE TABLE IF NOT EXISTS InstructorsPhone (
-    i_instructorPhone TEXT,
-    i_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    i_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    i_instructorId INT,
+    p_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    p_instructorPhone VARCHAR(255) NOT NULL,
+    i_instructorId INT NOT NULL,
     FOREIGN KEY (i_instructorId) REFERENCES Instructors(i_id) ON DELETE CASCADE ON UPDATE CASCADE
 );` ;
-
-
-
