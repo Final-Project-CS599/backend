@@ -78,6 +78,24 @@ const insertDefaultAdmin = errorAsyncHandler(
                         })
 
                         // try {
+                        //     const encryptedPhones = await Promise.all(
+                        //         morePhones.map((phone) => {
+                        //             const encryptedPhone = generateEncryption({ plainText: phone });
+                        //             return new Promise((resolve, reject) => {
+                        //                 dbConfig.execute(
+                        //                     `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
+                        //                     [encryptedPhone, nationalID],
+                        //                     (err, data) => {
+                        //                         if (err || data.affectedRows === 0) {
+                        //                             return reject(err || new Error("Failed to insert phone"));
+                        //                         }
+                        //                         resolve(encryptedPhone);
+                        //                     }
+                        //                 );
+                        //             });
+                        //         })
+                        //     );
+                        //     emailEvent.emit("sendEmail" , {email: email , password:'AdminPass123'})
 
                         //     return successResponse({
                         //             res, message: "Default admin and phone added successfully", status: 201,
