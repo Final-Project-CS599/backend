@@ -1,6 +1,7 @@
 import joi from "joi" ;
 
 
+
 export const  generalFieldsValidation = {
     nationalID : joi.string().pattern(new RegExp(/^[0-9]{14,}$/)),
     userName :joi.string().required().min(2).max(100),
@@ -9,13 +10,16 @@ export const  generalFieldsValidation = {
         'string.empty' : "email cannot be empty",
         'any.required' : "email is required"
     }),
-    password : joi.string().pattern(new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z]).{8,}$/)),
+    password : joi.string().pattern(new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[^a-zA-Z]).{8,}$/)),
     confirmPassword : joi.string(),
     phone: joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/)),
     phoneArray: joi.array().items(joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/))),
-    acceptLanguage: joi.string().valid('en' , 'ar').default('en'),
+    acceptLanguage: joi.string().valid('en' , 'ar' ,'en-US' ,"en-US,en;q=0.9").default('en'),
     DOB: joi.date().less("now"),
     gander: joi.string().valid('Male' , 'Female').default('Female'),
+    code: joi.string().pattern(new RegExp(/^[A-Za-z0-9\-+_$!%*?&]{6}$/)).messages({
+        'string.pattern.base': 'Code must be exactly 6 digits (send Code Check to email)',
+    }),
 };
 
 // passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -23,10 +27,11 @@ export const  generalFieldsValidation = {
 export const validation = (scheme) => {
     return (req , res , next) => {
         
-        const inputDate = {...req.body , ...req.query }; 
-        if(req.headers['accept-language']){
-            inputDate['accept-language'] = req.headers['accept-language'] 
-        }
+        const inputDate = {...req.body , ...req.query };
+        
+        // if(req.headers['accept-language']){
+        //     inputDate['accept-language'] = req.headers['accept-language'] 
+        // }
 
         const validationError = scheme.validate( inputDate , {abortEarly: false});
         if(validationError.error){

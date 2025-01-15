@@ -1,13 +1,15 @@
+import e from "express";
 import dbConfig from "../../../../DB/connection.js";
 import { errorAsyncHandler } from "../../../../utils/error/error.handling.js";
 import { emailEvent } from "../../../../utils/events/sendEmailEvent.js";
 import { generateEncryption } from "../../../../utils/hash/encryption.js";
 import { generateHash } from "../../../../utils/hash/hash.js";
 import { successResponse } from "../../../../utils/response/success.response.js";
+import { verifyToken } from "../../../../utils/token/token.js";
 
 
 
-const addAdmin = errorAsyncHandler(
+export const addAdmin = errorAsyncHandler(
     async (req, res, next) => {
         const {adminNationalID ,firstName,lastName ,sAdminNationalID, email, password , confirmPassword, adminRole, phones } = req.body;
     
@@ -48,26 +50,23 @@ const addAdmin = errorAsyncHandler(
                                     return res.status(500).json({ message: 'Failed to get data , Fail to execute query', error: err });
                                 }
 
-                                try {
-                                    const encryptedPhones = await Promise.all(
-                                        morePhones.map((phone) => {
-                                            const encryptedPhone = generateEncryption({ plainText: phone });
-                                            return new Promise((resolve, reject) => {
-                                                dbConfig.execute(
-                                                    `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
-                                                    [encryptedPhone, adminNationalID],
-                                                    (err, data) => {
-                                                        if (err || data.affectedRows === 0) {
-                                                            return reject(err || new Error("Failed to insert phone"));
-                                                        }
-                                                        resolve(encryptedPhone);
-                                                    }
-                                                );
-                                            });
-                                        })
-                                    );
-                                    emailEvent.emit("sendEmail" , {email , password} );
+                                const phoneQueries = morePhones.map((phone) => {
+                                    return new Promise((resolve, reject) => {
+                                        dbConfig.execute(
+                                                `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
+                                            [phone , adminNationalID] , 
+                                            (err ,data) => {
+                                                if(err || !data.affectedRows){
+                                                    reject(err)
+                                                }
+                                                resolve(phone);
+                                            }
+                                        )
+                                    })
+                                })
+                                emailEvent.emit("sendEmail" , {email , password} );
         
+                                Promise.all(phoneQueries).then((phones)=>{
                                     return successResponse({
                                         res , message:"Admin added successfully" , status: 201 ,
                                         data: {
@@ -76,13 +75,27 @@ const addAdmin = errorAsyncHandler(
                                                 fullName: `${firstName} ${lastName} `,
                                                 email,
                                             },
-                                            phone: encryptedPhones
+                                            phone: phones
                                         }
                                     })
-                                } catch (phoneError) {
-                                    console.error("Phone insert error:", phoneError);
-                                    return res.status(500).json({ message: "Failed to insert phone numbers", error: phoneError });
-                                }
+                                })
+
+                                // try {
+                                //     return successResponse({
+                                //         res , message:"Admin added successfully" , status: 201 ,
+                                //         data: {
+                                //             admin:{
+                                //                 nationalID:adminNationalID ,
+                                //                 fullName: `${firstName} ${lastName} `,
+                                //                 email,
+                                //             },
+                                //             phone: encryptedPhones
+                                //         }
+                                //     })
+                                // } catch (phoneError) {
+                                //     console.error("Phone insert error:", phoneError);
+                                //     return res.status(500).json({ message: "Failed to insert phone numbers", error: phoneError });
+                                // }
                             }
                         )
                     }
@@ -92,4 +105,3 @@ const addAdmin = errorAsyncHandler(
     }
 );
 
-export default addAdmin;

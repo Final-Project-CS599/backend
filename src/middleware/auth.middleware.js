@@ -1,7 +1,7 @@
 
 
 export const roleTypes = {
-    User : "User" ,
+    User : "user" ,
     Admin : {admin: "admin" , sAdmin: "sAdmin"},
 };
 

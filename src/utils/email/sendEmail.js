@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-
+// send email
 
 export const generateEmailTemplate = ( emailLink , email ,password ) =>{
     return ` <!DOCTYPE html>

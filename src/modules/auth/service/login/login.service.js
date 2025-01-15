@@ -5,8 +5,12 @@ import { compareHash } from '../../../../utils/hash/hash.js';
 import { generateToken } from '../../../../utils/token/token.js';
 import { roleTypes } from '../../../../middleware/auth.middleware.js';
 
+/////////////////////////////////////
 
-const loginUtility = async (tableName, emailColumn, passwordColumn, idColumn, roleColumn, updatedAtColumn, email, password, res, next) => {
+
+const loginUtility = async (
+            tableName, emailColumn, passwordColumn, idColumn, roleColumn, updatedAtColumn, email, password, confirmEmail , res, next
+    ) => {
     return new Promise((resolve, reject) => {
         dbConfig.execute(
             `SELECT * FROM ${tableName} WHERE ${emailColumn} = ?`,
@@ -20,6 +24,14 @@ const loginUtility = async (tableName, emailColumn, passwordColumn, idColumn, ro
                 }
 
                 const user = userData[0];
+
+                console.log("confirmEmail:", confirmEmail);
+                console.log("user confirmEmail:", user[confirmEmail]);
+
+                // if (user[confirmEmail] !== 1){
+                //     return reject(JSON.stringify({status: 400, message: "In_valid account user not confirmEmail" }));
+                // }
+                
                 const match = compareHash({ plainText: password, hashValue: user[passwordColumn] });
                 if (!match) {
                     // return reject({ status: 401, message: "Invalid password" });
@@ -113,7 +125,7 @@ const login = errorAsyncHandler(
 
 export default login;
 
-
+/////////////////////////////////////
 
 // await dbConfig.execute(` UPDATE superAdmin SET sAdmin_lastLoginTime = CURRENT_TIMESTAMP WHERE sAdmin_email=? `, 
 //     [email]

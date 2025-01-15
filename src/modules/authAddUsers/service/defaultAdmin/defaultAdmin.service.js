@@ -46,42 +46,55 @@ const insertDefaultAdmin = errorAsyncHandler(
                             }
                         );
 
-                        try {
-                            const encryptedPhones = await Promise.all(
-                                morePhones.map((phone) => {
-                                    const encryptedPhone = generateEncryption({ plainText: phone });
-                                    return new Promise((resolve, reject) => {
-                                        dbConfig.execute(
-                                            `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
-                                            [encryptedPhone, nationalID],
-                                            (err, data) => {
-                                                if (err || data.affectedRows === 0) {
-                                                    return reject(err || new Error("Failed to insert phone"));
-                                                }
-                                                resolve(encryptedPhone);
-                                            }
-                                        );
-                                    });
-                                })
-                            );
-                            emailEvent.emit("sendEmail" , {email: email , password:'AdminPass123'})
+                        const phoneQueries = morePhones.map((phone) => {
+                            return new Promise((resolve, reject) => {
+                                dbConfig.execute(
+                                        `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
+                                    [phone , nationalID] , 
+                                    (err ,data) => {
+                                        if(err || !data.affectedRows){
+                                            reject(err)
+                                        }
+                                        resolve(phone);
+                                    }
+                                )
+                            })
+                        })
+                        emailEvent.emit("sendEmail" , {email: email , password:'AdminPass123'})
 
+                        Promise.all(phoneQueries).then((phones)=>{
                             return successResponse({
-                                    res, message: "Default admin and phone added successfully", status: 201,
-                                    data: {
-                                        SuperAdmin: {
-                                        id: nationalID,
-                                        firstName: `${firstName} ${lastName}`,
-                                        email,
-                                        role: "sAdmin",
-                                        },
-                                        phone: encryptedPhones,
+                                res, message: "Default admin and phone added successfully", status: 201,
+                                data: {
+                                    SuperAdmin: {
+                                    id: nationalID,
+                                    firstName: `${firstName} ${lastName}`,
+                                    email,
+                                    role: "sAdmin",
                                     },
+                                    phone: phones,
+                                },
                             });
-                        } catch (phoneError) {
-                            console.error("Phone insert error:", phoneError);
-                            return res.status(500).json({ message: "Failed to insert phone numbers", error: phoneError });
-                        }
+                        })
+
+                        // try {
+
+                        //     return successResponse({
+                        //             res, message: "Default admin and phone added successfully", status: 201,
+                        //             data: {
+                        //                 SuperAdmin: {
+                        //                 id: nationalID,
+                        //                 firstName: `${firstName} ${lastName}`,
+                        //                 email,
+                        //                 role: "sAdmin",
+                        //                 },
+                        //                 phone: encryptedPhones,
+                        //             },
+                        //     });
+                        // } catch (phoneError) {
+                        //     console.error("Phone insert error:", phoneError);
+                        //     return res.status(500).json({ message: "Failed to insert phone numbers", error: phoneError });
+                        // }
                     }
                 );
             }
