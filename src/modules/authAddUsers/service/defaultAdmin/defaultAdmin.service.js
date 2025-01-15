@@ -6,6 +6,7 @@ import dbConfig from './../../../../DB/connection.js';
 import { emailEvent } from "../../../../utils/events/sendEmailEvent.js";
 
 
+////////////////////////////////////////
 
 const insertDefaultAdmin = errorAsyncHandler( 
     async (req, res, next) => {
@@ -121,3 +122,5 @@ const insertDefaultAdmin = errorAsyncHandler(
 );
 
 export default insertDefaultAdmin;
+
+////////////////////////////////////////

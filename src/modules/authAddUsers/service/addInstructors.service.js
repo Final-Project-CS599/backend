@@ -6,6 +6,7 @@ import { generateHash } from "../../../utils/hash/hash.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 
 
+////////////////////////////////////////
 
 const addInstructor = errorAsyncHandler(
     async (req, res ,next) => {
@@ -113,6 +114,25 @@ const addInstructor = errorAsyncHandler(
                                     })
 
                                     // try {
+                                    //     const instructorId = data.insertId;
+                                    //     const encryptedPhones = await Promise.all(
+                                    //         morePhones.map((phone) => {
+                                    //             const encryptedPhone = generateEncryption({ plainText: phone });
+                                    //             return new Promise((resolve, reject) => {
+                                    //                 dbConfig.execute(
+                                    //                     `INSERT INTO InstructorsPhone(p_instructorPhone, i_instructorId) VALUES (?, ?)`,
+                                    //                     [encryptedPhone, instructorId],
+                                    //                     (err, data) => {
+                                    //                         if (err || data.affectedRows === 0) {
+                                    //                             return reject(err || new Error("Failed to insert phone"));
+                                    //                         }
+                                    //                         resolve(encryptedPhone);
+                                    //                     }
+                                    //                 );
+                                    //             });
+                                    //         })
+                                    //     );
+                                    // emailEvent.emit("sendEmail" , {email , password});
                                     // return successResponse({
                                     //     res , message:"Instructor and phone added successfully" , status: 201 ,
                                     //     data: {
@@ -124,6 +144,10 @@ const addInstructor = errorAsyncHandler(
                                     //         phone: encryptedPhones
                                     //     }
                                     // })
+                                    // } catch (phoneError) {
+                                    //     console.error("Phone insert error:", phoneError);
+                                    //     return next(new Error("Failed to insert phone numbers" , {cause: 500}))
+                                    //     // return res.status(500).json({ message: "Failed to insert phone numbers", error: phoneError });
                                     // }
                                 }
                             );
@@ -134,7 +158,7 @@ const addInstructor = errorAsyncHandler(
         )
     }
 );
-
+////////////////////////////////////////
 
 export default addInstructor;
 

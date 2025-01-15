@@ -8,6 +8,7 @@ import { successResponse } from "../../../../utils/response/success.response.js"
 import { verifyToken } from "../../../../utils/token/token.js";
 
 
+////////////////////////////////////////
 
 export const addAdmin = errorAsyncHandler(
     async (req, res, next) => {
@@ -81,6 +82,25 @@ export const addAdmin = errorAsyncHandler(
                                 })
 
                                 // try {
+                                //     const encryptedPhones = await Promise.all(
+                                //         morePhones.map((phone) => {
+                                //             const encryptedPhone = generateEncryption({ plainText: phone });
+                                //             return new Promise((resolve, reject) => {
+                                //                 dbConfig.execute(
+                                //                     `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
+                                //                     [encryptedPhone, adminNationalID],
+                                //                     (err, data) => {
+                                //                         if (err || data.affectedRows === 0) {
+                                //                             return reject(err || new Error("Failed to insert phone"));
+                                //                         }
+                                //                         resolve(encryptedPhone);
+                                //                     }
+                                //                 );
+                                //             });
+                                //         })
+                                //     );
+                                //     emailEvent.emit("sendEmail" , {email , password} );
+        
                                 //     return successResponse({
                                 //         res , message:"Admin added successfully" , status: 201 ,
                                 //         data: {
@@ -105,3 +125,11 @@ export const addAdmin = errorAsyncHandler(
     }
 );
 
+
+export const confirmEmail = errorAsyncHandler(
+    async (req , res , next) => {
+
+    }
+);
+
+////////////////////////////////////////
