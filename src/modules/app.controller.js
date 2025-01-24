@@ -4,7 +4,8 @@ import dbRoute from './createTable/CreateTable.controller.js';
 import authAddUsersController from '../modules/authAddUsers/addUsersAuth.controller.js';
 import authController from '../modules/auth/auth.controller.js';
 import userRoutes from '../modules/student/users/routes.js';
-
+import uploadCourseMaterial  from './instructor/courses/upload.controller.js';
+import { viewMaterialCourse } from './instructor/courses/viewcourseMat/view.services.js';
 const baseUrl = '/api/v1';
 
 const bootstrap = (app, express) => {
@@ -38,7 +39,8 @@ const bootstrap = (app, express) => {
   });
 
   app.use(globalErrorHandling);
-
+  app.use('/courseMaterial',uploadCourseMaterial);
+  app.use('/courseMaterial',viewMaterialCourse)
   dbConfig.connect((err) => {
     if (err) {
       console.log('error on db connection ', err);
@@ -47,5 +49,6 @@ const bootstrap = (app, express) => {
     }
   });
 };
+
 
 export default bootstrap;
