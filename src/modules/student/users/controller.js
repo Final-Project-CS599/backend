@@ -46,3 +46,18 @@ export const getAllAdmins = asyncHandler(async (req, res, next) => {
     });
   });
 });
+
+export const getAllDepartments = asyncHandler(async (req, res, next) => {
+  dbConfig.execute(`SELECT * FROM department`, [], (err, results) => {
+    if (err) {
+      return next(new Error('Failed to fetch departments', { cause: 500 }, err));
+    }
+
+    return successResponse({
+      res,
+      message: 'Departments fetched successfully',
+      status: 200,
+      data: results,
+    });
+  });
+});

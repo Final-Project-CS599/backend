@@ -4,6 +4,8 @@ import dbRoute from './createTable/CreateTable.controller.js';
 import authAddUsersController from '../modules/authAddUsers/addUsersAuth.controller.js';
 import authController from '../modules/auth/auth.controller.js';
 import userRoutes from '../modules/student/users/routes.js';
+import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
+import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 
 const baseUrl = '/api/v1';
 
@@ -32,6 +34,8 @@ const bootstrap = (app, express) => {
   app.use('/auth', authController);
 
   app.use(`${baseUrl}/users`, userRoutes);
+  app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
+  app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
 
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
