@@ -1,55 +1,37 @@
-import dbConfig from "../../../DB/connection.js";
-import { errorAsyncHandler } from "../../../utils/error/error.handling.js";
-import { emailEvent } from "../../../utils/events/sendEmailEvent.js";
-import { generateEncryption } from "../../../utils/hash/encryption.js";
-import { generateHash } from "../../../utils/hash/hash.js";
-import { successResponse } from "../../../utils/response/success.response.js";
+import dbConfig from "../../../../DB/connection.js";
+import { errorAsyncHandler } from "../../../../utils/response/error.response.js";
+import { successResponse } from "../../../../utils/response/success.response.js";
+import { emailEvent } from "../../../../utils/events/sendEmailEvent.js";
+import { generateEncryption } from "../../../../utils/hash/encryption.js";
+import { generateHash } from "../../../../utils/hash/hash.js";
 
 
-////////////////////////////////////////
-
-
-// const getDepartmentIdByName = async (departmentName) => {
-//     try {
-//         dbConfig.execute(
-//             `SELECT d_id FROM department WHERE d_dept_name = ?`,
-//             [departmentName],
-//             (err , data) => {
-//                 if (err) {
-//                     throw err;
-//                 }
-//                 if (data.length > 0) {
-//                     return data[0].d_id;
-//                 }
-//                 return null;
-//             }
-//         );
-//     } catch (err) {
-//         throw err;
-//     }
-// };
 
 const addStudent = errorAsyncHandler(
     async (req ,res ,next) => {
         const {admin_nationalID,firstName  , lastName , middleName, password , 
-            confirmPassword ,DOB ,email  , gander ,numberNational , department  , phones
+            confirmPassword ,DOB ,email  , gander ,numberNational , department  , phone1 , phone2
         } = req.body; 
     
         if (password !== confirmPassword) {
             return res.status(400).json({ message: 'The password and re-password do not match' });
         }
-        const morePhones = Array.isArray(phones) ? phones : [phones];
+        const morePhones = {};
+        if(phone1){
+            morePhones.phone1 = phone1;
+        }
+        if(phone2){
+            morePhones.phone2 = phone2;
+        }
 
         dbConfig.execute( `SELECT * FROM superAdmin WHERE sAdmin_nationalID = ?` , 
             [admin_nationalID] ,
             (err , adminData) => {
                 if (err) {
                     return next(new Error("Error verifying admin/superAdmin role" , {cause: 500}))
-                    // return res.status(500).json({ message: 'Error verifying admin/superAdmin role', error: err });
                 }
                 if (!adminData.length) {
                     return next(new Error("Access denied, Only admins or superAdmins can add instructors" , {cause: 403}))
-                    // return res.status(403).json({ message: 'Access denied, Only admins or superAdmins can add instructors' });
                 }
 
                 dbConfig.execute(`select * from student where s_email =?` ,[email] , (err , data) => {
@@ -110,27 +92,28 @@ const addStudent = errorAsyncHandler(
                                             }
 
                                             const studentID = data.insertId;
-                                            const phoneQueries = morePhones.map((phone) => {
+                                            const phoneQueries = Object.entries(morePhones).map(([key , phone]) => {
                                                 return new Promise((resolve, reject) => {
                                                     dbConfig.execute(
-                                                            `INSERT INTO student_phone(sp_phone, sp_student_id) VALUES (?, ?)`,
-                                                        [phone , studentID] , 
-                                                        (err ,data) => {
+                                                        `INSERT INTO student_phone(sp_phone, sp_student_id) VALUES (?, ?)`,
+                                                        [phone, studentID] , 
+                                                        (err , data) => {
                                                             if(err || !data.affectedRows){
                                                                 reject(err)
                                                             }
-                                                            resolve(phone);
+                                                            resolve({ [key]: phone });
                                                         }
                                                     )
                                                 })
                                             })
                                             emailEvent.emit("sendEmail" , {email , password} );
-
+                    
                                             Promise.all(phoneQueries).then((phones)=>{
+                                                const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});
                                                 return successResponse({
-                                                    res , message:"Student and phone added successfully" , status: 201 ,
+                                                    res , message:"Student added successfully" , status: 201 ,
                                                     data: {
-                                                        admin:{
+                                                        Student:{
                                                             nationalID:studentID ,
                                                             fullName: `${firstName} ${lastName} `,
                                                             email,
@@ -138,51 +121,10 @@ const addStudent = errorAsyncHandler(
                                                             gander,
                                                             DOB
                                                         },
-                                                        phone: phones
+                                                        phone: phonesResult
                                                     }
                                                 })
-                                            })
-        
-                                            // try {
-                                            //     const studentID = data.insertId;
-                                            //     const encryptedPhones = await Promise.all(
-                                            //         morePhones.map((phone) => {
-                                            //             const encryptedPhone = generateEncryption({ plainText: phone });
-                                            //             return new Promise((resolve, reject) => {
-                                            //                 dbConfig.execute(`
-                                            //                     INSERT INTO student_phone(sp_phone, sp_student_id) VALUES (?, ?)`,
-                                            //                     [encryptedPhone, studentID],
-                                            //                     (err, data) => {
-                                            //                         if (err || data.affectedRows === 0) {
-                                            //                             return reject(err || new Error("Failed to insert phone"));
-                                            //                         }
-                                            //                         resolve(encryptedPhone);
-                                            //                     }
-                                            //                 );
-                                            //             });
-                                            //         })
-                                            //     );
-                                            //     emailEvent.emit("sendEmail" , {email , password} );
-                                            
-                                            //     return successResponse({
-                                            //         res , message:"Instructor and phone added successfully" , status: 201 ,
-                                            //         data: {
-                                            //             admin:{
-                                            //                 nationalID:studentID ,
-                                            //                 fullName: `${firstName} ${lastName} `,
-                                            //                 email,
-                                            //                 numberNational,
-                                            //                 gander,
-                                            //                 DOB
-                                            //             },
-                                            //             phone: encryptedPhones
-                                            //         }
-                                            //     })
-                                            // } catch (phoneError) {
-                                            //     console.error("Phone insert error:", phoneError);
-                                            //     return next(new Error("Failed to insert phone numbers" , {cause: 500}))
-                                            //     // return res.status(500).json({ message: "Failed to insert phone numbers", error: phoneError });
-                                            // }
+                                            });
                                         }
                                     )
                                 }
@@ -194,10 +136,6 @@ const addStudent = errorAsyncHandler(
         )
     }
 );
-
-////////////////////////////////////////
-
-
 
 
 

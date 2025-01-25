@@ -17,21 +17,16 @@ export const  generalFieldsValidation = {
     acceptLanguage: joi.string().valid('en' , 'ar' ,'en-US' ,"en-US,en;q=0.9").default('en'),
     DOB: joi.date().less("now"),
     gander: joi.string().valid('Male' , 'Female').default('Female'),
-    code: joi.string().pattern(new RegExp(/^[A-Za-z0-9\-+_$!%*?&]{6}$/)).messages({
+    code: joi.string().pattern(new RegExp(/^[A-Za-z0-9\-+_$!%*#?&]{6}$/)).messages({
         'string.pattern.base': 'Code must be exactly 6 digits (send Code Check to email)',
     }),
 };
 
-// passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export const validation = (scheme) => {
     return (req , res , next) => {
         
         const inputDate = {...req.body , ...req.query };
-        
-        // if(req.headers['accept-language']){
-        //     inputDate['accept-language'] = req.headers['accept-language'] 
-        // }
 
         const validationError = scheme.validate( inputDate , {abortEarly: false});
         if(validationError.error){

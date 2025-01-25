@@ -1,13 +1,23 @@
 import dbConfig from '../DB/connection.js';
-import { globalErrorHandling } from '../utils/error/error.handling.js';
+import { globalErrorHandling } from '../utils/response/error.response.js';
 import dbRoute from './createTable/CreateTable.controller.js';
-import authAddUsersController from '../modules/authAddUsers/addUsersAuth.controller.js';
-import authController from '../modules/auth/auth.controller.js';
-import usersController from '../modules/users/users.controller.js';
+import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
+import authController from './admin/auth/auth.controller.js';
+import updateDBController from './admin/updateDB/updateDB.controller.js';
+import coursesController from './admin/courses/courses.controller.js';
+import cors  from 'cors' 
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
 
 
 const bootstrap = (app, express) => {
+  app.use(cors({
+    origin: process.env.FE_URL,
+    credentials: true 
+  }));
+
+
   app.use(express.json());
 
   app.all(`*` , (req ,res ,next) => {
@@ -22,7 +32,7 @@ const bootstrap = (app, express) => {
     );
     next();
   })
-
+  
   app.get('/', (req, res, next) => {
     return res.status(200).json({ message: 'Welcome in node.js project powered by express and ES6' });
   });
@@ -30,7 +40,8 @@ const bootstrap = (app, express) => {
   app.use('/DB', dbRoute);
   app.use('/auth/addUser' , authAddUsersController);
   app.use('/auth' , authController);
-  app.use('/users', usersController);
+  app.use('/updateDB', updateDBController);
+  app.use('/courses' , coursesController)
 
 
   app.all('*', (req, res, next) => {

@@ -1,5 +1,5 @@
 import joi from 'joi';
-import { generalFieldsValidation } from '../../middleware/validation.middleware.js';
+import { generalFieldsValidation } from '../../../middleware/validation.middleware.js';
 
 
 

@@ -1,5 +1,6 @@
 import joi from 'joi';
-import { generalFieldsValidation } from "../../middleware/validation.middleware.js";
+import { generalFieldsValidation } from '../../../middleware/validation.middleware.js';
+
 
 
 export const signupValidationSchema = joi.object().keys({
@@ -13,9 +14,10 @@ export const signupValidationSchema = joi.object().keys({
     lastName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
-    phones : joi.alternatives().try( generalFieldsValidation.phone, generalFieldsValidation.phoneArray).required().messages({
-        'alternatives.match': "Please provide a valid phone number or an array of phone numbers."
+    phone1 : generalFieldsValidation.phone.required().messages({
+        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
     }),
+    phone2 : generalFieldsValidation.phone,
     'accept-language': generalFieldsValidation.acceptLanguage
 }).options({allowUnknown: false}).required();
 
@@ -37,15 +39,16 @@ export const addAdminValidationSchema = joi.object().keys({
         'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
     }),
     email: generalFieldsValidation.email.required(),
-    password: generalFieldsValidation.password.required(),
-    confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
+    phone1 : generalFieldsValidation.phone.required().messages({
+        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
+    }),
+    phone2 : generalFieldsValidation.phone,
     adminRole:  generalFieldsValidation.userName.required().messages({
         'string.empty': 'adminRole is required',
     }), // min 2 and max 50 as length
-    phones : joi.alternatives().try( generalFieldsValidation.phone, generalFieldsValidation.phoneArray).required().messages({
-        'alternatives.match': "Please provide a valid phone number or an array of phone numbers."
-    }),
-    'accept-language': generalFieldsValidation.acceptLanguage
+    password: generalFieldsValidation.password.required(),
+    confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
+    'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();
 
@@ -70,10 +73,11 @@ export const addInstructorValidationSchema = joi.object().keys({
     }), // min 2 and max 50 as length
     
     // phones: generalFieldsValidation.phone.required(),
-    phones : joi.alternatives().try( generalFieldsValidation.phone, generalFieldsValidation.phoneArray).required().messages({
-        'alternatives.match': "Please provide a valid phone number or an array of phone numbers."
+    phone1 : generalFieldsValidation.phone.required().messages({
+        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
     }),
-    'accept-language': generalFieldsValidation.acceptLanguage
+    phone2 : generalFieldsValidation.phone,
+    'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();
 
@@ -105,10 +109,11 @@ export const addStudentValidationSchema = joi.object().keys({
     department: generalFieldsValidation.userName.required().messages({
         'string.empty': 'department is required',
     }), // min 2 and max 50 as length
-    phones : joi.alternatives().try( generalFieldsValidation.phone, generalFieldsValidation.phoneArray).required().messages({
-        'alternatives.match': "Please provide a valid phone number or an array of phone numbers."
+    phone1 : generalFieldsValidation.phone.required().messages({
+        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
     }),
-    'accept-language': generalFieldsValidation.acceptLanguage
+    phone2 : generalFieldsValidation.phone,
+    'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();
 
