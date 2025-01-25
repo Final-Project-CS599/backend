@@ -9,6 +9,8 @@ import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import uploadCourseMaterial from './instructor/courses/upload.controller.js';
 import { viewMaterialCourse } from './instructor/courses/viewcourseMat/view.services.js';
 
+import  examController from "../modules/instructor/exam/exam.controller.js"
+import  MessageController from "../modules/instructor/message/message.controller.js"
 const baseUrl = '/api/v1';
 
 const bootstrap = (app, express) => {
@@ -42,6 +44,11 @@ const bootstrap = (app, express) => {
   app.use('/courseMaterial', uploadCourseMaterial);
   app.use('/courseMaterial', viewMaterialCourse);
 
+
+  app.use('/exam', examController)
+  app.use('/message', MessageController)
+
+  
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
   });
