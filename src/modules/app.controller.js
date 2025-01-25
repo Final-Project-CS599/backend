@@ -35,13 +35,15 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
 
+  app.use('/courseMaterial', uploadCourseMaterial);
+  app.use('/courseMaterial', viewMaterialCourse);
+
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
   });
 
   app.use(globalErrorHandling);
-  app.use('/courseMaterial', uploadCourseMaterial);
-  app.use('/courseMaterial', viewMaterialCourse);
+
   dbConfig.connect((err) => {
     if (err) {
       console.log('error on db connection ', err);
