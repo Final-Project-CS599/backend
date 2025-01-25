@@ -4,6 +4,10 @@ import dbRoute from './createTable/CreateTable.controller.js';
 import authAddUsersController from '../modules/authAddUsers/addUsersAuth.controller.js';
 import authController from '../modules/auth/auth.controller.js';
 import userRoutes from '../modules/student/users/routes.js';
+import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
+import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
+import uploadCourseMaterial from './instructor/courses/upload.controller.js';
+import { viewMaterialCourse } from './instructor/courses/viewcourseMat/view.services.js';
 
 const baseUrl = '/api/v1';
 
