@@ -41,7 +41,7 @@ const insertDefaultAdmin = errorAsyncHandler(
                             console.error("Insert error:", err);
                             return res.status(500).json({ message: "Failed to execute query", error: err });
                         }
-                        const hashPassword = await generateHash({ plainText: "AdminPass123" });
+                        const hashPassword = generateHash({ plainText: "AdminPass123" });
                         dbConfig.execute(
                             `UPDATE superAdmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?`,
                             [hashPassword, nationalID],

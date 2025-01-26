@@ -7,8 +7,8 @@ import { verifyToken } from "../../../../utils/token/token.js";
 
 
 const confirmEmail = errorAsyncHandler(
-    async (req , res , next) => {
-        
+    async (req, res, next) => {
+
     }
 );
 

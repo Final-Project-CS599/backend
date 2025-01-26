@@ -20,6 +20,9 @@ export const  generalFieldsValidation = {
     code: joi.string().pattern(new RegExp(/^[A-Za-z0-9\-+_$!%*#?&]{6}$/)).messages({
         'string.pattern.base': 'Code must be exactly 6 digits (send Code Check to email)',
     }),
+    course: joi.string().min(2).max(100),
+    courseDescription: joi.string().min(20).max(500),
+    courseDate: joi.date(),
 };
 
 

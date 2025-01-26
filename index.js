@@ -1,13 +1,26 @@
 import path from 'path';
 import dotenv from 'dotenv';
-import cors from 'cors';
+
+dotenv.config({path:(path.resolve('.env.dev'))});
+
 import bootstrap from './src/modules/app.controller.js';
 import express from 'express';
+import multer from 'multer';
 
 const app = express();
+const port = process.env.PORT || 1000;
+
 const upload = multer(); // Middleware for form-data parsing
 
-const port = process.env.PORT || 1000;
+app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  if (req.is('multipart/form-data')) {
+    upload.none()(req, res, next);
+  } else {
+    next();
+  }
+});
 
 bootstrap(app, express);
 

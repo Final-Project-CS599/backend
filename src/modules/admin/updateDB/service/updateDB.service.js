@@ -16,10 +16,17 @@ export const alterTableIStudent= errorAsyncHandler(
     }
 );
 
+export const alterTableAdmin = errorAsyncHandler(
+    async (req , res , next) => {
+        dbConfig.execute(`ALTER TABLE superAdmin CHANGE COLUMN sAdmin_confirmEmail sAdmin_active BOOLEAN NOT NULL DEFAULT FALSE` , 
+            (err , data) => {
+                if(err || !data.affectedRows === 0){
+                    return next(new Error("Failed to get data , Faik to execute query" , {cause: 500}))
+                }
 
-export const truncateTables = errorAsyncHandler(
-    async (req, res, next) => {
-        
+                return successResponse({ res , message: "Table SuperAdmin altered successfully" , status: 200});
+            }
+        )
     }
-);
+)
 

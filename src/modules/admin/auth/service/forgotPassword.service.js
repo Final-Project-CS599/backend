@@ -8,14 +8,10 @@ import { compareHash, generateHash } from '../../../../utils/hash/hash.js';
 
 
 export const forgotPassword = errorAsyncHandler(
-    async (req, res, next) => {
-        
-    }
+    
 );
 export const verifyCode = errorAsyncHandler(
-    async (req , res , next)=> {
-        
-    }
+    
 );
 
 export const resetPasswordUtility = async (tableName, emailColumn, passwordColumn, email, newPassword, res, next) => {
@@ -25,7 +21,5 @@ export const resetPasswordUtility = async (tableName, emailColumn, passwordColum
 };
 
 export const resetPassword = errorAsyncHandler(
-    async (req, res, next) => {
-        
-    }
+    
 );
