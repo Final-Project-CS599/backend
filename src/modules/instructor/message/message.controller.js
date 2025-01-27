@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as messageServise from "./service/message.server.js";
+import * as messageServise from "./service/message.service.js";
 const router = Router()
 
 
