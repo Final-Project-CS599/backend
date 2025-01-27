@@ -13,6 +13,8 @@ import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import uploadCourseMaterial from './instructor/courses/upload.controller.js';
 import { viewMaterialCourse } from './instructor/courses/viewcourseMat/view.services.js'; 
+import  examController from "../modules/instructor/exam/exam.controller.js"
+import  MessageController from "../modules/instructor/message/message.controller.js"
 // Cors 
 import cors  from 'cors' 
 import session from 'express-session';
@@ -71,6 +73,8 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
   app.use('/courseMaterial', uploadCourseMaterial);
   app.use('/courseMaterial', viewMaterialCourse);
+  app.use('/exam', examController)
+  app.use('/message', MessageController)
 
   
   app.all('*', (req, res, next) => {
