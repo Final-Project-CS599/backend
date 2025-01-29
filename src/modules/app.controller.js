@@ -1,13 +1,14 @@
-import dbConfig from '../DB/connection.js';
-import { globalErrorHandling } from '../utils/response/error.response.js';
+import dbConfig from "../DB/connection.js";
+import { globalErrorHandling } from "../utils/response/error.response.js";
 // DB models
-import dbRoute from './createTable/CreateTable.controller.js';
+import dbRoute from "./createTable/CreateTable.controller.js";
 // Admin controllers
-import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
-import authController from './admin/auth/auth.controller.js';
-import updateDBController from './admin/updateDB/updateDB.controller.js';
+import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller.js";
+import authController from "./admin/auth/auth.controller.js";
+import updateDBController from "./admin/updateDB/updateDB.controller.js";
 // import coursesController from './admin/courses/courses.controller.js';
 // Student controllers
+<<<<<<< HEAD
 import userRoutes from '../modules/student/users/routes.js';
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
@@ -22,34 +23,52 @@ import assignmentController from "./instructor/Assignment/Assignment.controller.
 import cors  from 'cors' 
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+=======
+import userRoutes from "../modules/student/users/routes.js";
+import updateStudentProfileRoutes from "../modules/student/profile/routes.js";
+import studentHelpDeskRoutes from "../modules/student/helpDesk/routes.js";
+import uploadCourseMaterial from "./instructor/courses/upload.controller.js";
+import { viewMaterialCourse } from "./instructor/courses/viewcourseMat/view.services.js";
+import examController from "../modules/instructor/exam/exam.controller.js";
+import MessageController from "../modules/instructor/message/message.controller.js";
+import instructorRout from "../modules/student/Instructores/instructor.route.js";
+import assignmentRout from "../modules/student/Assinment/assign.route.js";
+// Cors
+import cors from "cors";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+>>>>>>> 48039b54842b495017d07f2a3f26e41eb250fc29
 
-
-const baseUrl = '/api/v1';
+const baseUrl = "/api/v1";
 
 const bootstrap = (app, express) => {
-  app.use(cors({
-    origin: process.env.FE_URL,
-    credentials: true // السماح بإرسال الكوكيز
-  }));
+  app.use(
+    cors({
+      origin: process.env.FE_URL,
+      credentials: true, // السماح بإرسال الكوكيز
+    })
+  );
 
   // استخدام cookie-parser middleware
   // app.use(cookieParser(process.env.COOKIE_SECRET));
-  
-  app.use(session({
-    secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
-    resave: false, // no save session if unmodified
-    saveUninitialized: true, // don't create session until something stored
-    cookie: { 
-      secure: false, // true if using HTTPS
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 , // 24 hours
-      sameSite: 'lax'
-    } 
-  }));
+
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
+      resave: false, // no save session if unmodified
+      saveUninitialized: true, // don't create session until something stored
+      cookie: {
+        secure: false, // true if using HTTPS
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 24 hours
+        sameSite: "lax",
+      },
+    })
+  );
 
   app.use(express.json());
 
-  app.all(`*` , (req ,res ,next) => {
+  app.all(`*`, (req, res, next) => {
     console.log(
       `
         User with ip: ${req.ip} send request with:
@@ -57,23 +76,26 @@ const bootstrap = (app, express) => {
         method: ${req.method}
         body: ${JSON.stringify(req.body)}
         Headers:${JSON.stringify(req.query["ln"])}
-      `,
+      `
     );
     next();
-  })
-
-  app.get('/', (req, res, next) => {
-    return res.status(200).json({ message: 'Welcome in node.js project powered by express and ES6' });
   });
 
-  app.use('/DB', dbRoute);
-  app.use('/auth/addUser' , authAddUsersController);
-  app.use('/auth' , authController);
-  app.use('/updateDB', updateDBController);
+  app.get("/", (req, res, next) => {
+    return res.status(200).json({
+      message: "Welcome in node.js project powered by express and ES6",
+    });
+  });
+
+  app.use("/DB", dbRoute);
+  app.use("/auth/addUser", authAddUsersController);
+  app.use("/auth", authController);
+  app.use("/updateDB", updateDBController);
   // app.use('/courses' , coursesController);
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
+<<<<<<< HEAD
   app.use('/courseMaterial', uploadCourseMaterial);
   app.use('/courseMaterial', viewMaterialCourse);
   app.use('/exam', examController)
@@ -84,15 +106,37 @@ const bootstrap = (app, express) => {
   
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
+=======
+  app.use("/courseMaterial", uploadCourseMaterial);
+  app.use("/courseMaterial", viewMaterialCourse);
+  app.use("/exam", examController);
+  app.use("/message", MessageController);
+
+  app.use(`${baseUrl}/student/instructor`, instructorRout);
+  app.use(`${baseUrl}/student`, assignmentRout);
+
+  app.all("*", (req, res, next) => {
+    return res.status(404).json({ message: "In-valid routing" });
+  });
+
+  app.get("/", (req, res, next) => {
+    return res.status(200).json({
+      message: "Welcome in node.js project powered by express and ES6",
+    });
+  });
+
+  app.all("*", (req, res, next) => {
+    return res.status(404).json({ message: "In-valid routing" });
+>>>>>>> 48039b54842b495017d07f2a3f26e41eb250fc29
   });
 
   app.use(globalErrorHandling);
 
   dbConfig.connect((err) => {
     if (err) {
-      console.log('error on db connection ', err);
+      console.log("error on db connection ", err);
     } else {
-      console.log('db connected');
+      console.log("db connected");
     }
   });
 };
