@@ -7,6 +7,9 @@ import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller
 import authController from "./admin/auth/auth.controller.js";
 import updateDBController from "./admin/updateDB/updateDB.controller.js";
 // import coursesController from './admin/courses/courses.controller.js';
+import departmentsRouter from './admin/department/department.routes.js';
+import editStudentsRouter from "./admin/editStudent/editStudent.routes.js";
+import adminProfileRouter from "./admin/adminProfile/adminProfile.routes.js";
 // Student controllers
 import userRoutes from "../modules/student/users/routes.js";
 import updateStudentProfileRoutes from "../modules/student/profile/routes.js";
@@ -21,6 +24,8 @@ import assignmentRout from "../modules/student/Assinment/assign.route.js";
 import cors from "cors";
 import session from "express-session";
 import cookieParser from "cookie-parser";
+
+
 
 const baseUrl = "/api/v1";
 
@@ -51,6 +56,7 @@ const bootstrap = (app, express) => {
 
   app.use(express.json());
 
+  
   app.all(`*`, (req, res, next) => {
     console.log(
       `
@@ -82,9 +88,11 @@ const bootstrap = (app, express) => {
   app.use("/courseMaterial", viewMaterialCourse);
   app.use("/exam", examController);
   app.use("/message", MessageController);
-
+  app.use(`${baseUrl}/departments`, departmentsRouter);
+  app.use(`${baseUrl}/adminProfile`, adminProfileRouter);
   app.use(`${baseUrl}/student/instructor`, instructorRout);
   app.use(`${baseUrl}/student`, assignmentRout);
+  app.use(`${baseUrl}/editStudents`, editStudentsRouter);
 
   app.all("*", (req, res, next) => {
     return res.status(404).json({ message: "In-valid routing" });
