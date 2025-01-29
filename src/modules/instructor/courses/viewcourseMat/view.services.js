@@ -1,10 +1,10 @@
 import dbConfig from "../../../../DB/connection.js";
 export const viewMaterialCourse = async (req, res) => {
   try {
-    const { course_code } = req.params;
+    const { instructor_id } = req.body;
     const [data] = await dbConfig.execute(
-      `SELECT * FROM content WHERE course_code = ?`,
-      [course_code]
+      `SELECT * FROM courses WHERE instructor_id = ""`,
+      [instructor_id]
     );
 
     if (!data.length) {
