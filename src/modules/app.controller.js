@@ -1,12 +1,11 @@
 import dbConfig from "../DB/connection.js";
-import { globalErrorHandling } from "../utils/response/error.response.js";
+import { globalErrorHandling } from '../utils/response/error.response.js';
 // DB models
-import dbRoute from "./createTable/CreateTable.controller.js";
+import dbRoute from './createTable/CreateTable.controller.js';
 // Admin controllers
-import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller.js";
-import authController from "./admin/auth/auth.controller.js";
-import updateDBController from "./admin/updateDB/updateDB.controller.js";
-// import coursesController from './admin/courses/courses.controller.js';
+import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
+import authController from './admin/auth/auth.controller.js';
+import updateDBController from './admin/updateDB/updateDB.controller.js';
 // Student controllers
 import userRoutes from "../modules/student/users/routes.js";
 import updateStudentProfileRoutes from "../modules/student/profile/routes.js";
@@ -17,41 +16,37 @@ import examController from "../modules/instructor/exam/exam.controller.js";
 import MessageController from "../modules/instructor/message/message.controller.js";
 import instructorRout from "../modules/student/Instructores/instructor.route.js";
 import assignmentRout from "../modules/student/Assinment/assign.route.js";
-// Cors
-import cors from "cors";
-import session from "express-session";
-import cookieParser from "cookie-parser";
+// Cors 
+import cors  from 'cors' 
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
 const baseUrl = "/api/v1";
 
 const bootstrap = (app, express) => {
-  app.use(
-    cors({
-      origin: process.env.FE_URL,
-      credentials: true, // السماح بإرسال الكوكيز
-    })
-  );
+  app.use(cors({
+    origin: '*',
+    credentials: true // السماح بإرسال الكوكيز
+  }));
 
   // استخدام cookie-parser middleware
   // app.use(cookieParser(process.env.COOKIE_SECRET));
-
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
-      resave: false, // no save session if unmodified
-      saveUninitialized: true, // don't create session until something stored
-      cookie: {
-        secure: false, // true if using HTTPS
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24, // 24 hours
-        sameSite: "lax",
-      },
-    })
-  );
+  
+  app.use(session({
+    secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
+    resave: false, // no save session if unmodified
+    saveUninitialized: true, // don't create session until something stored
+    cookie: { 
+      secure: false, // true if using HTTPS
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 , // 24 hours
+      sameSite: 'lax'
+    } 
+  }));
 
   app.use(express.json());
 
-  app.all(`*`, (req, res, next) => {
+  app.all(`*` , (req ,res ,next) => {
     console.log(
       `
         User with ip: ${req.ip} send request with:
@@ -59,10 +54,10 @@ const bootstrap = (app, express) => {
         method: ${req.method}
         body: ${JSON.stringify(req.body)}
         Headers:${JSON.stringify(req.query["ln"])}
-      `
+      `,
     );
     next();
-  });
+  })
 
   app.get("/", (req, res, next) => {
     return res.status(200).json({
@@ -70,10 +65,10 @@ const bootstrap = (app, express) => {
     });
   });
 
-  app.use("/DB", dbRoute);
-  app.use("/auth/addUser", authAddUsersController);
-  app.use("/auth", authController);
-  app.use("/updateDB", updateDBController);
+  app.use('/DB', dbRoute);
+  app.use('/auth/addUser' , authAddUsersController);
+  app.use('/auth' , authController);
+  app.use('/updateDB', updateDBController);
   // app.use('/courses' , coursesController);
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
