@@ -1,7 +1,7 @@
 import dbConfig from "../../../../DB/connection.js"
 
 
-export const addExam = async(req, res, next )=>{
+/*export const addExam = async(req, res, next )=>{
     try {
         const{type , link , degree , content_id} = req.body
         
@@ -19,7 +19,65 @@ export const addExam = async(req, res, next )=>{
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });  
     }
-}
+}*/
+// export const addExam = async (req, res, next) => {
+//   try {
+//     if (req.method === "POST") {
+     
+//       const { type, link, degree, content_id } = req.body;
+
+    
+//       if (!type || !link || !content_id) {
+//         return res.status(400).json({ message: "Type, link, and content_id are required" });
+//       }
+
+    
+//       const [data] = await dbConfig.promise().execute(
+//         `INSERT INTO exam (e_type, e_link, e_degree, e_content_id) VALUES (?, ?, ?, ?)`,
+//         [type, link, degree, content_id]
+//       );
+
+//       return res.status(200).json({ message: "Exam added successfully", examId: data.insertId });
+//     } else if (req.method === "GET") {
+      
+//       const [contents] = await dbConfig.promise().query(`SELECT c_content_id, c_type FROM content`);
+//       return res.status(200).json({ contents });
+//     } else {
+      
+//       return res.status(405).json({ message: "Method not allowed" });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({ message: "Server error", error: error.message });
+//   }
+// };
+
+export const addExam = async (req, res, next) => {
+    try {
+        const { type, link, degree} = req.body;
+
+        if (!type || !link || !degree) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const [contentResult] = await dbConfig.execute(
+            `INSERT INTO content (c_type) VALUES ("exam")`,
+            ["Exam"]
+        );
+
+        const contentId = contentResult.insertId;
+
+        await dbConfig.execute(
+            `INSERT INTO exam (type,link,degree,content_id) VALUES (?, ?, ?, ?)`,
+            [type, link, degree, contentId]
+        );
+
+        res.status(200).json({ message: "Exam added successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
 
  export const editExam = async(req, res, next )=>{
     const{type , link , degree , content_id} = req.body

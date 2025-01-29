@@ -4,6 +4,8 @@ export const instructorTable =  `CREATE TABLE IF NOT EXISTS Instructors (
     i_lastName VARCHAR(250) NOT NULL,
     i_email VARCHAR(255) UNIQUE,
     i_password VARCHAR(200),
+    i_gender ENUM('Male', 'Female') NOT NULL DEFAULT 'Male',
+    i_DOB DATE NOT NULL,
     i_active boolean default false,
     i_departmentId INT,
     FOREIGN KEY (i_departmentId) REFERENCES department(d_id) ON DELETE SET NULL ON UPDATE CASCADE,

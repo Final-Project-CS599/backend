@@ -5,6 +5,5 @@ const router = Router();
 
 router.get('/table-student' ,usersServices.alterTableIStudent);
 router.get('/table-SuperAdmin' , usersServices.alterTableAdmin);
-router.get('/truncate-tables' , usersServices.truncateTables);
+// router.get('/truncate-tables' , usersServices.truncateTables);
 export default router;
-
