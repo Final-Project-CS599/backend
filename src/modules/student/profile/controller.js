@@ -2,14 +2,10 @@ import bcrypt from 'bcrypt';
 import dbConfig from '../../../DB/connection.js';
 import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
-export const updateStudentProfile = asyncHandler(async (req, res) => {
-  const { id } = req.params; // Student ID from the route
+export const editProfile = asyncHandler(async (req, res) => {
+  const studentId = req.user.id; // Get the student ID from the authenticated user
+  console.log('studentId:', studentId);
   const { phoneNumbers, password, birthDate, gender } = req.body; // Data to update
-
-  // Ensure the authenticated student is updating their own profile
-  if (req.user.id !== parseInt(id)) {
-    return res.status(403).json({ message: 'You are not authorized to update this profile' });
-  }
 
   // Hash the password if provided
   let hashedPassword = null;
@@ -33,10 +29,10 @@ export const updateStudentProfile = asyncHandler(async (req, res) => {
           s_password = COALESCE(?, s_password), 
           s_DOB = COALESCE(?, s_DOB), 
           s_gender = COALESCE(?, s_gender)
-        WHERE s_id = ?`;
+        WHERE s_national_id = ?`;
       dbConfig.query(
         updateStudentQuery,
-        [hashedPassword, birthDate, gender, id],
+        [hashedPassword, birthDate, gender, studentId],
         (err, results) => {
           if (err) {
             return dbConfig.rollback(() => {
@@ -48,7 +44,7 @@ export const updateStudentProfile = asyncHandler(async (req, res) => {
           // Update phone numbers
           if (phoneNumbers && phoneNumbers.length > 0) {
             const deletePhoneQuery = 'DELETE FROM student_phone WHERE sp_student_id = ?';
-            dbConfig.query(deletePhoneQuery, [id], (err, results) => {
+            dbConfig.query(deletePhoneQuery, [studentId], (err, results) => {
               if (err) {
                 return dbConfig.rollback(() => {
                   console.error('Error deleting phone numbers:', err);
@@ -58,7 +54,7 @@ export const updateStudentProfile = asyncHandler(async (req, res) => {
 
               const insertPhoneQuery =
                 'INSERT INTO student_phone (sp_student_id, sp_phone) VALUES ?';
-              const phoneValues = phoneNumbers.map((phone) => [id, phone]);
+              const phoneValues = phoneNumbers.map((phone) => [studentId, phone]);
               dbConfig.query(insertPhoneQuery, [phoneValues], (err, results) => {
                 if (err) {
                   return dbConfig.rollback(() => {
@@ -99,7 +95,7 @@ export const updateStudentProfile = asyncHandler(async (req, res) => {
       // If no updates to student table, just update phone numbers
       if (phoneNumbers && phoneNumbers.length > 0) {
         const deletePhoneQuery = 'DELETE FROM student_phone WHERE sp_student_id = ?';
-        dbConfig.query(deletePhoneQuery, [id], (err, results) => {
+        dbConfig.query(deletePhoneQuery, [studentId], (err, results) => {
           if (err) {
             return dbConfig.rollback(() => {
               console.error('Error deleting phone numbers:', err);
@@ -108,7 +104,7 @@ export const updateStudentProfile = asyncHandler(async (req, res) => {
           }
 
           const insertPhoneQuery = 'INSERT INTO student_phone (sp_student_id, sp_phone) VALUES ?';
-          const phoneValues = phoneNumbers.map((phone) => [id, phone]);
+          const phoneValues = phoneNumbers.map((phone) => [studentId, phone]);
           dbConfig.query(insertPhoneQuery, [phoneValues], (err, results) => {
             if (err) {
               return dbConfig.rollback(() => {
