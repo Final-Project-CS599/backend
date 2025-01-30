@@ -3,10 +3,6 @@ import { globalErrorHandling } from '../utils/response/error.response.js';
 // DB models
 import dbRoute from './createTable/CreateTable.controller.js';
 // Admin controllers
-<<<<<<< HEAD
-import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller.js";
-import authController from "./admin/auth/auth.controller.js";
-import updateDBController from "./admin/updateDB/updateDB.controller.js";
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import  updateInstProfile  from "./instructor/profile/InsPro.controller.js";
@@ -26,7 +22,6 @@ import assignmentRout from "../modules/student/Assinment/assign.route.js";
 // import cors from "cors";
 // import session from "express-session";
 // import cookieParser from "cookie-parser";
-=======
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
@@ -35,24 +30,9 @@ import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
 import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
 // Student controllers
-import userRoutes from '../modules/student/users/routes.js';
-import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
-import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
-import uploadCourseMaterial from './instructor/courses/upload.controller.js';
-import { viewMaterialCourse } from './instructor/courses/viewcourseMat/view.services.js';
-import examController from './instructor/exam/exam.controller.js';
-import MessageController from './instructor/message/message.controller.js';
-import contentController from './instructor/content/content.controller.js';
-import assignmentController from './instructor/Assignment/Assignment.controller.js';
-import instructorRout from '../modules/student/Instructores/instructor.route.js';
-import assignmentRout from '../modules/student/Assinment/assign.route.js';
 import coursesRoutes from '../modules/student/courses/routes.js';
 // Cors
-import cors from 'cors';
-import session from 'express-session';
-import cookieParser from 'cookie-parser';
->>>>>>> 7d13ecc3cadf8811f821010acf333a9a6f2e1577
 
 const baseUrl = '/api/v1';
 
@@ -109,7 +89,6 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
-<<<<<<< HEAD
   app.use('/courseMaterial', uploadMaterial);
   app.use('/courseMaterial', viewMaterialCourse);
   app.use('/exam', examController)
@@ -125,19 +104,15 @@ const bootstrap = (app, express) => {
   // app.use("/exam", examController);
   // app.use("/message", MessageController);
 
-=======
   app.use(`${baseUrl}/student`, coursesRoutes);
 
-  app.use('/courseMaterial', uploadCourseMaterial);
   app.use('/courseMaterial', viewMaterialCourse);
   app.use('/exam', examController);
   app.use('/message', MessageController);
   app.use('/assignment', assignmentController);
-  app.use('/content', contentController);
   app.use('/instProfile', updateInstructorProfile);
   app.use(`${baseUrl}/departments`, departmentsRouter);
   app.use(`${baseUrl}/adminProfile`, adminProfileRouter);
->>>>>>> 7d13ecc3cadf8811f821010acf333a9a6f2e1577
   app.use(`${baseUrl}/student/instructor`, instructorRout);
   app.use(`${baseUrl}/student`, assignmentRout);
   app.use(`${baseUrl}/editStudents`, editStudentsRouter);
@@ -148,13 +123,11 @@ const bootstrap = (app, express) => {
     });
   });
 
-<<<<<<< HEAD
   app.all("*", (req, res, next) => {
     return res.status(404).json({ message: "In-valid routing" });
-=======
+  })
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
->>>>>>> 7d13ecc3cadf8811f821010acf333a9a6f2e1577
   });
 
   app.use(globalErrorHandling);
