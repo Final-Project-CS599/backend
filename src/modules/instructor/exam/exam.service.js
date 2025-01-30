@@ -56,10 +56,10 @@ import dbConfig from "../../../DB/connection.js";
     if (!type|| !description | !publish_date|| !title|| !link|| !degree|| !instructor_id|| !courseId) {
         return res.status(400).json({ message: 'Type and link are required' });
     }
-    db.execute(`INSERT INTO exam ( e_type , e_link ,e_description,e_publish_date,e_title, e_degree ,e_instructor_id,e_courseId ) VALUES (?,?,?,?,?,?,?,?)`,
+    await dbConfig.execute(`INSERT INTO exam ( e_type , e_link ,e_description,e_publish_date,e_title, e_degree ,e_instructor_id,e_courseId ) VALUES (?,?,?,?,?,?,?,?)`,
         [ type, description, publish_date, title, link, degree, instructor_id, courseId ],  (err, data) => {
         if (err) {
-            return res.status(500).json({message:"Failed to execute query " , error , msg:error.message, stack:error.stack }) 
+            return res.status(500).json({message:"Failed to execute query " , err , msg:err.message, stack:err.stack }) 
         } else {
             return res.status(200).json({message:"done "  })
         }

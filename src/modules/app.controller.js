@@ -19,6 +19,8 @@ import uploadMaterial from './instructor/materialCourse/material.controller.js';
 import viewMaterialCourse from './instructor/materialCourse/material.controller.js';
 import examController from './instructor/exam/exam.controller.js';
 import MessageController from './instructor/message/message.controller.js';
+import MsgController from './instructor/sendmessage/sendM.controller.js';
+import helpController from './instructor/helpdesk/help.controller.js'
 import assignmentController from './instructor/Assignment/Assignment.controller.js';
 import instructorRout from '../modules/student/Instructores/instructor.route.js';
 import assignmentRout from '../modules/student/Assinment/assign.route.js';
@@ -90,6 +92,8 @@ const bootstrap = (app, express) => {
 
   app.use('/exam', examController);
   app.use('/message', MessageController);
+  app.use('/msg', MsgController);
+  app.use('/help', helpController);
   app.use('/assignment', assignmentController);
   app.use('/instProfile', updateInstProfile);
   app.use(`${baseUrl}/departments`, departmentsRouter);
