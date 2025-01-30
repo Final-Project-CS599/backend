@@ -4,7 +4,7 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const updateInstructorProfile = asyncHandler(async (req, res) => {
   const { id } = req.params; 
-  const { phoneNumbers, password, birthDate, gender } = req.body; 
+  const { phoneNumbers, password} = req.body; 
 
   if (req.user.id !== parseInt(id)) {
     return res.status(403).json({ message: 'You are not authorized to update this profile' });
@@ -23,17 +23,15 @@ export const updateInstructorProfile = asyncHandler(async (req, res) => {
       return res.status(500).json({ message: 'Failed to update profile' });
     }
 
-    if (hashedPassword || birthDate || gender) {
+    if (hashedPassword) {
       const updateInstructorQuery = `
         UPDATE student 
         SET 
-          i_password = COALESCE(?, i_password), 
-          i_DOB = COALESCE(?, i_DOB), 
-          i_gender = COALESCE(?, i_gender)
+        i_password = COALESCE(?, i_password), 
         WHERE i_id = ?`;
       dbConfig.query(
         updateInstructorQuery,
-        [hashedPassword, birthDate, gender, id],
+        [hashedPassword,id],
         (err, results) => {
           if (err) {
             return dbConfig.rollback(() => {
