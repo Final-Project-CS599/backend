@@ -3,6 +3,7 @@ import { globalErrorHandling } from '../utils/response/error.response.js';
 // DB models
 import dbRoute from './createTable/CreateTable.controller.js';
 // Admin controllers
+<<<<<<< HEAD
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import  updateInstProfile  from "./instructor/profile/InsPro.controller.js";
@@ -22,6 +23,8 @@ import assignmentRout from "../modules/student/Assinment/assign.route.js";
 // import cors from "cors";
 // import session from "express-session";
 // import cookieParser from "cookie-parser";
+=======
+>>>>>>> 78e70fea7cd038b2fc013332477d2e75d358594a
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
@@ -30,9 +33,30 @@ import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
 import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
 // Student controllers
+<<<<<<< HEAD
 import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
+=======
+import userRoutes from '../modules/student/users/routes.js';
+import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
+import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
+import updateInstProfile from './instructor/profile/InsPro.controller.js';
+import uploadMaterial from './instructor/materialCourse/material.controller.js';
+import viewMaterialCourse from './instructor/materialCourse/material.controller.js';
+import examController from './instructor/exam/exam.controller.js';
+import MessageController from './instructor/message/message.controller.js';
+import assignmentController from './instructor/Assignment/Assignment.controller.js';
+import instructorRout from '../modules/student/Instructores/instructor.route.js';
+import assignmentRout from '../modules/student/Assinment/assign.route.js';
+>>>>>>> 78e70fea7cd038b2fc013332477d2e75d358594a
 import coursesRoutes from '../modules/student/courses/routes.js';
+
 // Cors
+<<<<<<< HEAD
+=======
+import cors from 'cors';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+>>>>>>> 78e70fea7cd038b2fc013332477d2e75d358594a
 
 const baseUrl = '/api/v1';
 
@@ -61,7 +85,6 @@ const bootstrap = (app, express) => {
     })
   );
 
-
   app.all(`*`, (req, res, next) => {
     console.log(
       `
@@ -89,6 +112,7 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
+<<<<<<< HEAD
   app.use('/courseMaterial', uploadMaterial);
   app.use('/courseMaterial', viewMaterialCourse);
   app.use('/exam', examController)
@@ -106,11 +130,21 @@ const bootstrap = (app, express) => {
 
   app.use(`${baseUrl}/student`, coursesRoutes);
 
+=======
+  app.use(`${baseUrl}/student`, coursesRoutes);
+
+  app.use('/courseMaterial', uploadMaterial);
+>>>>>>> 78e70fea7cd038b2fc013332477d2e75d358594a
   app.use('/courseMaterial', viewMaterialCourse);
+
   app.use('/exam', examController);
   app.use('/message', MessageController);
   app.use('/assignment', assignmentController);
+<<<<<<< HEAD
   app.use('/instProfile', updateInstructorProfile);
+=======
+  app.use('/instProfile', updateInstProfile);
+>>>>>>> 78e70fea7cd038b2fc013332477d2e75d358594a
   app.use(`${baseUrl}/departments`, departmentsRouter);
   app.use(`${baseUrl}/adminProfile`, adminProfileRouter);
   app.use(`${baseUrl}/student/instructor`, instructorRout);
@@ -123,9 +157,12 @@ const bootstrap = (app, express) => {
     });
   });
 
+<<<<<<< HEAD
   app.all("*", (req, res, next) => {
     return res.status(404).json({ message: "In-valid routing" });
   })
+=======
+>>>>>>> 78e70fea7cd038b2fc013332477d2e75d358594a
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
   });
