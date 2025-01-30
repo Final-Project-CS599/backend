@@ -1,7 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../../../middleware/auth.js'; // Authentication middleware
 import { sendMessageToHelpDesk, getStudentMessages } from './controller.js'; // Import controllers
-import { validate } from '../../../middleware V2/validate.js'; // Import validation middleware
+import { validate } from '../../../middleware/validate.js'; // Import validation middleware
 import { sendMessageValidation } from '../../../validation/student/sendHelpDeskMessage.js'; // Import validation schema
 const router = express.Router();
 

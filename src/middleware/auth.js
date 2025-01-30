@@ -1,4 +1,4 @@
-import { AppError } from '../utils V2/AppError.js';
+import { AppError } from '../utils/AppError.js';
 import { asyncHandler } from './asyncHandler.js';
 import jwt from 'jsonwebtoken';
 

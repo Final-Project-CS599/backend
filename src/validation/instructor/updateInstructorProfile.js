@@ -1,9 +1,8 @@
-import { body, param } from 'express-validator';
+import { body } from 'express-validator';
 
 export const updateInstructorProfileValidation = [
-  param('id').isInt().withMessage('Instructor ID must be an integer').toInt(), 
   body('phoneNumbers')
-    .optional() 
+    .optional()
     .isArray()
     .withMessage('Phone numbers must be an array')
     .custom((value) => {
@@ -13,24 +12,24 @@ export const updateInstructorProfileValidation = [
       return true;
     })
     .withMessage('Each phone number must be a non-empty string')
-    .customSanitizer((value) => value.map((phone) => phone.trim())), 
+    .customSanitizer((value) => value.map((phone) => phone.trim())),
 
   body('password')
-    .optional() 
+    .optional()
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long')
     .matches(/[a-zA-Z0-9]/)
     .withMessage('Password must contain letters and numbers'),
 
   body('birthDate')
-    .optional() 
+    .optional()
     .isISO8601()
     .withMessage('Birth date must be a valid date in ISO8601 format (YYYY-MM-DD)')
-    .toDate(), 
+    .toDate(),
 
   body('gender')
-    .optional() 
+    .optional()
     .isIn(['Male', 'Female'])
     .withMessage('Gender must be one of: male, female')
-    .trim(), 
+    .trim(),
 ];
