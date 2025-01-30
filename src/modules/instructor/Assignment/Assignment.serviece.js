@@ -3,6 +3,8 @@ import dbConfig from "../../../DB/connection.js";
 
 export const addAssignment = async (req, res, next) => {
     try {
+        // console.log("Received request body:", req.body);
+
         const { type, link, degree, description, publish_date, title } = req.body;
 
         if (!type || !link || !degree || !description || !publish_date || !title) {

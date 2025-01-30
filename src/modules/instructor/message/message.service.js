@@ -1,10 +1,4 @@
-
-import dbConfig from "../../../../DB/connection.js"
-
-
-
-
-
+import dbConfig from "../../../DB/connection.js";
 export const sendMessage = (req, res, next) => {
     const { r_massage_content,  r_instructor_id, r_student_id } = req.body;
     console.log("Received body:", req.body);  
