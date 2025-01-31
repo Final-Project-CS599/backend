@@ -32,7 +32,7 @@ export const updateCoursesStudent = joi.object().keys({
 
 export const deletedCourse = joi.object().keys({
     courseName: generalFieldsValidation.course.required(),
-    courseCode: generalFieldsValidation.courseCode.required(),
+    // courseCode: generalFieldsValidation.courseCode.required(),
 });
 
 
