@@ -3,6 +3,15 @@ import { globalErrorHandling } from '../utils/response/error.response.js';
 // DB models
 import dbRoute from './createTable/CreateTable.controller.js';
 // Admin controllers
+import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
+import authController from './admin/auth/auth.controller.js';
+import updateDBController from './admin/updateDB/updateDB.controller.js';
+import editinstructorsRouter from './admin/editInstructor/editInstructor.routes.js';
+import departmentsRouter from './admin/department/department.routes.js';
+import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
+import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
+// Student controllers
+import userRoutes from '../modules/student/users/routes.js';
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import assignmentController from './instructor/Assignment/Assignment.controller.js';
@@ -12,13 +21,6 @@ import MessageController from './instructor/message/message.controller.js';
 import assignmentRout from '../modules/student/Assinment/assign.route.js';
 import coursesRoutes from '../modules/student/courses/routes.js';
 import instructorRout from '../modules/student/Instructores/instructor.route.js';
-import userRoutes from '../modules/student/users/routes.js';
-import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
-import authController from './admin/auth/auth.controller.js';
-import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
-import departmentsRouter from './admin/department/department.routes.js';
-import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
-import updateDBController from './admin/updateDB/updateDB.controller.js';
 import helpController from './instructor/helpdesk/help.controller.js';
 import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
 
@@ -97,6 +99,7 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/student/instructor`, instructorRout);
   app.use(`${baseUrl}/student`, assignmentRout);
   app.use(`${baseUrl}/editStudents`, editStudentsRouter);
+  app.use(`${baseUrl}/editInstructors`, editinstructorsRouter);
 
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
