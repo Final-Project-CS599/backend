@@ -1,61 +1,91 @@
 import dbConfig from "../../../DB/connection.js";
-export const uploadMaterial = (req, res) => {
+export const uploadMaterial = async (req, res, next) => {
   try {
-    const { title, fileLink, description, courseCode, uploadDate } = req.body;
-    const instructor_id = req.params;
-    if (!title || !fileLink || !description || !courseCode || !uploadDate || !instructor_id) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    const { m_description, m_title, m_instructor_id, m_courseId, m_link } = req.body;
+    
+    let fileUrl = m_link; 
+    if (req.file) {
+      fileUrl = `/uploads/${req.file.filename}`;
     }
 
-    if (!/^https?:\/\/[\w.-]+\.[a-z]{2,}(\/[\w.-]*)*\/?$/i.test(fileLink)) {
-      return res.status(400).json({ error: 'Invalid file link' });
+    if ( !m_description || !m_title || !fileUrl || !m_instructor_id || !m_courseId) {
+      return res.status(400).json({ message: "all fields are required" });
     }
 
     dbConfig.execute(
-      'INSERT INTO content (c_description, c_publish_date, c_file_link, c_title, c_instructor_id) VALUES (?, ?, ?, ?, ?)',
-      [description, uploadDate, fileLink, title, instructor_id],
-      (err, result) => {
-        if (err || !data.affectedRows) {
-          console.error('Error inserting into content table:', err);
-          return res.status(500).json({ error: 'Database error while inserting content' });
+      `INSERT INTO media (m_description, m_publish_date, m_title, m_link, m_instructor_id, m_courseId)
+       VALUES (?, NOW(), ?, ?, ?, ?)`,
+      [m_description, m_title, fileUrl, m_instructor_id, m_courseId], 
+      (err, data) => {
+        if (err) {
+          return res.status(500).json({ message: "خطأ أثناء تنفيذ الاستعلام", error: err.message });
+        } else {
+          return res.status(200).json({ message: "تم رفع المادة بنجاح" });
         }
-
-        const content_id = result.insertId; 
-
-        dbConfig.execute(
-          'INSERT INTO media (m_title, m_content_id) VALUES (? , ?)',
-          [title, fileLink, instructor_id, content_id],
-          (err, data) => {
-            if (err || !data.affectedRows) {
-              console.error('Error inserting into media table:', err);
-              return res.status(500).json({ error: 'Database error while inserting media' });
-            }
-
-            res.status(201).json({ message: 'Material uploaded successfully' });
-          }
-        );
       }
     );
+    
   } catch (error) {
-    console.error('Error handling request:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
   }
 };
 
-export const viewMaterialCourse = async (req, res) => {
+// تحديث المادة
+export const editMaterial = async (req, res, next) => {
   try {
-    const { instructor_id } = req.body;
-    const [data] = await dbConfig.execute(
-      `SELECT * FROM courses WHERE instructor_id = ""`,
-      [instructor_id]
-    );
+    const { m_id, m_description, m_title, m_link } = req.body;
 
-    if (!data.length) {
-      return res.status(404).json({ message: "Data not found" });
+    if (!m_id) {
+      return res.status(400).json({ message: "يجب توفير معرف المادة" });
     }
 
-    return res.status(200).json({ message: "Done", data });
-  } catch (err) {
-    return res.status(500).json({ message: "Failed to execute query", error: err.message });
+    dbConfig.execute(
+      `UPDATE media SET  m_description=?, m_title=?, m_link=? WHERE m_id=?`,
+      [m_type, m_description, m_title, m_link, m_id],
+      (err, data) => {
+        if (err) {
+          return res.status(500).json({ message: "فشل في تحديث المادة", error: err.message });
+        } else {
+          return res.status(200).json({ message: "تم تحديث المادة بنجاح" });
+        }
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
+  }
+};
+
+// عرض جميع المواد
+export const getMaterial = async (req, res, next) => {
+  try {
+    dbConfig.execute("SELECT * FROM media", (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: "فشل في جلب المواد", error: err.message });
+      }
+      return res.status(200).json(results);
+    });
+  } catch (error) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
+  }
+};
+
+// حذف مادة
+export const deleteMaterial = async (req, res, next) => {
+  try {
+    const { m_id } = req.body;
+
+    if (!m_id) {
+      return res.status(400).json({ message: "يجب توفير معرف المادة" });
+    }
+
+    dbConfig.execute("DELETE FROM media WHERE m_id=?", [m_id], (err, data) => {
+      if (err) {
+        return res.status(500).json({ message: "فشل في حذف المادة", error: err.message });
+      } else {
+        return res.status(200).json({ message: "تم حذف المادة بنجاح" });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
   }
 };

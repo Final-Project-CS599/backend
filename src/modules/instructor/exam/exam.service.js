@@ -1,97 +1,82 @@
 import dbConfig from "../../../DB/connection.js";
 
-// export const addExam = async (req, res, next) => {
-//     try {
-//         // استخراج البيانات من الطلب
-//         const { type, link, degree } = req.body;
-
-//         // التحقق من وجود البيانات المطلوبة
-//         if (!type || !link || !degree) {
-//             return res.status(400).json({ message: "All fields are required" });
-//         }
-
-//         // إدراج محتوى جديد في جدول content
-//         const [contentResult] = await dbConfig.execute(
-//             `INSERT INTO content (c_type) VALUES (?)`,
-//             ["exam"]
-//         );
-
-//         // طباعة النتيجة لفحصها
-//         console.log("Content Result:", contentResult);
-
-//         // التحقق إذا كانت النتيجة كائنًا يحتوي على insertId
-//         if (!contentResult || !contentResult.insertId) {
-//             return res.status(500).json({ message: "Failed to insert content" });
-//         }
-
-//         const contentId = contentResult.insertId; // مباشرة الحصول على insertId
-
-//         // إدراج بيانات الاختبار في جدول exam
-//         const [examResult] = await dbConfig.execute(
-//             `INSERT INTO exam (e_type, e_link, e_degree, e_content_id) VALUES (?, ?, ?, ?)`,
-//             [type, link, degree, contentId]
-//         );
-
-//         // طباعة النتيجة لفحصها
-//         console.log("Exam Result:", examResult);
-
-//         // التحقق من أن النتيجة تحتوي على insertId
-//         if (!examResult || !examResult.insertId) {
-//             return res.status(500).json({ message: "Failed to insert exam" });
-//         }
-
-//         // إرسال استجابة ناجحة
-//         res.status(201).json({ message: "Exam added successfully", contentId });
-//     } catch (error) {
-//         // طباعة الأخطاء في السيرفر
-//         console.error("Database error:", error.message);
-//         res.status(500).json({ message: "Server error", error: error.message });
-//     }
-// };
-
-   export const addExam = async(req, res, next )=>{
+export const addExam = async (req, res, next) => {
     try {
-        const{type, description, publish_date, title, link, degree, instructor_id, courseId} = req.body
-        
-    if (!type|| !description | !publish_date|| !title|| !link|| !degree|| !instructor_id|| !courseId) {
-        return res.status(400).json({ message: 'Type and link are required' });
-    }
-    db.execute(`INSERT INTO exam ( e_type , e_link ,e_description,e_publish_date,e_title, e_degree ,e_instructor_id,e_courseId ) VALUES (?,?,?,?,?,?,?,?)`,
-        [ type, description, publish_date, title, link, degree, instructor_id, courseId ],  (err, data) => {
-        if (err) {
-            return res.status(500).json({message:"Failed to execute query " , error , msg:error.message, stack:error.stack }) 
-        } else {
-            return res.status(200).json({message:"done "  })
+        const { type, description, publish_date, title, link, degree, instructor_id, courseId } = req.body;
+
+        // التحقق من الحقول الفارغة
+        if (!type || !description || !publish_date || !title || !link || !degree || !instructor_id || !courseId) {
+            return res.status(400).json({ message: 'All fields are required' });
         }
-    });  
+
+        // الاستعلام لإضافة الاختبار
+        const query = `INSERT INTO exam (e_title, e_description, e_degree, e_type, e_link, e_instructor_id, e_courseId)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+        dbConfig.query(query, [title, description, degree, type, link, instructor_id, courseId], (err, result) => {
+            if (err) {
+                return res.status(500).json({ 
+                    message: "Failed to execute query", 
+                    error: err.message, 
+                    stack: err.stack 
+                });
+            } else {
+                // الرد عند النجاح
+                return res.status(201).json({ message: "Exam added successfully", examId: result.insertId });
+            }
+        });
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });  
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 }
 
 
 
- export const editExam = async(req, res, next )=>{
-    const{type , link , degree , content_id} = req.body
-    console.log( req.body);
+export const editExam = async (req, res, next) => {
+    try {
+        const { examId } = req.params; // الحصول على examId من الـ URL
+        const { type, description, publish_date, title, link, degree, instructor_id, courseId } = req.body;
 
- try {
+        // التحقق من الحقول الفارغة
+        if (!type || !description || !publish_date || !title || !link || !degree || !instructor_id || !courseId) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
 
-    dbConfig.execute(`UPDATE exam 
-        SET e_type = ?, e_link = ?, e_degree = ?, e_content_id = ? 
-        WHERE e_degree= ?`,
-       [ type , link , degree , content_id , degree ],  (error, data) => {
-       if (error) {
-           return res.status(500).json({message:"Failed to execute query " , error , msg:error.message, stack:error.stack }) 
-       } else {
-           return res.status(200).json({message:"Exam updated successfully "    })
-       }
-   });  
- 
- } catch (error) {
-    return res.status(500).json({ message: "Failed to update exam", error: error.message, stack: error.stack}); 
- }
-} 
+        // الاستعلام لتحديث الاختبار
+        const query = `
+            UPDATE exam 
+            SET 
+                e_title = ?, 
+                e_description = ?, 
+                e_degree = ?, 
+                e_type = ?, 
+                e_link = ?, 
+                e_instructor_id = ?, 
+                e_courseId = ?,
+                e_publish_date = ?
+            WHERE e_id = ?
+        `;
+
+        dbConfig.query(query, [title, description, degree, type, link, instructor_id, courseId, publish_date, examId], (err, result) => {
+            if (err) {
+                return res.status(500).json({ 
+                    message: "Failed to execute query", 
+                    error: err.message, 
+                    stack: err.stack 
+                });
+            } else {
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({ message: "Exam not found" });
+                }
+                // الرد عند النجاح
+                return res.status(200).json({ message: "Exam updated successfully" });
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+}
+
 
 export const getExam = async (req, res, next) => {
    try {
@@ -119,10 +104,10 @@ export const getExam = async (req, res, next) => {
 export const deleteExam = async(req, res, next )=>{
     console.log("DELETE request received");
   
-        const{type } = req.body
+        const{examId} = req.params
         console.log("Request body:", req.body);
-     dbConfig.execute( `DELETE FROM exam WHERE e_type = ?`,
-        [ type  ],  (error, data) => {
+     dbConfig.execute( `DELETE FROM exam WHERE e_id= ?`,
+        [ examId],  (error, data) => {
         if (error) {
             return res.status(500).json({message:"Failed to execute query " , error , msg:error.message, stack:error.stack }) 
         } else {

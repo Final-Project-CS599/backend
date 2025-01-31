@@ -1,7 +1,6 @@
 
 import { validationResult } from 'express-validator';
 
-
 export const validate = (req, res, next) => {
   console.log(req.body);
   const errors = validationResult(req);
@@ -10,3 +9,5 @@ export const validate = (req, res, next) => {
   }
   next(); // If no errors, proceed to the next middleware or route handler
 };
+
+
