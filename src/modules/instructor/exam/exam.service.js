@@ -2,11 +2,25 @@ import dbConfig from "../../../DB/connection.js";
 
 export const addExam = async (req, res, next) => {
     try {
+<<<<<<< HEAD
         const { type, description, publish_date, title, link, degree, instructor_id, courseId } = req.body;
 
         // التحقق من الحقول الفارغة
         if (!type || !description || !publish_date || !title || !link || !degree || !instructor_id || !courseId) {
             return res.status(400).json({ message: 'All fields are required' });
+=======
+        const{type, description, publish_date, title, link, degree, instructor_id, courseId} = req.body
+        
+    if (!type|| !description | !publish_date|| !title|| !link|| !degree|| !instructor_id|| !courseId) {
+        return res.status(400).json({ message: 'Type and link are required' });
+    }
+    await dbConfig.execute(`INSERT INTO exam ( e_type , e_link ,e_description,e_publish_date,e_title, e_degree ,e_instructor_id,e_courseId ) VALUES (?,?,?,?,?,?,?,?)`,
+        [ type, description, publish_date, title, link, degree, instructor_id, courseId ],  (err, data) => {
+        if (err) {
+            return res.status(500).json({message:"Failed to execute query " , err , msg:err.message, stack:err.stack }) 
+        } else {
+            return res.status(200).json({message:"done "  })
+>>>>>>> 27582ba5c2e1a0bd63c11dedcd6e80e231872781
         }
 
         // الاستعلام لإضافة الاختبار

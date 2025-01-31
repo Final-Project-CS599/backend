@@ -33,6 +33,7 @@ import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
 import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
 // Student controllers
 import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
+
 import coursesRoutes from '../modules/student/courses/routes.js';
 // Cors
 
@@ -113,6 +114,8 @@ const bootstrap = (app, express) => {
   app.use('/courseMaterial', viewMaterialCourse);
   app.use('/exam', examController);
   app.use('/message', MessageController);
+  app.use('/msg', MsgController);
+  app.use('/help', helpController);
   app.use('/assignment', assignmentController);
   app.use('/instProfile', updateInstructorProfile);
   app.use(`${baseUrl}/departments`, departmentsRouter);
