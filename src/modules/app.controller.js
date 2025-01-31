@@ -6,9 +6,6 @@ import dbRoute from './createTable/CreateTable.controller.js';
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
-import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller.js";
-import authController from "./admin/auth/auth.controller.js";
-import updateDBController from "./admin/updateDB/updateDB.controller.js";
 
 import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from "./admin/editStudent/editStudent.routes.js";
