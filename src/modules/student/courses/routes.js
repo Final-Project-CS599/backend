@@ -1,13 +1,9 @@
 import express from 'express';
-import { verifyToken } from '../../../middleware/auth.js'; // Authentication middleware
+import { verifyToken } from '../../../middleware/auth.js';
 import { getCoursesByStudentId } from './controller.js';
 
 const router = express.Router();
 
-router.get(
-  '/courses',
-  verifyToken, // Ensure the user is authenticated
-  getCoursesByStudentId // Controller to handle the request
-);
+router.get('/courses', verifyToken, getCoursesByStudentId);
 
 export default router;

@@ -87,13 +87,13 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
   app.use(`${baseUrl}/student`, coursesRoutes);
 
-  app.use('/courseMaterial', uploadCourseMaterial);
-  app.use('/courseMaterial', viewMaterialCourse);
-  app.use('/exam', examController);
-  app.use('/message', MessageController);
-  app.use('/assignment', assignmentController);
-  app.use('/content', contentController);
-  app.use('/instProfile', updateInstructorProfile);
+  app.use(`${baseUrl}/courseMaterial`, uploadCourseMaterial);
+  app.use(`${baseUrl}/courseMaterial`, viewMaterialCourse);
+  app.use(`${baseUrl}/exam`, examController);
+  app.use(`${baseUrl}/message`, MessageController);
+  app.use(`${baseUrl}/assignment`, assignmentController);
+  // app.use(`${baseUrl}/content`, contentController);
+  app.use(`${baseUrl}/instProfile`, updateInstructorProfile);
   app.use(`${baseUrl}/departments`, departmentsRouter);
   app.use(`${baseUrl}/adminProfile`, adminProfileRouter);
   app.use(`${baseUrl}/student/instructor`, instructorRout);

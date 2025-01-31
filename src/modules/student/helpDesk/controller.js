@@ -8,10 +8,10 @@ export const sendMessageToHelpDesk = asyncHandler(async (req, res) => {
 
   // Insert the message into the helpDesk table
   const query = `
-    INSERT INTO helpDesk (hd_title, hd_description, hd_email, hd_studentId, hd_instructorsId)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO helpDesk (hd_title, hd_description, hd_email, hd_studentId)
+    VALUES (?, ?, ?, ?)
   `;
-  const values = [title, description, email, studentId, 1]; // Assuming instructor ID is 1 for now
+  const values = [title, description, email, studentId]; // Assuming instructor ID is 1 for now
 
   dbConfig.query(query, values, (err, results) => {
     if (err) {
@@ -19,7 +19,17 @@ export const sendMessageToHelpDesk = asyncHandler(async (req, res) => {
       return res.status(500).json({ message: 'Failed to send message' });
     }
 
-    res.status(201).json({ message: 'Message sent successfully', id: results.insertId });
+    // Include the sent message in the response
+    res.status(201).json({
+      message: 'Message sent successfully',
+      data: {
+        id: results.insertId,
+        title: title,
+        description: description,
+        email: email,
+        studentId: studentId,
+      },
+    });
   });
 });
 

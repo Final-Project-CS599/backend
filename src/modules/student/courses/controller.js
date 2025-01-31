@@ -8,8 +8,8 @@ export const getCoursesByStudentId = (req, res) => {
   }
 
   const query = `
-      SELECT * FROM courses 
-      WHERE c_studentId = ?
+      SELECT * FROM enrollment 
+      WHERE e_studentId = ?
     `;
 
   dbConfig.query(query, [studentId], (err, results) => {
