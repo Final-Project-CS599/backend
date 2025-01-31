@@ -1,6 +1,5 @@
 import dbConfig from '../../../DB/connection.js';
 import { asyncHandler } from '../../../middleware/asyncHandler.js';
-import { AppError } from '../../../utils/AppError.js';
 
 const mainDepartments = [
   { deptName: 'Statistical Methods', deptCode: 'AS' },
@@ -29,21 +28,14 @@ const conn = dbConfig.promise();
 //     }
 // })();
 
+
 const addDepartment = asyncHandler(async (req, res, next) => {
+  const AdminId = req.user.id;
   const { department_name, department_code } = req.body;
 
-  if (!department_name || !department_code)
-    return AppError('Department name and code are required', 400);
-
-  const [existingDept] = await conn.execute('SELECT d_id FROM department WHERE d_dept_code = ?', [
-    department_code,
-  ]);
-
-  if (existingDept.length > 0) return AppError('Department code already exists', 400);
-
   const [result] = await conn.execute(
-    'INSERT INTO department (d_dept_name, d_dept_code) VALUES (?, ?)',
-    [department_name, department_code]
+    'INSERT INTO department (d_dept_name, d_dept_code, d_adminNid) VALUES (?, ?, ?)',
+    [department_name, department_code, AdminId]
   );
 
   res.status(201).json({
@@ -55,16 +47,6 @@ const addDepartment = asyncHandler(async (req, res, next) => {
     },
   });
 });
-
-// Assuming that you store the authenticated user's id in req.user (via authentication middleware)
-// const adminId = req.user.id;
-
-// // Extend the req.body to include admin_id
-// const departmentData = {
-//     ...req.body,
-//     admin_id: adminId // Add the admin_id to the request body
-// };
-//const [department] = await conn.query(`INSERT INTO department SET ?`, departmentData);
 
 const getAllDepartments = asyncHandler(async (req, res, next) => {
   const [departments] = await conn.execute(

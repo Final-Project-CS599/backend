@@ -6,7 +6,7 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 const conn = dbConfig.promise();
 
 const viewProfile = asyncHandler(async (req, res, next) => {
-  const { nationalId } = +req.params;
+  const { nationalId } = req.params;
 
   const [rows] = await conn.query(
     `SELECT 
@@ -39,60 +39,61 @@ const viewProfile = asyncHandler(async (req, res, next) => {
   res.json({ message: 'success', adminData });
 });
 
-const editProfile = asyncHandler(async (req, res) => {
+const editProfile = asyncHandler(async (req, res, next) => {
+
   const { nationalId } = req.params;
-  const { primaryPhone, secondaryPhone } = req.body;
+  const { primaryPhone, secondaryPhone, newPassword, confirmPassword } = req.body;
 
-  await conn.beginTransaction();
+  // Update phone numbers
+  if (primaryPhone || secondaryPhone) {
+    // Fetch existing phone numbers for the user
+    const [existingPhones] = await conn.query(
+      'SELECT p_id, p_number FROM superAdminsPhone WHERE sAdmin_nationalID = ?',
+      [nationalId]
+    );
 
-  const phones = [];
-  if (primaryPhone) phones.push(primaryPhone);
-  if (secondaryPhone) phones.push(secondaryPhone);
+    // Update or insert primary phone
+    if (primaryPhone) {
+      if (existingPhones[0]) {
+        await conn.query(
+          'UPDATE superAdminsPhone SET p_number = ? WHERE p_id = ?',
+          [primaryPhone, existingPhones[0].p_id]
+        );
+      } else {
+        await conn.query(
+          'INSERT INTO superAdminsPhone (p_number, sAdmin_nationalID) VALUES (?, ?)',
+          [primaryPhone, nationalId]
+        );
+      }
+    }
 
-  await conn.query('DELETE FROM superadminsphone WHERE sAdmin_nationalID = ?', [nationalId]);
+    // Update or insert secondary phone
+    if (secondaryPhone) {
+      if (existingPhones[1]) {
+        await conn.query(
+          'UPDATE superAdminsPhone SET p_number = ? WHERE p_id = ?',
+          [secondaryPhone, existingPhones[1].p_id]
+        );
+      } else {
+        await conn.query(
+          'INSERT INTO superAdminsPhone (p_number, sAdmin_nationalID) VALUES (?, ?)',
+          [secondaryPhone, nationalId]
+        );
+      }
+    }
+  }
 
-  if (phones.length > 0) {
-    const newPhones = phones.map((phone) => [phone, nationalId]);
-    await conn.query('INSERT INTO superadminsphone (p_number, sAdmin_nationalID) VALUES ?', [
-      newPhones,
+  // Update password if newPassword and confirmPassword are provided
+  if (newPassword && confirmPassword) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    await conn.query('UPDATE superAdmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?', [
+      hashedPassword,
+      nationalId,
     ]);
   }
 
-  await conn.commit();
-
-  res.status(200).json({ message: 'Profile updated successfully' });
-});
-
-const updateAdminPassword = asyncHandler(async (req, res, next) => {
-  const { nationalId } = req.params;
-  const { oldPassword, newPassword, confirmPassword } = req.body;
-
-  if (newPassword !== confirmPassword) {
-    return next(new AppError('New password and confirm password do not match', 400));
-  }
-
-  const [admin] = await conn.query(
-    'SELECT sAdmin_password FROM superadmin WHERE sAdmin_nationalID = ?',
-    [nationalId]
-  );
-
-  if (!admin[0]) {
-    return next(new AppError('Admin not found', 404));
-  }
-
-  const passwordMatch = await bcrypt.compare(oldPassword, admin[0].sAdmin_password);
-  if (!passwordMatch) {
-    return next(new AppError('Invalid old password', 400));
-  }
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  await conn.query('UPDATE superadmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?', [
-    hashedPassword,
-    nationalId,
-  ]);
-
-  res.status(200).json({ message: 'Password updated successfully' });
+  res.status(200).json({ message: 'Profile and password updated successfully' });
 });
 
 export { viewProfile, editProfile };
