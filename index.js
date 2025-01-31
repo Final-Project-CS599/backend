@@ -1,11 +1,10 @@
 import path from 'path';
 import dotenv from 'dotenv';
-
-dotenv.config({path:(path.resolve('.env.dev'))});
-
 import bootstrap from './src/modules/app.controller.js';
 import express from 'express';
 import multer from 'multer';
+
+dotenv.config({ path: path.resolve('.env.dev') });
 
 const app = express();
 const port = process.env.PORT || 1000;

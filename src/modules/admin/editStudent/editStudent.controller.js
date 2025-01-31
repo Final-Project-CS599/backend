@@ -1,15 +1,15 @@
-import dbConfig from "../../../DB/connection.js";
-import { asyncHandler } from "../../../middleware/asyncHandler.js";
-import { AppError } from "../../../utils V2/AppError.js";
+import dbConfig from '../../../DB/connection.js';
+import { asyncHandler } from '../../../middleware/asyncHandler.js';
+import { AppError } from '../../../utils/AppError.js';
 
 const conn = dbConfig.promise();
 
 const searchStudents = asyncHandler(async (req, res, next) => {
-    const { department, firstName, lastName } = req.body;
+  const { department, firstName, lastName } = req.body;
 
-    if (!department) return AppError('Department is required', 400);
+  if (!department) return AppError('Department is required', 400);
 
-    let query = `
+  let query = `
         SELECT 
             s.s_id AS id,
             s.s_first_name AS firstName,
@@ -21,30 +21,29 @@ const searchStudents = asyncHandler(async (req, res, next) => {
         WHERE d.d_dept_name = ?
     `;
 
-    const params = [department];
+  const params = [department];
 
-    if (firstName) {
-        query += ` AND s.s_first_name LIKE ?`;
-        params.push(`%${firstName}%`);
-    }
+  if (firstName) {
+    query += ` AND s.s_first_name LIKE ?`;
+    params.push(`%${firstName}%`);
+  }
 
-    if (lastName) {
-        query += ` AND s.s_last_name LIKE ?`;
-        params.push(`%${lastName}%`);
-    }
-  
-    const [students] = await conn.execute(query, params);
+  if (lastName) {
+    query += ` AND s.s_last_name LIKE ?`;
+    params.push(`%${lastName}%`);
+  }
 
-    res.json({status: 'success', results: students.length, data: {students}});
-    
+  const [students] = await conn.execute(query, params);
+
+  res.json({ status: 'success', results: students.length, data: { students } });
 });
 
 const findStudentById = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    if (!id || isNaN(id)) return AppError('Valid student ID is required', 400);
+  if (!id || isNaN(id)) return AppError('Valid student ID is required', 400);
 
-    const query = `
+  const query = `
         SELECT 
             s.s_id as id,
             s.s_first_name as firstName,
@@ -63,30 +62,31 @@ const findStudentById = asyncHandler(async (req, res, next) => {
         GROUP BY s.s_id
     `;
 
-        const [students] = await conn.execute(query, [id]);
-        
-        if (!students.length) return AppError('Student not found', 404);
+  const [students] = await conn.execute(query, [id]);
 
-        const student = {
-            ...students[0],
-            phones: students[0].phones ? students[0].phones.split(',') : [],
-            dateOfBirth: new Date(students[0].dateOfBirth).toISOString().split('T')[0]
-        };
+  if (!students.length) return AppError('Student not found', 404);
 
-           res.json({status: 'success', data: {student}});
+  const student = {
+    ...students[0],
+    phones: students[0].phones ? students[0].phones.split(',') : [],
+    dateOfBirth: new Date(students[0].dateOfBirth).toISOString().split('T')[0],
+  };
+
+  res.json({ status: 'success', data: { student } });
 });
 
 const updateStudentById = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const { firstName, midName, lastName, email, department, nationalId } = req.body;
+  const { id } = req.params;
+  const { firstName, midName, lastName, email, department, nationalId } = req.body;
 
-    const [deptResult] = await conn.query('SELECT d_id FROM department WHERE d_dept_name = ?',
-        [department]);
+  const [deptResult] = await conn.query('SELECT d_id FROM department WHERE d_dept_name = ?', [
+    department,
+  ]);
 
-    if (!deptResult.length) return AppError('Department not found', 404);
+  if (!deptResult.length) return AppError('Department not found', 404);
 
-    const [result] = await conn.query(
-        `UPDATE student 
+  const [result] = await conn.query(
+    `UPDATE student 
          SET s_first_name = ?, 
              s_middle_name = ?,
              s_last_name = ?,
@@ -95,18 +95,18 @@ const updateStudentById = asyncHandler(async (req, res, next) => {
              s_department_id = ?,
              s_updated_at = CURRENT_TIMESTAMP
          WHERE s_id = ?`,
-        [firstName, midName, lastName, email, nationalId, deptResult[0].d_id, id]
-    );
+    [firstName, midName, lastName, email, nationalId, deptResult[0].d_id, id]
+  );
 
-    if (result.affectedRows === 0) return AppError('Student not found', 404);
+  if (result.affectedRows === 0) return AppError('Student not found', 404);
 
-    res.status(200).json({status: 'success', message: 'Student updated successfully'});
+  res.status(200).json({ status: 'success', message: 'Student updated successfully' });
 });
 
 const viewStudentAcademicCourses = asyncHandler(async (req, res, next) => {
-        const studentId = req.params.studentId;
-    
-        const query = `
+  const studentId = req.params.studentId;
+
+  const query = `
             SELECT DISTINCT
                 c.c_id as courseId,
                 c.c_name as courseName,
@@ -117,20 +117,22 @@ const viewStudentAcademicCourses = asyncHandler(async (req, res, next) => {
             WHERE e.e_studentId = ?
             AND c.c_type = 'Academic'
         `;
-    
-        const [rows] = await conn.execute(query, [studentId]);
-    
-        await conn.end();
-    
-        if (!rows.length) return AppError('No academic courses found for this student', 404);
-    
-        res.status(200).json({success: true, message: 'Academic courses retrieved successfully', data: rows});
+
+  const [rows] = await conn.execute(query, [studentId]);
+
+  await conn.end();
+
+  if (!rows.length) return AppError('No academic courses found for this student', 404);
+
+  res
+    .status(200)
+    .json({ success: true, message: 'Academic courses retrieved successfully', data: rows });
 });
 
 const viewStudentExtraCourses = asyncHandler(async (req, res, next) => {
-     const studentId = req.params.studentId;
- 
-     const query = `
+  const studentId = req.params.studentId;
+
+  const query = `
          SELECT DISTINCT
              c.c_id as courseId,
              c.c_name as courseName,
@@ -142,23 +144,22 @@ const viewStudentExtraCourses = asyncHandler(async (req, res, next) => {
          WHERE enr.e_studentId = ?
          AND c.c_type = 'Extra'
      `;
- 
 
-     const [rows] = await conn.execute(query, [studentId]);
- 
-     await conn.end();
- 
-     if (!rows.length) return AppError('No extra courses found for this student', 404);
- 
-     res.status(200).json({status: 'success', message: 'Extra courses retrieved successfully', data: rows});
+  const [rows] = await conn.execute(query, [studentId]);
+
+  await conn.end();
+
+  if (!rows.length) return AppError('No extra courses found for this student', 404);
+
+  res
+    .status(200)
+    .json({ status: 'success', message: 'Extra courses retrieved successfully', data: rows });
 });
 
 export {
-    searchStudents,
-    findStudentById,
-    updateStudentById,
-    viewStudentAcademicCourses,
-    viewStudentExtraCourses
-}
-
-
+  searchStudents,
+  findStudentById,
+  updateStudentById,
+  viewStudentAcademicCourses,
+  viewStudentExtraCourses,
+};

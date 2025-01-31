@@ -1,4 +1,4 @@
-import { AppError } from '../utils V2/AppError.js';
+import { AppError } from '../utils/AppError.js';
 import { asyncHandler } from './asyncHandler.js';
 import jwt from 'jsonwebtoken';
 
@@ -16,7 +16,6 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
   try {
     // Verify the token
     const decoded = jwt.verify(token, process.env.TOKEN_SIGNATURE_ADMIN);
-    console.log('verifyToken', decoded);
 
     // Attach the decoded payload (e.g., user ID) to the request object
     req.user = decoded;

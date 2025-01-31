@@ -1,9 +1,7 @@
-import { body, param } from 'express-validator';
+import { body } from 'express-validator';
 
 // Validation and sanitization rules
 export const updateStudentProfileValidation = [
-  // Validate and sanitize the student ID in the URL
-  param('id').isInt().withMessage('Student ID must be an integer').toInt(), // Convert the ID to an integer
   // Validate and sanitize phoneNumbers (if provided)
   body('phoneNumbers')
     .optional() // Phone numbers are optional
@@ -21,8 +19,8 @@ export const updateStudentProfileValidation = [
   // Validate and sanitize password (if provided)
   body('password')
     .optional() // Password is optional
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long')
     .matches(/[a-zA-Z0-9]/)
     .withMessage('Password must contain letters and numbers'),
 
