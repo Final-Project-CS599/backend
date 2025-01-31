@@ -1,35 +1,33 @@
-import { body } from 'express-validator';
+import Joi from 'joi';
 
-export const updateInstructorProfileValidation = [
-  body('phoneNumbers')
-    .optional()
-    .isArray()
-    .withMessage('Phone numbers must be an array')
-    .custom((value) => {
-      if (value.length > 0) {
-        return value.every((phone) => typeof phone === 'string' && phone.trim().length > 0);
-      }
-      return true;
-    })
-    .withMessage('Each phone number must be a non-empty string')
-    .customSanitizer((value) => value.map((phone) => phone.trim())),
+export const updateInstructorProfileValidation = {
+  body: Joi.object({
+    phoneNumbers: Joi.array()
+      .optional()
+      .items(Joi.string().min(1).trim().messages({
+        'string.base': 'Each phone number must be a string',
+        'string.empty': 'Each phone number must be a non-empty string',
+      }))
+      .custom((value, helpers) => {
+        if (value.length > 0) {
+          const isValid = value.every((phone) => typeof phone === 'string' && phone.trim().length > 0);
+          if (!isValid) {
+            return helpers.message('Each phone number must be a non-empty string');
+          }
+        }
+        return value;
+      }),
 
-  body('password')
-    .optional()
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/[a-zA-Z0-9]/)
-    .withMessage('Password must contain letters and numbers'),
-
-  body('birthDate')
-    .optional()
-    .isISO8601()
-    .withMessage('Birth date must be a valid date in ISO8601 format (YYYY-MM-DD)')
-    .toDate(),
-
-  body('gender')
-    .optional()
-    .isIn(['Male', 'Female'])
-    .withMessage('Gender must be one of: male, female')
-    .trim(),
-];
+    password: Joi.string()
+      .optional()
+      .min(8)
+      .messages({
+        'string.base': 'Password must be a string',
+        'string.min': 'Password must be at least 8 characters long',
+      })
+      .regex(/[a-zA-Z0-9]/)
+      .messages({
+        'string.pattern.base': 'Password must contain letters and numbers',
+      }),
+  }),
+};
