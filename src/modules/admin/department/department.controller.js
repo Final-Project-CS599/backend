@@ -56,3 +56,7 @@ const getAllDepartments = asyncHandler(async (req, res, next) => {
 });
 
 export { addDepartment, getAllDepartments };
+
+
+
+

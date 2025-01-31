@@ -5,6 +5,7 @@ import userRoutes from "../modules/student/users/routes.js";
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
+import coursesController from './admin/courses/courses.controller.js';
 import editinstructorsRouter from './admin/editInstructor/editInstructor.routes.js';
 import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
@@ -75,7 +76,7 @@ const bootstrap = (app, express) => {
   app.use('/auth/addUser', authAddUsersController);
   app.use('/auth', authController);
   app.use('/updateDB', updateDBController);
-  // app.use('/courses' , coursesController);
+  app.use('/courses' , coursesController);
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
