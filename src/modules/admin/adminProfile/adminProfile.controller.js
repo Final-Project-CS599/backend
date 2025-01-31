@@ -6,24 +6,24 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 const conn = dbConfig.promise();
 
 const viewProfile = asyncHandler(async (req, res, next) => {
-  const { nationalId } = req.params;
-
+  const nationalId = req.user.id;
   const [rows] = await conn.query(
     `SELECT 
-            admin.sAdmin_nationalID, 
-            admin.sAdmin_firstName,
-            admin.sAdmin_lastName,
-            admin.sAdmin_email, 
-            admin.sAdmin_role,
-            GROUP_CONCAT(adminPhones.p_number) as phones
-        FROM superadmin admin
-        LEFT JOIN superadminsphone adminPhones 
-            ON admin.sAdmin_nationalID = adminPhones.sAdmin_nationalID
-        WHERE admin.sAdmin_nationalID = ?
-        GROUP BY admin.sAdmin_nationalID`,
+      admin.sAdmin_nationalID, 
+      admin.sAdmin_firstName,
+      admin.sAdmin_lastName,
+      admin.sAdmin_email, 
+      admin.sAdmin_role,
+      GROUP_CONCAT(adminPhones.p_number) as phones
+    FROM superAdmin admin
+    LEFT JOIN superAdminsPhone adminPhones 
+      ON admin.sAdmin_nationalID = adminPhones.sAdmin_nationalID
+    WHERE admin.sAdmin_nationalID = ?
+    GROUP BY admin.sAdmin_nationalID`,
     [nationalId]
   );
 
+  console.log(rows, 'rows')
   if (!rows[0]) return next(new AppError('Admin not found', 404));
 
   const adminData = {
@@ -40,9 +40,13 @@ const viewProfile = asyncHandler(async (req, res, next) => {
 });
 
 const editProfile = asyncHandler(async (req, res, next) => {
-
-  const { nationalId } = req.params;
+  const nationalId = req.user.id;
   const { primaryPhone, secondaryPhone, newPassword, confirmPassword } = req.body;
+
+  // Validate password match if password is being updated
+  if (newPassword && newPassword !== confirmPassword) {
+    return next(new AppError('Passwords do not match', 400));
+  }
 
   // Update phone numbers
   if (primaryPhone || secondaryPhone) {
@@ -52,39 +56,29 @@ const editProfile = asyncHandler(async (req, res, next) => {
       [nationalId]
     );
 
-    // Update or insert primary phone
-    if (primaryPhone) {
-      if (existingPhones[0]) {
-        await conn.query(
-          'UPDATE superAdminsPhone SET p_number = ? WHERE p_id = ?',
-          [primaryPhone, existingPhones[0].p_id]
-        );
-      } else {
-        await conn.query(
-          'INSERT INTO superAdminsPhone (p_number, sAdmin_nationalID) VALUES (?, ?)',
-          [primaryPhone, nationalId]
-        );
+    // Helper function to update or insert phone number
+    const upsertPhone = async (phoneNumber, index) => {
+      if (phoneNumber) {
+        if (existingPhones[index]) {
+          await conn.query(
+            'UPDATE superAdminsPhone SET p_number = ? WHERE p_id = ?',
+            [phoneNumber, existingPhones[index].p_id]
+          );
+        } else {
+          await conn.query(
+            'INSERT INTO superAdminsPhone (p_number, sAdmin_nationalID) VALUES (?, ?)',
+            [phoneNumber, nationalId]
+          );
+        }
       }
-    }
+    };
 
-    // Update or insert secondary phone
-    if (secondaryPhone) {
-      if (existingPhones[1]) {
-        await conn.query(
-          'UPDATE superAdminsPhone SET p_number = ? WHERE p_id = ?',
-          [secondaryPhone, existingPhones[1].p_id]
-        );
-      } else {
-        await conn.query(
-          'INSERT INTO superAdminsPhone (p_number, sAdmin_nationalID) VALUES (?, ?)',
-          [secondaryPhone, nationalId]
-        );
-      }
-    }
+    await upsertPhone(primaryPhone, 0);
+    await upsertPhone(secondaryPhone, 1);
   }
 
-  // Update password if newPassword and confirmPassword are provided
-  if (newPassword && confirmPassword) {
+  // Update password if provided
+  if (newPassword) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     await conn.query('UPDATE superAdmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?', [

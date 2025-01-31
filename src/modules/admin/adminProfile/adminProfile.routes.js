@@ -8,7 +8,7 @@ import { verifyToken } from "../../../middleware/auth.js";
 
 const adminProfileRouter = Router()
 adminProfileRouter
-    .route('/:nationalId')
+    .route('/')
     .get(verifyToken, viewProfile)
     .patch(verifyToken, validateEditProfile, validate, editProfile)
 

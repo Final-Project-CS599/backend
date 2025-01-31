@@ -1,11 +1,6 @@
-import { body, param} from 'express-validator';
+import { body } from 'express-validator';
 
 export const validateEditProfile = [
-    param('nationalId').trim().notEmpty()
-    .withMessage('National ID is required')
-    .isLength(14)
-    .withMessage('National ID must be 14 character'),  
-
   body('primaryPhone').optional().trim().isMobilePhone('any')
     .withMessage('Primary phone must be a valid phone number'),
 
