@@ -1,20 +1,7 @@
 import dbConfig from '../DB/connection.js';
 import { globalErrorHandling } from '../utils/response/error.response.js';
-// DB models
 import dbRoute from './createTable/CreateTable.controller.js';
-// Admin controllers
-
-import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
-import authController from './admin/auth/auth.controller.js';
-import updateDBController from './admin/updateDB/updateDB.controller.js';
-
-import departmentsRouter from './admin/department/department.routes.js';
-import editStudentsRouter from "./admin/editStudent/editStudent.routes.js";
-import adminProfileRouter from "./admin/adminProfile/adminProfile.routes.js";
-// Student controllers
 import userRoutes from "../modules/student/users/routes.js";
-import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
-
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
@@ -22,9 +9,6 @@ import editinstructorsRouter from './admin/editInstructor/editInstructor.routes.
 import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
 import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
-// Student controllers
-import userRoutes from '../modules/student/users/routes.js';
-
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import assignmentController from './instructor/Assignment/Assignment.controller.js';
