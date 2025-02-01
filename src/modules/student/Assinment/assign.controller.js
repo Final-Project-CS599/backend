@@ -3,58 +3,54 @@ import { successResponse } from "../../../utils/response/success.response.js";
 import { asyncHandler } from "../../../middleware/asyncHandler.js";
 
 const studentAssignment = asyncHandler(async (req, res) => {
-  const { course_id } = req.body;
+  try {
+    const { course_id } = req.body;
 
-  // Query to select content based on course_id
-  const contentQuery = `
-    SELECT id 
-    FROM content 
-    WHERE course_id = ?
-  `;
-
-  dbConfig.query(contentQuery, [course_id], (contentError, contentResults) => {
-    if (contentError) {
-      return res.status(500).json({
+    if (!course_id) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to fetch content",
-        error: contentError.message,
+        message: "Course ID is required",
       });
     }
 
-    // Extract content IDs from the results
-    const contentIds = contentResults.map((content) => content.id);
-
-    if (contentIds.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No content found for the given course ID",
-      });
-    }
-
-    // Query to select assignments based on content IDs
+    // استعلام واحد باستخدام JOIN لجلب Assignments مباشرةً
     const assignmentQuery = `
-      SELECT * 
-      FROM assignment 
-      WHERE content_id IN (?)
+      SELECT A.* 
+      FROM assignment A
+      JOIN content C ON A.content_id = C.id
+      WHERE C.course_id = ?;
     `;
 
-    dbConfig.query(
-      assignmentQuery,
-      [contentIds],
-      (assignmentError, assignmentResults) => {
-        if (assignmentError) {
-          return res.status(500).json({
-            success: false,
-            message: "Failed to fetch assignments",
-            error: assignmentError.message,
-          });
-        }
-
-        // Return the assignments
-        successResponse(res, 200, assignmentResults);
+    // تنفيذ الاستعلام وتمرير course_id
+    dbConfig.query(assignmentQuery, [course_id], (error, results) => {
+      if (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to fetch assignments",
+          error: error.message,
+        });
       }
-    );
-  });
+
+      if (results.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No assignments found for the given course ID",
+        });
+      }
+
+      // إرجاع النتائج في استجابة JSON
+      res.status(200).json({
+        success: true,
+        assignments: results,
+      });
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
 });
 
 export default studentAssignment;
