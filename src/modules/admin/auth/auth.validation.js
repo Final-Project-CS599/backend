@@ -17,6 +17,7 @@ export const forgetPasswordValidationSchema = joi.object().keys({
 
 
 export const verifyCodeValidationSchema = joi.object().keys({
+    email: generalFieldsValidation.email.required(),
     code: generalFieldsValidation.code.required(),
 }).options({allowUnknown: false}).required();
 

@@ -26,7 +26,7 @@ const sendEmailGlobal = async ( {email , subject , templateGenerate , endpoint ,
         // html Data
         let  html;
         if (templateGenerate === generateEmail.generateEmailTemplate){
-            html = templateGenerate(emailLink , email , addData);
+            html = templateGenerate(emailLink , email );
         }else {
             html = templateGenerate(emailLink , addData);
         }
@@ -39,13 +39,13 @@ const sendEmailGlobal = async ( {email , subject , templateGenerate , endpoint ,
 
 // send Email
 emailEvent.on("sendEmail" , async(data) => {
-    const {email , password} = data;
+    const {email } = data;
     await sendEmailGlobal({
         email,
         subject: "Confirm Email",
         templateGenerate: generateEmail.generateEmailTemplate,
         endpoint: "confirmEmail",
-        addData: password,
+        // addData: password,
         sendEmailFunction: generateEmail.sendEmail
     });
 });

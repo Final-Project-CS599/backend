@@ -37,10 +37,10 @@ const addInstructor = errorAsyncHandler(
                 dbConfig.execute(`select * from Instructors where i_email =?` , [email] ,
                     async (err , data) => {
                         if (err) {
-                            return next(new Error("Failed to get data , Fail to execute query" , {cause: 500}))
+                            return next(new Error(`Error Server Database Failed to get data check email ${err.message}`, {cause: 500}))
                         }
                         else if (data.length) {
-                            return next(new Error("Instructors email already exists" , {cause: 409}))
+                            return next(new Error(`Instructors email already exists` , {cause: 409}))
                         }
                         else {
                             const hashPassword = generateHash({plainText: password});
@@ -52,13 +52,10 @@ const addInstructor = errorAsyncHandler(
                                         [departmentName],
                                         (err, data) => {
                                             if (err) {
-                                                console.error("Error fetching department:", err);
                                                 reject(err);
                                             } else if (data.length > 0) {
-                                                console.log("Department found:", data[0]);
                                                 resolve(data[0].d_id);
                                             } else {
-                                                console.log("Department not found for name:", departmentName);
                                                 resolve(null);
                                             }
                                         }
@@ -68,8 +65,7 @@ const addInstructor = errorAsyncHandler(
                         
                             const departmentId = await getDepartmentIdByName(department);
                             if (!departmentId) {
-                                console.log("Department name provided:", department);
-                                return res.status(404).json({ message: 'Department not found' });
+                                return next(new Error(`Department not found ` , {cause: 404}));
                             }
 
                             dbConfig.execute(` insert into Instructors (
@@ -78,7 +74,7 @@ const addInstructor = errorAsyncHandler(
                                 values (?,?,?,?,?,?) ` ,[firstName , lastName , email , hashPassword , departmentId , admin_nationalID] , 
                                 async (err , data) => {
                                     if (err) {
-                                        return next(new Error(`Failed to add data , Fail to execute query ${err.message}` , {cause: 500} ))
+                                        return next(new Error(`Error Server Database Failed to get data ,execute query: ${err.message}`, {cause:500}));
                                     }
 
                                     const instructorId = data.insertId;
@@ -96,8 +92,8 @@ const addInstructor = errorAsyncHandler(
                                             )
                                         })
                                     })
-                                    emailEvent.emit("sendEmail" , {email , password});
-            
+                                    emailEvent.emit("sendEmail" , {email} );
+
                                     Promise.all(phoneQueries).then((phones)=>{
                                         const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});
                                         return successResponse({
