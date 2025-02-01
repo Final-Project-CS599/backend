@@ -6,24 +6,24 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 const conn = dbConfig.promise();
 
 const viewProfile = asyncHandler(async (req, res, next) => {
-  const { nationalId } = +req.params;
-
+  const nationalId = req.user.id;
   const [rows] = await conn.query(
     `SELECT 
-            admin.sAdmin_nationalID, 
-            admin.sAdmin_firstName,
-            admin.sAdmin_lastName,
-            admin.sAdmin_email, 
-            admin.sAdmin_role,
-            GROUP_CONCAT(adminPhones.p_number) as phones
-        FROM superadmin admin
-        LEFT JOIN superadminsphone adminPhones 
-            ON admin.sAdmin_nationalID = adminPhones.sAdmin_nationalID
-        WHERE admin.sAdmin_nationalID = ?
-        GROUP BY admin.sAdmin_nationalID`,
+      admin.sAdmin_nationalID, 
+      admin.sAdmin_firstName,
+      admin.sAdmin_lastName,
+      admin.sAdmin_email, 
+      admin.sAdmin_role,
+      GROUP_CONCAT(adminPhones.p_number) as phones
+    FROM superAdmin admin
+    LEFT JOIN superAdminsPhone adminPhones 
+      ON admin.sAdmin_nationalID = adminPhones.sAdmin_nationalID
+    WHERE admin.sAdmin_nationalID = ?
+    GROUP BY admin.sAdmin_nationalID`,
     [nationalId]
   );
 
+  console.log(rows, 'rows')
   if (!rows[0]) return next(new AppError('Admin not found', 404));
 
   const adminData = {
@@ -39,60 +39,55 @@ const viewProfile = asyncHandler(async (req, res, next) => {
   res.json({ message: 'success', adminData });
 });
 
-const editProfile = asyncHandler(async (req, res) => {
-  const { nationalId } = req.params;
-  const { primaryPhone, secondaryPhone } = req.body;
+const editProfile = asyncHandler(async (req, res, next) => {
+  const nationalId = req.user.id;
+  const { primaryPhone, secondaryPhone, newPassword, confirmPassword } = req.body;
 
-  await conn.beginTransaction();
+  // Validate password match if password is being updated
+  if (newPassword && newPassword !== confirmPassword) {
+    return next(new AppError('Passwords do not match', 400));
+  }
 
-  const phones = [];
-  if (primaryPhone) phones.push(primaryPhone);
-  if (secondaryPhone) phones.push(secondaryPhone);
+  // Update phone numbers
+  if (primaryPhone || secondaryPhone) {
+    // Fetch existing phone numbers for the user
+    const [existingPhones] = await conn.query(
+      'SELECT p_id, p_number FROM superAdminsPhone WHERE sAdmin_nationalID = ?',
+      [nationalId]
+    );
 
-  await conn.query('DELETE FROM superadminsphone WHERE sAdmin_nationalID = ?', [nationalId]);
+    // Helper function to update or insert phone number
+    const upsertPhone = async (phoneNumber, index) => {
+      if (phoneNumber) {
+        if (existingPhones[index]) {
+          await conn.query(
+            'UPDATE superAdminsPhone SET p_number = ? WHERE p_id = ?',
+            [phoneNumber, existingPhones[index].p_id]
+          );
+        } else {
+          await conn.query(
+            'INSERT INTO superAdminsPhone (p_number, sAdmin_nationalID) VALUES (?, ?)',
+            [phoneNumber, nationalId]
+          );
+        }
+      }
+    };
 
-  if (phones.length > 0) {
-    const newPhones = phones.map((phone) => [phone, nationalId]);
-    await conn.query('INSERT INTO superadminsphone (p_number, sAdmin_nationalID) VALUES ?', [
-      newPhones,
+    await upsertPhone(primaryPhone, 0);
+    await upsertPhone(secondaryPhone, 1);
+  }
+
+  // Update password if provided
+  if (newPassword) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    await conn.query('UPDATE superAdmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?', [
+      hashedPassword,
+      nationalId,
     ]);
   }
 
-  await conn.commit();
-
-  res.status(200).json({ message: 'Profile updated successfully' });
-});
-
-const updateAdminPassword = asyncHandler(async (req, res, next) => {
-  const { nationalId } = req.params;
-  const { oldPassword, newPassword, confirmPassword } = req.body;
-
-  if (newPassword !== confirmPassword) {
-    return next(new AppError('New password and confirm password do not match', 400));
-  }
-
-  const [admin] = await conn.query(
-    'SELECT sAdmin_password FROM superadmin WHERE sAdmin_nationalID = ?',
-    [nationalId]
-  );
-
-  if (!admin[0]) {
-    return next(new AppError('Admin not found', 404));
-  }
-
-  const passwordMatch = await bcrypt.compare(oldPassword, admin[0].sAdmin_password);
-  if (!passwordMatch) {
-    return next(new AppError('Invalid old password', 400));
-  }
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  await conn.query('UPDATE superadmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?', [
-    hashedPassword,
-    nationalId,
-  ]);
-
-  res.status(200).json({ message: 'Password updated successfully' });
+  res.status(200).json({ message: 'Profile and password updated successfully' });
 });
 
 export { viewProfile, editProfile };

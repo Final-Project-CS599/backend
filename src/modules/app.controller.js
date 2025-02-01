@@ -4,16 +4,13 @@ import { globalErrorHandling } from "../utils/response/error.response.js";
 import dbRoute from "./createTable/CreateTable.controller.js";
 // Admin controllers
 import coursesRoutes from "../modules/student/courses/routes.js";
-import studentHelpDeskRoutes from "../modules/student/helpDesk/routes.js";
 import instructorRoute from "../modules/student/Instructores/instructor.route.js";
 import updateStudentProfileRoutes from "../modules/student/profile/routes.js";
 import userRoutes from "../modules/student/users/routes.js";
 import adminProfileRouter from "./admin/adminProfile/adminProfile.routes.js";
 import authController from "./admin/auth/auth.controller.js";
-import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller.js";
 import departmentsRouter from "./admin/department/department.routes.js";
 import editStudentsRouter from "./admin/editStudent/editStudent.routes.js";
-import updateDBController from "./admin/updateDB/updateDB.controller.js";
 import assignmentController from "./instructor/Assignment/Assignment.controller.js";
 import examController from "./instructor/exam/exam.controller.js";
 import helpController from "./instructor/helpdesk/help.controller.js";
@@ -22,36 +19,36 @@ import MessageController from "./instructor/message/message.controller.js";
 import updateInstructorProfile from "./instructor/profile/InsPro.controller.js";
 import assignmentRoute from "./student/Assinment/assign.route.js";
 import examRoute from "./student/Exam/exam.route.js";
-// Cors
-import cors from "cors";
-import session from "express-session";
+
+// Admin controllers Auth
+import authAddUsersController from "./admin/authAddUsers/addUsersAuth.controller.js";
+
+import updateDBController from "./admin/updateDB/updateDB.controller.js";
+// Admin controllers Help Desk
+// import adminHelpDeskController from './admin/adminHelpDesk/adminHelpDeck.controller.js';
+
+// Admin controllers Courses
+import coursesController from "./admin/courses/courses.controller.js";
+
+import editinstructorsRouter from "./admin/editInstructor/editInstructor.routes.js";
+import studentHelpDeskRoutes from "../modules/student/helpDesk/routes.js";
+import updateStudentProfileRoutes from "../modules/student/profile/routes.js";
+import assignmentController from "./instructor/Assignment/Assignment.controller.js";
+import examController from "./instructor/exam/exam.controller.js";
+import materialController from "./instructor/materialCourse/material.controller.js";
+import MessageController from "./instructor/sendmessage/sendM.controller.js";
+import assignmentRout from "../modules/student/Assinment/assign.route.js";
+import coursesRoutes from "../modules/student/courses/routes.js";
+import instructorRout from "../modules/student/Instructores/instructor.route.js";
+import helpController from "./instructor/helpdesk/help.controller.js";
+// import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
+import instProfileController from "./instructor/profile/InsPro.controller.js";
+import courseController from "./instructor/courses/viewCourse.controller.js";
 
 const baseUrl = "/api/v1";
 
 const bootstrap = (app, express) => {
-  app.use(
-    cors({
-      origin: "*",
-      credentials: true, // السماح بإرسال الكوكيز
-    })
-  );
   app.use(express.json());
-
-  // استخدام cookie-parser middleware
-  // app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
-      resave: false, // no save session if unmodified
-      saveUninitialized: true, // don't create session until something stored
-      cookie: {
-        secure: false, // true if using HTTPS
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24, // 24 hours
-        sameSite: "lax",
-      },
-    })
-  );
 
   app.all(`*`, (req, res, next) => {
     console.log(
@@ -60,7 +57,7 @@ const bootstrap = (app, express) => {
         URL: ${req.url}
         method: ${req.method}
         body: ${JSON.stringify(req.body)}
-        Headers:${JSON.stringify(req.query["ln"])}
+        Headers:${JSON.stringify(req.headers["authorization"])}
       `
     );
     next();
@@ -76,7 +73,34 @@ const bootstrap = (app, express) => {
   app.use("/auth/addUser", authAddUsersController);
   app.use("/auth", authController);
   app.use("/updateDB", updateDBController);
-  // app.use('/courses' , coursesController);
+
+  app.get("/", (req, res, next) => {
+    return res
+      .status(200)
+      .json({
+        message: "Welcome in node.js project powered by express and ES6",
+      });
+  });
+
+  // DB Routes
+  app.use("/DB", dbRoute);
+  //added endpoints
+  app.use(`${baseUrl}/courses`, courseController);
+  app.use(`${baseUrl}/instructorProfile`, instProfileController);
+  app.use(`${baseUrl}/message`, MessageController);
+
+  app.use(`${baseUrl}/auth/addUser`, authAddUsersController);
+  app.use(`${baseUrl}/auth`, authController);
+  app.use("/updateDB", updateDBController);
+
+  app.use("/updateDB", updateDBController);
+  // Admin Routes Auth
+  app.use("/auth/addUser", authAddUsersController);
+  app.use("/auth", authController);
+  // Admin Routes Help Desk
+  // app.use('/admin/helpDesk' , adminHelpDeskController);
+  // Admin Routes Courses
+  app.use("/courses", coursesController);
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);
@@ -84,10 +108,10 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/courseMaterial`, materialController);
 
   app.use(`${baseUrl}/exam`, examController);
-  app.use(`${baseUrl}/message`, MessageController);
+  // app.use(`${baseUrl}/message`, MessageController);
   app.use(`${baseUrl}/assignment`, assignmentController);
   // app.use(`${baseUrl}/content`, contentController);
-  app.use(`${baseUrl}/instProfile`, updateInstructorProfile);
+  // app.use(`${baseUrl}/instProfile`, updateInstructorProfile);
   app.use(`${baseUrl}/student`, coursesRoutes);
 
   // app.use('/msg', MsgController);
@@ -99,29 +123,19 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/student`, examRoute);
 
   app.use(`${baseUrl}/editStudents`, editStudentsRouter);
+  app.use(`${baseUrl}/editInstructors`, editinstructorsRouter);
 
-  app.all("*", (req, res, next) => {
-    return res.status(404).json({ message: "In-valid routing" });
-  });
-
-  app.get("/", (req, res, next) => {
-    return res.status(200).json({
-      message: "Welcome in node.js project powered by express and ES6",
-    });
-  });
-
-  app.all("*", (req, res, next) => {
-    return res.status(404).json({ message: "In-valid routing" });
-  });
   app.all("*", (req, res, next) => {
     return res.status(404).json({ message: "In-valid routing" });
   });
 
   app.use(globalErrorHandling);
-
   dbConfig.connect((err) => {
     if (err) {
-      console.log("error on db connection ", err);
+      console.log(
+        "error on db connection , please check ( run XAMPP OR WebSite )",
+        err
+      );
     } else {
       console.log("db connected");
     }

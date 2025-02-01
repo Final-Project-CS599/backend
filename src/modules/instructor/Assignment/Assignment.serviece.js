@@ -2,37 +2,38 @@ import dbConfig from "../../../DB/connection.js";
 
 export const addAssignment = async (req, res, next) => {
     try {
-        const { type, description, publish_date, title, link, degree, instructor_id, courseId } = req.body;
+        const instructor_id = req.user.id; 
+        const { title, description, degree, type, link, courseId } = req.body;
 
-        if (!type || !description || !publish_date || !title || !link || !degree || !instructor_id || !courseId) {
+        if (!instructor_id || !title || !description || !degree || !type || !link || !courseId) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        const query = `INSERT INTO assignment (a_title, a_description, a_degree, a_type, a_link, a_instructor_id, a_courseId)
-                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        const insertQuery = `INSERT INTO assignment (a_title, a_description, a_degree, a_type, a_link, a_instructor_id, a_courseId, a_publish_date)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`;
 
-        dbConfig.query(query, [title, description, degree, type, link, instructor_id, courseId], (err, result) => {
+        dbConfig.query(insertQuery, [title, description, degree, type, link, instructor_id, courseId], (err, result) => {
             if (err) {
                 return res.status(500).json({ 
                     message: "Failed to execute query", 
-                    error: err.message, 
-                    stack: err.stack 
+                    error: err.message 
                 });
-            } else {
-                return res.status(201).json({ message: "Assignment added successfully", assignmentId: result.insertId });
             }
+            return res.status(201).json({ message: "Assignment added successfully", assignmentId: result.insertId });
         });
+
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
-}
+};
 
 export const editAssignment = async (req, res, next) => {
     try {
         const { assinId } = req.params; 
-        const { type, description, publish_date, title, link, degree, instructor_id, courseId } = req.body;
+        const instructor_id = req.user.id
+        const { type, description, title, link, degree } = req.body;
 
-        if (!type || !description || !publish_date || !title || !link || !degree || !instructor_id || !courseId) {
+        if (!type || !description || !title || !link || !degree || !instructor_id) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
@@ -43,14 +44,11 @@ export const editAssignment = async (req, res, next) => {
                 a_description = ?, 
                 a_degree = ?, 
                 a_type = ?, 
-                a_link = ?, 
-                a_instructor_id = ?, 
-                a_courseId = ?,
-                a_publish_date = ?
-            WHERE a_id = ?
+                a_link = ?
+            WHERE a_id = ? AND a_instructor_id = ?
         `;
 
-        dbConfig.query(query, [title, description, degree, type, link, instructor_id, courseId, publish_date, assinId], (err, result) => {
+        dbConfig.query(query, [title, description, degree, type, link, Number(assinId),instructor_id], (err, result) => {
             if (err) {
                 return res.status(500).json({ 
                     message: "Failed to execute query", 
@@ -71,12 +69,12 @@ export const editAssignment = async (req, res, next) => {
 
 export const getAssignment = async (req, res, next) => {
     try {
-        const { type } = req.query; 
-        if (!type) {
-            return res.status(400).json({ message: "Assignment type is required" });
+        const { instructor_id } = req.user.id; 
+        if (!instructor_id) {
+            return res.status(400).json({ message: "instructor_id is required" });
         }
 
-        dbConfig.execute(`SELECT * FROM assignment WHERE a_type = ?`, [type], (err, data) => {
+        dbConfig.execute(`SELECT * FROM assignment WHERE a_instructor_id = ?`, [instructor_id], (err, data) => {
             if (err) {
                 return res.status(500).json({ message: "Failed to execute query", error: err.message });
             } else {

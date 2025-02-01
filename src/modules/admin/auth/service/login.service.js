@@ -17,7 +17,7 @@ const loginUtility = async (
             [email],
             async (err, userData) => {
                 if (err) {
-                    return reject({ status: 500, message: 'Error while logging in', error: err });
+                    return reject({ status: 500, message: `Error Server Database Failed to get data : ${err.message}`, error: err });
                 }
                 if (!userData.length) {
                     return resolve(null);
@@ -25,16 +25,18 @@ const loginUtility = async (
 
                 const user = userData[0];
 
-                // console.log("confirmEmail:", confirmEmail);
-                // console.log("user confirmEmail:", user[confirmEmail]);
+                console.log("confirmEmail:", confirmEmail);
+                console.log("user confirmEmail:", user[confirmEmail]);
 
-                // if (user[confirmEmail] !== 1){
-                //     return reject(JSON.stringify({status: 400, message: "In_valid account user not confirmEmail" }));
-                // }
+                if (user[confirmEmail] !== 1){
+                    return reject(JSON.stringify({status: 400, message: "In_valid account user not confirmEmail , please check your email" }));
+                }
                 
                 const match = compareHash({ plainText: password, hashValue: user[passwordColumn] });
+                console.log(email,tableName,user[passwordColumn])
                 if (!match) { 
-                    return reject(JSON.stringify({ status: 401, message: "Invalid password" }));
+                    return resolve(null)
+                    // return reject(JSON.stringify({ status: 401, message: "Invalid password" }));
                     // return reject(JSON.stringify({ status: 401, message: `Invalid password ${password}` }));
                 }
 
@@ -101,7 +103,7 @@ const login = errorAsyncHandler(
                 email,
                 password,
                 null,
-                'sAdmin_confirmEmail',
+                'sAdmin_active',
                 res,
                 next
             );
@@ -132,7 +134,7 @@ const login = errorAsyncHandler(
                 email,
                 password,
                 'i_departmentId',
-                null,
+                'i_active',
                 res,
                 next
             );
@@ -163,11 +165,10 @@ const login = errorAsyncHandler(
                 email,
                 password,
                 's_department_id',
-                null,
+                's_active',
                 res,
                 next
             );
-
             if (studentResult) {
                 return successResponse({ 
                     res, 
@@ -181,6 +182,8 @@ const login = errorAsyncHandler(
                     } 
                 });
             }
+            console.log(studentResult)
+
             return next(new Error("User not found",{ cause: 404 }));
         } catch (error) {
             const errorObj = JSON.parse(error);
