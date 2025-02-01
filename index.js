@@ -30,3 +30,9 @@ app.listen(port, () => {
 app.on('error', (err) => {
   console.error(`Error app listening on PORT : ${err}`);
 });
+
+
+//sudent token
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaXNMb2dnZWRJbiI6dHJ1ZSwiaWF0IjoxNzM4NDIyNjgyLCJleHAiOjE3Mzg1MDkwODJ9.JwxZIa2qThOF50lxB4zy7OhIZgHDKI26IZ-3JrBkHJg
+//inst token
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImlzTG9nZ2VkSW4iOnRydWUsImlhdCI6MTczODQyMzc5OCwiZXhwIjoxNzM4NTEwMTk4fQ.1QipGbA62lhd9VJJdLUPE6jb6ykSS4SK0w0-i0h8bGQ

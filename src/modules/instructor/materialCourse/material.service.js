@@ -33,20 +33,16 @@ export const uploadMaterial = async (req, res, next) => {
 // تحديث المادة
 export const editMaterial = async (req, res, next) => {
   try {
-    const { m_id, m_description, m_title, m_link } = req.body;
-
-    if (!m_id) {
-      return res.status(400).json({ message: "يجب توفير معرف المادة" });
-    }
-
-    dbConfig.execute(
+    const { m_description, m_title, m_link } = req.body;
+      
+      dbConfig.execute(
       `UPDATE media SET  m_description=?, m_title=?, m_link=? WHERE m_id=?`,
       [m_type, m_description, m_title, m_link, m_id],
       (err, data) => {
         if (err) {
-          return res.status(500).json({ message: "فشل في تحديث المادة", error: err.message });
+          return res.status(500).json({ message: "fail to execute query", error: err.message });
         } else {
-          return res.status(200).json({ message: "تم تحديث المادة بنجاح" });
+          return res.status(200).json({ message: "success update " });
         }
       }
     );

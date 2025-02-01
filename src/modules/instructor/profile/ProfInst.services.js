@@ -1,21 +1,26 @@
-import bcrypt from 'bcrypt';
-import dbConfig from '../../../DB/connection.js';
-import { asyncHandler } from '../../../middleware/asyncHandler.js';
-import Joi from 'joi';
+import bcrypt from "bcrypt";
+import dbConfig from "../../../DB/connection.js";
+import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import Joi from "joi";
 
 // Schema for Joi validation
 const schema = Joi.object({
   phoneNumbers: Joi.array().items(Joi.string().min(1).trim()).optional(),
-  password: Joi.string().min(8).pattern(/[a-zA-Z0-9]/).optional(),
+  password: Joi.string()
+    .min(8)
+    .pattern(/[a-zA-Z0-9]/)
+    .optional(),
 });
 
-export const updateInstructorProfile = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+export const updateInstructorProfile2 = asyncHandler(async (req, res, next) => {
+  const  id  = req.user.id;
   const { phoneNumbers, password } = req.body;
 
-   // Authorization check
+  // Authorization check
   if (req.user.id !== parseInt(id)) {
-    return res.status(403).json({ message: 'You are not authorized to update this profile' });
+    return res
+      .status(403)
+      .json({ message: "You are not authorized to update this profile" });
   }
 
   let hashedPassword = null;
@@ -23,109 +28,117 @@ export const updateInstructorProfile = asyncHandler(async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     hashedPassword = await bcrypt.hash(password, salt);
   }
-
   dbConfig.beginTransaction((err) => {
     if (err) {
-      console.error('Error starting transaction:', err);
-      return res.status(500).json({ message: 'Failed to update profile' });
+      console.error("Error starting transaction:", err);
+      return res.status(500).json({ message: "Failed to update profile" });
     }
 
     if (hashedPassword) {
       const updateInstructorQuery = `
-        UPDATE instructors 
+        UPDATE Instructors 
         SET i_password = COALESCE(?, i_password) 
         WHERE i_id = ?`;
-      
-      dbConfig.query(updateInstructorQuery, [hashedPassword, id], (err, results) => {
-        if (err) {
-          return dbConfig.rollback(() => {
-            console.error('Error updating instructor:', err);
-            res.status(500).json({ message: 'Failed to update profile' });
-          });
-        }
 
-        // Update phone numbers if provided
-        if (phoneNumbers && phoneNumbers.length > 0) {
-          const deletePhoneQuery = 'DELETE FROM InstructorsPhone WHERE p_id = ?';
-          dbConfig.query(deletePhoneQuery, [id], (err, results) => {
-            if (err) {
-              return dbConfig.rollback(() => {
-                console.error('Error deleting phone numbers:', err);
-                res.status(500).json({ message: 'Failed to update profile' });
-              });
-            }
-
-            const insertPhoneQuery = 'INSERT INTO InstructorsPhone (p_id, p_instructorPhone) VALUES ?';
-            const phoneValues = phoneNumbers.map((phone) => [id, phone]);
-            dbConfig.query(insertPhoneQuery, [phoneValues], (err, results) => {
-              if (err) {
-                return dbConfig.rollback(() => {
-                  console.error('Error inserting phone numbers:', err);
-                  res.status(500).json({ message: 'Failed to update profile' });
-                });
-              }
-
-              dbConfig.commit((err) => {
-                if (err) {
-                  return dbConfig.rollback(() => {
-                    console.error('Error committing transaction:', err);
-                    res.status(500).json({ message: 'Failed to update profile' });
-                  });
-                }
-
-                res.status(200).json({ message: 'Profile updated successfully' });
-              });
-            });
-          });
-        } else {
-          dbConfig.commit((err) => {
-            if (err) {
-              return dbConfig.rollback(() => {
-                console.error('Error committing transaction:', err);
-                res.status(500).json({ message: 'Failed to update profile' });
-              });
-            }
-
-            res.status(200).json({ message: 'Profile updated successfully' });
-          });
-        }
-      });
-    } else {
-      if (phoneNumbers && phoneNumbers.length > 0) {
-        const deletePhoneQuery = 'DELETE FROM InstructorsPhone WHERE p_id = ?';
-        dbConfig.query(deletePhoneQuery, [id], (err, results) => {
+      dbConfig.query(
+        updateInstructorQuery,
+        [hashedPassword, id],
+        (err, results) => {
           if (err) {
             return dbConfig.rollback(() => {
-              console.error('Error deleting phone numbers:', err);
-              res.status(500).json({ message: 'Failed to update profile' });
+              console.error("Error updating instructor:", err);
+              return res.status(500).json({ message: "Failed to update profile" });
             });
           }
+        }
+      );
+    }
+    if (phoneNumbers && phoneNumbers.length > 0) {
+      const deletePhoneQuery =
+        "DELETE FROM InstructorsPhone WHERE i_instructorId = ?";
+      dbConfig.query(deletePhoneQuery, [id], (err, results) => {
+        if (err) {
+          return dbConfig.rollback(() => {
+            console.error("Error deleting phone numbers:", err);
+            return res.status(500).json({ message: "Failed to update profile" });
+          });
+        }
 
-          const insertPhoneQuery = 'INSERT INTO InstructorsPhone (p_id, p_instructorPhone) VALUES ?';
-          const phoneValues = phoneNumbers.map((phone) => [id, phone]);
-          dbConfig.query(insertPhoneQuery, [phoneValues], (err, results) => {
+        const insertPhoneQuery =
+          "INSERT INTO InstructorsPhone (i_instructorId, p_instructorPhone) VALUES ?";
+        const phoneValues = phoneNumbers.map((phone) => [id, phone]);
+        dbConfig.query(
+          insertPhoneQuery,
+          [phoneValues],
+          (err, results) => {
             if (err) {
               return dbConfig.rollback(() => {
-                console.error('Error inserting phone numbers:', err);
-                res.status(500).json({ message: 'Failed to update profile' });
+                console.error("Error inserting phone numbers:", err);
+                return res
+                  .status(500)
+                  .json({ message: "Failed to update profile" });
               });
             }
 
             dbConfig.commit((err) => {
               if (err) {
                 return dbConfig.rollback(() => {
-                  console.error('Error committing transaction:', err);
-                  res.status(500).json({ message: 'Failed to update profile' });
+                  console.error("Error committing transaction:", err);
+                  return res
+                    .status(500)
+                    .json({ message: "Failed to update profile" });
                 });
               }
-
-              res.status(200).json({ message: 'Profile updated successfully' });
             });
-          });
-        });
-      } else {
-        res.status(200).json({ message: 'No updates performed' });
-      }
+          }
+        );
+      });
+    } 
+    if(hashedPassword || phoneNumbers || phoneNumbers?.length >0 ){
+      return res.status(200).json({message:"profile updated successfully!"})
+    }
+    else{
+      return res.status(400).json({message:"no updates done!"})
     }
   });
 });
+
+export const viewInstructorProfile = async (req, res, next) => {
+  try {
+      const instructor_id = req.user.id;
+
+      dbConfig.execute(
+          `SELECT i_firstName, i_lastName, i_email, i_password FROM Instructors WHERE i_id = ?`,
+          [instructor_id],
+          (err, results) => {
+              if (err) {
+                  console.error("Database error:", err);
+                  return res.status(500).json({ message: "Database error", error: err });
+              }
+
+              if (results.length === 0) {
+                  return res.status(404).json({ message: "This profile does not exist" });
+              }
+
+              const { i_firstName, i_lastName, i_email } = results[0];
+
+              function generateUserName(firstName, lastName) {
+                  if (!firstName || !lastName) {
+                      throw new Error("Both firstName and lastName are required.");
+                  }
+                  return `${firstName.trim().toLowerCase()}.${lastName.trim().toLowerCase()}`;
+              }
+
+              const userName = generateUserName(i_firstName, i_lastName);
+
+              return res.status(200).json({
+                  email: i_email,
+                  userName: userName
+              });
+          }
+      );
+  } catch (error) {
+      console.error("Unexpected error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+  }
+};

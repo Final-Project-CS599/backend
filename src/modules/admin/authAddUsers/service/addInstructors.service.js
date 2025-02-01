@@ -25,6 +25,8 @@ const addInstructor = errorAsyncHandler(
         dbConfig.execute(`SELECT * FROM superAdmin WHERE sAdmin_nationalID = ?` , 
             [admin_nationalID] ,
             (err , adminData) => {
+                console.log(adminData)
+                console.log("test")
                 if (err) {
                     return next(new Error("Error verifying admin/superAdmin role" , {cause: 500}))
                 }

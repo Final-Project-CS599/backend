@@ -42,6 +42,7 @@ const addStudent = errorAsyncHandler(
                         return res.status(409).json({ message: 'Student email already exists' , email: data[0].s_email  });
                     }
                     else{
+                        console.log(numberNational)
                         dbConfig.execute(`select * from student where s_national_id =?` ,[numberNational] ,
                             async (err , data) => {
                                 if(err){
@@ -79,7 +80,7 @@ const addStudent = errorAsyncHandler(
                                         console.log("Department name provided:", department);
                                         return res.status(404).json({ message: 'Department not found' });
                                     }
-
+                                    console.log(firstName, lastName, middleName, hashPassword, DOB, email, gander, departmentId ,numberNational, admin_nationalID)
                                     dbConfig.execute(` insert into student (
                                         s_first_name,s_last_name,s_middle_name,s_password,s_DOB,s_email,s_gender,s_department_id,s_national_id,s_admin_id
                                         )

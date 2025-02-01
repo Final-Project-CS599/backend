@@ -33,8 +33,10 @@ const loginUtility = async (
                 // }
                 
                 const match = compareHash({ plainText: password, hashValue: user[passwordColumn] });
+                console.log(email,tableName,user[passwordColumn])
                 if (!match) { 
-                    return reject(JSON.stringify({ status: 401, message: "Invalid password" }));
+                    return resolve(null)
+                    // return reject(JSON.stringify({ status: 401, message: "Invalid password" }));
                     // return reject(JSON.stringify({ status: 401, message: `Invalid password ${password}` }));
                 }
 
@@ -167,7 +169,6 @@ const login = errorAsyncHandler(
                 res,
                 next
             );
-
             if (studentResult) {
                 return successResponse({ 
                     res, 
@@ -181,6 +182,8 @@ const login = errorAsyncHandler(
                     } 
                 });
             }
+            console.log(studentResult)
+
             return next(new Error("User not found",{ cause: 404 }));
         } catch (error) {
             const errorObj = JSON.parse(error);
