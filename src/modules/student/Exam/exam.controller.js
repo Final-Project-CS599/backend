@@ -1,15 +1,15 @@
-import dbConfig from "../../../DB/connection.js";
-import { successResponse } from "../../../utils/response/success.response.js";
-import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import dbConfig from '../../../DB/connection.js';
+import { successResponse } from '../../../utils/response/success.response.js';
+import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const getexam = asyncHandler(async (req, res) => {
   try {
-    const { course_id } = req.body;
+    const { course_id } = req.params;
 
     if (!course_id) {
       return res.status(400).json({
         success: false,
-        message: "Course ID is required",
+        message: 'Course ID is required',
       });
     }
 
@@ -19,11 +19,11 @@ export const getexam = asyncHandler(async (req, res) => {
       WHERE e_courseId = ?;
     `;
 
-    dbConfig.query(examQueryQuery, [course_id], (error, results) => {
+    dbConfig.query(examQuery, [course_id], (error, results) => {
       if (error) {
         return res.status(500).json({
           success: false,
-          message: "Failed to fetch exam",
+          message: 'Failed to fetch exam',
           error: error.message,
         });
       }
@@ -31,7 +31,7 @@ export const getexam = asyncHandler(async (req, res) => {
       if (results.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "No exam found for the given course ID",
+          message: 'No exam found for the given course ID',
         });
       }
 
@@ -43,7 +43,7 @@ export const getexam = asyncHandler(async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       error: err.message,
     });
   }
@@ -58,8 +58,8 @@ export const takeExam = asyncHandler(async (req, res) => {
       return res.status(400).json({
         success: false,
         message: !tExam_studentId
-          ? "All fields (tExam_studentId) are required"
-          : "All fields (tExam_examId) are required",
+          ? 'All fields (tExam_studentId) are required'
+          : 'All fields (tExam_examId) are required',
       });
     }
 
@@ -72,57 +72,49 @@ export const takeExam = asyncHandler(async (req, res) => {
       ) AS studentExists
     `;
 
-    dbConfig.query(
-      checkQuery,
-      [tExam_examId, tExam_studentId],
-      (checkError, checkResults) => {
-        if (checkError) {
-          return res.status(500).json({
-            success: false,
-            message: "Database error during validation",
-            error: checkError.message,
-          });
-        }
+    dbConfig.query(checkQuery, [tExam_examId, tExam_studentId], (checkError, checkResults) => {
+      if (checkError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database error during validation',
+          error: checkError.message,
+        });
+      }
 
-        const { examExists, studentExists } = checkResults[0];
+      const { examExists, studentExists } = checkResults[0];
 
-        if (!examExists || !studentExists) {
-          return res.status(404).json({
-            success: false,
-            message: "Exam or Student not found",
-          });
-        }
+      if (!examExists || !studentExists) {
+        return res.status(404).json({
+          success: false,
+          message: 'Exam or Student not found',
+        });
+      }
 
-        const insertQuery = `
+      const insertQuery = `
         INSERT INTO takesExam (tExam_examId, tExam_studentId)
         VALUES (?, ?)
       `;
 
-        dbConfig.query(
-          insertQuery,
-          [tExam_examId, tExam_studentId],
-          (insertError, insertResults) => {
-            if (insertError) {
-              return res.status(500).json({
-                success: false,
-                message: "Failed to submit Exam",
-                error: insertError.message,
-              });
-            }
+      dbConfig.query(insertQuery, [tExam_examId, tExam_studentId], (insertError, insertResults) => {
+        if (insertError) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to submit Exam',
+            error: insertError.message,
+          });
+        }
 
-            res.status(201).json({
-              success: true,
-              message: "Exam submitted successfully",
-              submission_id: insertResults.insertId,
-            });
-          }
-        );
-      }
-    );
+        res.status(201).json({
+          success: true,
+          message: 'Exam submitted successfully',
+          submission_id: insertResults.insertId,
+        });
+      });
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       error: err.message,
     });
   }

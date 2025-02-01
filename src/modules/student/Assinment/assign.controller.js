@@ -1,14 +1,14 @@
-import dbConfig from "../../../DB/connection.js";
-import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import dbConfig from '../../../DB/connection.js';
+import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const studentAssignment = asyncHandler(async (req, res) => {
   try {
-    const { c_id } = req.body;
+    const { course_id } = req.params;
 
-    if (!c_id) {
+    if (!course_id) {
       return res.status(400).json({
         success: false,
-        message: "Course ID is required",
+        message: 'Course ID is required',
       });
     }
 
@@ -18,11 +18,11 @@ export const studentAssignment = asyncHandler(async (req, res) => {
       WHERE a_courseId = ?;
     `;
 
-    dbConfig.query(assignmentQuery, [c_id], (error, results) => {
+    dbConfig.query(assignmentQuery, [course_id], (error, results) => {
       if (error) {
         return res.status(500).json({
           success: false,
-          message: "Failed to fetch assignments",
+          message: 'Failed to fetch assignments',
           error: error.message,
         });
       }
@@ -30,7 +30,7 @@ export const studentAssignment = asyncHandler(async (req, res) => {
       if (results.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "No assignments found for the given course ID",
+          message: 'No assignments found for the given course ID',
         });
       }
 
@@ -42,7 +42,7 @@ export const studentAssignment = asyncHandler(async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       error: err.message,
     });
   }
@@ -57,8 +57,8 @@ export const submitAssignment = asyncHandler(async (req, res) => {
       return res.status(400).json({
         success: false,
         message: !ta_student_id
-          ? "All fields (ta_student_id) are required"
-          : "All fields (ta_assignment_id) are required",
+          ? 'All fields (ta_student_id) are required'
+          : 'All fields (ta_assignment_id) are required',
       });
     }
 
@@ -71,57 +71,53 @@ export const submitAssignment = asyncHandler(async (req, res) => {
       ) AS studentExists
     `;
 
-    dbConfig.query(
-      checkQuery,
-      [ta_assignment_id, ta_student_id],
-      (checkError, checkResults) => {
-        if (checkError) {
-          return res.status(500).json({
-            success: false,
-            message: "Database error during validation",
-            error: checkError.message,
-          });
-        }
+    dbConfig.query(checkQuery, [ta_assignment_id, ta_student_id], (checkError, checkResults) => {
+      if (checkError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database error during validation',
+          error: checkError.message,
+        });
+      }
 
-        const { assignmentExists, studentExists } = checkResults[0];
+      const { assignmentExists, studentExists } = checkResults[0];
 
-        if (!assignmentExists || !studentExists) {
-          return res.status(404).json({
-            success: false,
-            message: "Assignment or Student not found",
-          });
-        }
+      if (!assignmentExists || !studentExists) {
+        return res.status(404).json({
+          success: false,
+          message: 'Assignment or Student not found',
+        });
+      }
 
-        const insertQuery = `
+      const insertQuery = `
           INSERT INTO takes_assignment (ta_assignment_id, ta_student_id)
           VALUES (?, ?)
         `;
 
-        dbConfig.query(
-          insertQuery,
-          [ta_assignment_id, ta_student_id],
-          (insertError, insertResults) => {
-            if (insertError) {
-              return res.status(500).json({
-                success: false,
-                message: "Failed to submit assignment",
-                error: insertError.message,
-              });
-            }
-
-            res.status(201).json({
-              success: true,
-              message: "Assignment submitted successfully",
-              submission_id: insertResults.insertId,
+      dbConfig.query(
+        insertQuery,
+        [ta_assignment_id, ta_student_id],
+        (insertError, insertResults) => {
+          if (insertError) {
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to submit assignment',
+              error: insertError.message,
             });
           }
-        );
-      }
-    );
+
+          res.status(201).json({
+            success: true,
+            message: 'Assignment submitted successfully',
+            submission_id: insertResults.insertId,
+          });
+        }
+      );
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       error: err.message,
     });
   }
