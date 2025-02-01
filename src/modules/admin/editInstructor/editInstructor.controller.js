@@ -4,20 +4,21 @@ import { AppError } from '../../../utils/AppError.js';
 
 const conn = dbConfig.promise();
 
+
 const searchInstructors = asyncHandler(async (req, res, next) => {
-  const { department, firstName, lastName } = req.body;
+  const { department, firstName, lastName } = req.query;
 
   let query = `
-    SELECT 
-        i.i_id AS id,
-        i.i_firstName AS firstName,
-        i.i_lastName AS lastName,
-        i.i_email AS email,
-        d.d_dept_name AS department
-    FROM instructors i
-    LEFT JOIN department d ON i.i_departmentId = d.d_id
-    WHERE d.d_dept_name = ?
-  `;
+  SELECT 
+      i.i_id AS id,
+      i.i_firstName AS firstName,
+      i.i_lastName AS lastName,
+      i.i_email AS email,
+      d.d_dept_name AS department
+  FROM Instructors i
+  LEFT JOIN department d ON i.i_departmentId = d.d_id
+  WHERE d.d_dept_name = ?
+`;
 
   const params = [department];
 
@@ -32,6 +33,10 @@ const searchInstructors = asyncHandler(async (req, res, next) => {
   }
 
   const [instructors] = await conn.execute(query, params);
+
+  if (!instructors || instructors.length === 0) {
+    return res.status(200).json({ status: 'success', results: 0, data: { instructors: [] } });
+  }
 
   res.status(200).json({ status: 'success', results: instructors.length, data: { instructors } });
 });
@@ -48,10 +53,10 @@ const findInstructorById = asyncHandler(async (req, res, next) => {
             i.i_lastName as lastName,
             i.i_email as email,
             d.d_dept_name as department,
-            GROUP_CONCAT(ip.i_instructorPhone) as phones
-        FROM instructors i
+            GROUP_CONCAT(ip.p_instructorPhone) as phones
+        FROM Instructors i
         LEFT JOIN department d ON i.i_departmentId = d.d_id
-        LEFT JOIN instructorsphone ip ON i.i_id = ip.i_instructorId
+        LEFT JOIN InstructorsPhone ip ON i.i_id = ip.i_instructorId
         WHERE i.i_id = ?
         GROUP BY i.i_id
     `;
@@ -65,7 +70,7 @@ const findInstructorById = asyncHandler(async (req, res, next) => {
     phones: instructors[0].phones ? instructors[0].phones.split(',') : []
   };
 
-  res.status(200).json({status: 'success', data: { instructor }});
+  res.status(200).json({ status: 'success', data: { instructor } });
 });
 
 
@@ -99,11 +104,11 @@ const updateInstructorById = asyncHandler(async (req, res, next) => {
     queryParams.push(deptResult[0].d_id);
   }
 
-  changeFields.push('i_updatedAt = CURRENT_TIMESTAMP , i_adminId = ?');
-  queryParams.push(AdminId);
-
-  const sql = `UPDATE instructors SET ${changeFields.join(', ')} WHERE i_id = ?`;
+  changeFields.push('i_updatedAt = CURRENT_TIMESTAMP ');
   
+
+  const sql = `UPDATE Instructors SET ${changeFields.join(', ')} WHERE i_id = ?`;
+
   queryParams.push(id);
 
   const [result] = await conn.query(sql, queryParams);
@@ -133,7 +138,7 @@ const viewInstructorAcademicCourses = asyncHandler(async (req, res, next) => {
 
   if (!courses.length) return next(new AppError('No academic courses found for this instructor', 404));
 
-  res.status(200).json({status: 'success', message: 'Academic courses retrieved successfully', data: courses });
+  res.status(200).json({ status: 'success', message: 'Academic courses retrieved successfully', data: courses });
 });
 
 const viewInstructorExtraCourses = asyncHandler(async (req, res, next) => {
@@ -153,7 +158,7 @@ const viewInstructorExtraCourses = asyncHandler(async (req, res, next) => {
   AND c.c_type = 'Extra'
 `;
 
-const [courses] = await conn.execute(query, [id]);
+  const [courses] = await conn.execute(query, [id]);
 
   if (!courses.length) return next(new AppError('No extra courses found for this instructor', 404));
 

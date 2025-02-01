@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
 
 export const validateUpdateInstructor = [
@@ -11,7 +11,7 @@ export const validateUpdateInstructor = [
 
 
 export const validateSearchInstructors = [
-    body('department').trim().notEmpty().withMessage('Department is required'),
-    body('firstName').optional().trim(),
-    body('lastName').optional().trim(),
+  query('department').trim().notEmpty().withMessage('Department is required'),
+  query('firstName').optional().trim(),
+  query('lastName').optional().trim(),
   ];

@@ -7,9 +7,6 @@ const conn = dbConfig.promise();
 const searchStudents = asyncHandler(async (req, res, next) => {
   const { department, firstName, lastName } = req.query;
 
-  console.log(department, 'department')
-
-
   let query = `
         SELECT 
             s.s_id AS id,
