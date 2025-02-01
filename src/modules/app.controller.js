@@ -3,8 +3,7 @@ import dbConfig from '../DB/connection.js';
 import dbRoute from './createTable/CreateTable.controller.js';
 // Error Global
 import { globalErrorHandling } from '../utils/response/error.response.js';
-import dbRoute from './createTable/CreateTable.controller.js';
-import userRoutes from "../modules/student/users/routes.js";
+// Admin controllers Auth
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
@@ -13,10 +12,12 @@ import updateDBController from './admin/updateDB/updateDB.controller.js';
 
 // Admin controllers Courses
 import coursesController from './admin/courses/courses.controller.js';
+
 import editinstructorsRouter from './admin/editInstructor/editInstructor.routes.js';
 import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
 import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
+import userRoutes from "../modules/student/users/routes.js";
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import assignmentController from './instructor/Assignment/Assignment.controller.js';
@@ -35,22 +36,7 @@ const baseUrl = '/api/v1';
 const bootstrap = (app, express) => {
   app.use(express.json());
 
-  // استخدام cookie-parser middleware
-  // app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
-      resave: false, // no save session if unmodified
-      saveUninitialized: true, // don't create session until something stored
-      cookie: {
-        secure: false, // true if using HTTPS
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24, // 24 hours
-        sameSite: 'lax',
-      },
-    })
-  );
-
+  
   app.all(`*`, (req, res, next) => {
     console.log(
       `
