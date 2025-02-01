@@ -25,7 +25,7 @@ const insertDefaultAdmin = errorAsyncHandler(
             [email],
             (err, results) => {
                 if (err) {
-                    return next(new Error("Failed to check email" , {cause: 500} , err));
+                    return next(new Error(`Error Server Database Failed to data default admin password ${err.message}`, {cause:500}));
                 }
 
                 if (results.length > 0) {
@@ -38,8 +38,7 @@ const insertDefaultAdmin = errorAsyncHandler(
                     [nationalID, firstName, lastName, email],
                     async (err, data) => {
                         if (err || data.affectedRows === 0) {
-                            console.error("Insert error:", err);
-                            return res.status(500).json({ message: "Failed to execute query", error: err });
+                            return next(new Error(`Error Server Database Failed to get data , Failed to execute query:${err.message}`, {cause:500}));
                         }
                         const hashPassword = generateHash({ plainText: "AdminPass123" });
                         dbConfig.execute(
@@ -47,7 +46,7 @@ const insertDefaultAdmin = errorAsyncHandler(
                             [hashPassword, nationalID],
                             (err, data) => {
                                 if (err || data.affectedRows === 0) {
-                                    return res.status(500).json({ message: "Failed to update default admin password" });
+                                    return next(new Error(`Error Server Database Failed to data default admin password ${err.message}`, {cause:500}));
                                 }
                             }
                         );
@@ -66,7 +65,7 @@ const insertDefaultAdmin = errorAsyncHandler(
                                 )
                             })
                         })
-                        emailEvent.emit("sendEmail" , {email: email , password:'AdminPass123'})
+                        emailEvent.emit("sendEmail" , {email: email });
 
                         Promise.all(phoneQueries).then((phones)=>{
                             const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});

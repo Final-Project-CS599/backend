@@ -36,19 +36,19 @@ const addStudent = errorAsyncHandler(
 
                 dbConfig.execute(`select * from student where s_email =?` ,[email] , (err , data) => {
                     if(err){
-                        return res.status(500).json({ message: 'Failed to get data , Faik to execute query', error: err });
+                        return next(new Error(`Error Server Database Failed to get data check email ${err.message}` , {cause: 500}))
                     }
                     else if(data.length){
-                        return res.status(409).json({ message: 'Student email already exists' , email: data[0].s_email  });
+                        return next(new Error(`Student email already exists` , {cause: 409}));
                     }
                     else{
                         dbConfig.execute(`select * from student where s_national_id =?` ,[numberNational] ,
                             async (err , data) => {
                                 if(err){
-                                    return res.status(500).json({ message: 'Failed to get data , Faik to execute query', error: err });
+                                    return next(new Error(`Error Server Database Failed to get data check nationalId , execute query: ${err.message}`, {cause:500}));
                                 }
                                 else if(data.length){
-                                    return res.status(409).json({ message: 'Student numberNational already exists' ,  numberNational: data[0].s_national_id  });
+                                    return next(new Error(`Student numberNational already exists` , {cause: 409}));
                                 }
                                 else{
                                     const hashPassword = generateHash({plainText: password});
@@ -60,13 +60,10 @@ const addStudent = errorAsyncHandler(
                                                 [departmentName],
                                                 (err, data) => {
                                                     if (err) {
-                                                        console.error("Error fetching department:", err);
                                                         reject(err);
                                                     } else if (data.length > 0) {
-                                                        console.log("Department found:", data[0]);
                                                         resolve(data[0].d_id);
                                                     } else {
-                                                        console.log("Department not found for name:", departmentName);
                                                         resolve(null);
                                                     }
                                                 }
@@ -76,8 +73,7 @@ const addStudent = errorAsyncHandler(
                                     
                                     const departmentId = await getDepartmentIdByName(department);
                                     if (!departmentId) {
-                                        console.log("Department name provided:", department);
-                                        return res.status(404).json({ message: 'Department not found' });
+                                        return next(new Error(`Department not found ` , {cause: 404}));
                                     }
 
                                     dbConfig.execute(` insert into student (
@@ -88,7 +84,7 @@ const addStudent = errorAsyncHandler(
                                         [firstName, lastName, middleName, hashPassword, DOB, email, gander, departmentId ,numberNational, admin_nationalID] , 
                                         async(err , data) => {
                                             if(err || !data.affectedRows === 0){
-                                                return res.status(500).json({ message: 'Failed to get data , Faik to execute query', error: err });
+                                                return next(new Error(`Error Server Database Failed to get data ,execute query: ${err.message}`, {cause:500}));
                                             }
 
                                             const studentID = data.insertId;
@@ -106,8 +102,8 @@ const addStudent = errorAsyncHandler(
                                                     )
                                                 })
                                             })
-                                            emailEvent.emit("sendEmail" , {email , password} );
-                    
+                                            emailEvent.emit("sendEmail" , {email} );
+                                            
                                             Promise.all(phoneQueries).then((phones)=>{
                                                 const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});
                                                 return successResponse({

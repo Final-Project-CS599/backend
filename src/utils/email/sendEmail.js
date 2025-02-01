@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 // send email
 
-export const generateEmailTemplate = ( emailLink , email ,password ) =>{
+export const generateEmailTemplate = ( emailLink , email  ) =>{
     return ` <!DOCTYPE html>
     <html lang="ar">
         <head>
@@ -68,7 +68,7 @@ export const generateEmailTemplate = ( emailLink , email ,password ) =>{
                                 <td>
                                     <div style="text-align: center;">
                                         <p>Email: <span class="credentials">${email}</span></p>
-                                        <p>Password: <span class="credentials">${password}</span></p>
+                                        <p>Password: <span class="credentials">NationalID (الرقم القومى)</span></p>
                                     </div>
                                         
                                     <!-- start button -->
@@ -124,7 +124,8 @@ export const sendEmail = async ({to=[] , cc="" , bcc="" , subject="Confirm Email
     });
 };
 
-//send code
+//send code password
+
 export const generateCodeTemplate = ( emailLink , code ) =>{
     return ` <!DOCTYPE html>
     <html lang="ar">

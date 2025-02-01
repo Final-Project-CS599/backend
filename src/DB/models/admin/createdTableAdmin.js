@@ -7,7 +7,7 @@ export const createTableSuperAdmin = `CREATE TABLE IF NOT EXISTS superAdmin(
     sAdmin_firstName VARCHAR(50) NOT NULL,
     sAdmin_lastName VARCHAR(50) NOT NULL,
     sAdmin_email VARCHAR(100) NOT NULL UNIQUE ,
-    sAdmin_confirmEmail BOOLEAN NOT NULL DEFAULT FALSE,
+    sAdmin_active BOOLEAN NOT NULL DEFAULT FALSE,
     sAdmin_password VARCHAR(255) NOT NULL ,
     sAdmin_role ENUM(${enumRoles}) NOT NULL DEFAULT '${roleTypes.Admin.sAdmin}',
     sAdmin_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
