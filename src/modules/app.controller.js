@@ -12,19 +12,8 @@ import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from "./admin/editStudent/editStudent.routes.js";
 import adminProfileRouter from "./admin/adminProfile/adminProfile.routes.js";
 // Student controllers
-import userRoutes from "../modules/student/users/routes.js";
-import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
-
-import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
-import authController from './admin/auth/auth.controller.js';
-import updateDBController from './admin/updateDB/updateDB.controller.js';
 import editinstructorsRouter from './admin/editInstructor/editInstructor.routes.js';
-import departmentsRouter from './admin/department/department.routes.js';
-import editStudentsRouter from './admin/editStudent/editStudent.routes.js';
-import adminProfileRouter from './admin/adminProfile/adminProfile.routes.js';
-// Student controllers
 import userRoutes from '../modules/student/users/routes.js';
-
 import studentHelpDeskRoutes from '../modules/student/helpDesk/routes.js';
 import updateStudentProfileRoutes from '../modules/student/profile/routes.js';
 import assignmentController from './instructor/Assignment/Assignment.controller.js';
@@ -35,38 +24,14 @@ import assignmentRout from '../modules/student/Assinment/assign.route.js';
 import coursesRoutes from '../modules/student/courses/routes.js';
 import instructorRout from '../modules/student/Instructores/instructor.route.js';
 import helpController from './instructor/helpdesk/help.controller.js';
-import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
+import {  } from './instructor/profile/ProfInst.services.js';
 
-// Cors
-import cors from 'cors';
-import session from 'express-session';
 
 const baseUrl = '/api/v1';
 
 const bootstrap = (app, express) => {
-  app.use(
-    cors({
-      origin: '*',
-      credentials: true, // السماح بإرسال الكوكيز
-    })
-  );
   app.use(express.json());
 
-  // استخدام cookie-parser middleware
-  // app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
-      resave: false, // no save session if unmodified
-      saveUninitialized: true, // don't create session until something stored
-      cookie: {
-        secure: false, // true if using HTTPS
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24, // 24 hours
-        sameSite: 'lax',
-      },
-    })
-  );
 
   app.all(`*`, (req, res, next) => {
     console.log(

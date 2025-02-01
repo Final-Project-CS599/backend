@@ -3,11 +3,38 @@ import dotenv from 'dotenv';
 import bootstrap from './src/modules/app.controller.js';
 import express from 'express';
 import multer from 'multer';
+// Cors
+import cors from 'cors';
+import session from 'express-session';
 
 dotenv.config({ path: path.resolve('.env.dev') });
 
 const app = express();
 const port = process.env.PORT || 1000;
+
+app.use(
+    cors({
+      origin: '*',
+      credentials: true, // السماح بإرسال الكوكيز
+    })
+  );
+
+// استخدام cookie-parser middleware
+  // app.use(cookieParser(process.env.COOKIE_SECRET));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET, // secret used to sign session ID cookie
+      resave: false, // no save session if unmodified
+      saveUninitialized: true, // don't create session until something stored
+      cookie: {
+        secure: false, // true if using HTTPS
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 24 hours
+        sameSite: 'lax',
+      },
+    })
+  );
+
 
 const upload = multer(); // Middleware for form-data parsing
 
