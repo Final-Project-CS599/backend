@@ -16,7 +16,7 @@ export const sendMessageToHelpDesk = asyncHandler(async (req, res) => {
   dbConfig.query(query, values, (err, results) => {
     if (err) {
       console.error('Error sending message:', err);
-      return res.status(500).json({ message: 'Failed to send message' });
+      return res.status(500).json({ message: `Failed to send message ${err}` });
     }
 
     // Include the sent message in the response
