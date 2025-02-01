@@ -4,19 +4,14 @@ import { generalFieldsValidation } from '../../../middleware/validation.middlewa
 
 
 export const signupValidationSchema = joi.object().keys({
-    nationalID : generalFieldsValidation.nationalID.required().messages({
-        'string.empty': "National ID is required",
-        'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
-    }),
+    nationalID : generalFieldsValidation.nationalID.required(),
     firstName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
     lastName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
-    phone1 : generalFieldsValidation.phone.required().messages({
-        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
-    }),
+    phone1 : generalFieldsValidation.phone.required(),
     phone2 : generalFieldsValidation.phone,
     'accept-language': generalFieldsValidation.acceptLanguage
 }).options({allowUnknown: false}).required();
@@ -24,29 +19,21 @@ export const signupValidationSchema = joi.object().keys({
 
 
 export const addAdminValidationSchema = joi.object().keys({
-    adminNationalID : generalFieldsValidation.nationalID.required().messages({
-        'string.empty': "National ID is required",
-        'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
-    }),
+    adminNationalID : generalFieldsValidation.nationalID.required(),
     firstName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
     lastName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
-    sAdminNationalID: generalFieldsValidation.nationalID.required().messages({
-        'string.empty': "National ID is required",
-        'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
-    }),
+    sAdminNationalID: generalFieldsValidation.nationalID.required(),
     email: generalFieldsValidation.email.required(),
-    phone1 : generalFieldsValidation.phone.required().messages({
-        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
-    }),
+    phone1 : generalFieldsValidation.phone.required(),
     phone2 : generalFieldsValidation.phone,
     adminRole:  generalFieldsValidation.userName.required().messages({
         'string.empty': 'adminRole is required',
     }), // min 2 and max 50 as length
-    password: generalFieldsValidation.password.required(),
+    password: generalFieldsValidation.passwordAddUsers.required(),
     confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
     'ln': generalFieldsValidation.acceptLanguage
 
@@ -55,10 +42,7 @@ export const addAdminValidationSchema = joi.object().keys({
 
 
 export const addInstructorValidationSchema = joi.object().keys({
-    admin_nationalID:generalFieldsValidation.nationalID.required().messages({
-        'string.empty': "National ID is required",
-        'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
-    }),
+    admin_nationalID:generalFieldsValidation.nationalID.required(),
     firstName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
@@ -66,16 +50,14 @@ export const addInstructorValidationSchema = joi.object().keys({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
     email: generalFieldsValidation.email.required(),
-    password: generalFieldsValidation.password.required(),
+    password: generalFieldsValidation.passwordAddUsers.required(),
     confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
     department: generalFieldsValidation.userName.required().messages({
         'string.empty': 'department is required',
     }), // min 2 and max 50 as length
     
     // phones: generalFieldsValidation.phone.required(),
-    phone1 : generalFieldsValidation.phone.required().messages({
-        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
-    }),
+    phone1 : generalFieldsValidation.phone.required(),
     phone2 : generalFieldsValidation.phone,
     'ln': generalFieldsValidation.acceptLanguage
 
@@ -84,10 +66,7 @@ export const addInstructorValidationSchema = joi.object().keys({
 
 
 export const addStudentValidationSchema = joi.object().keys({
-    admin_nationalID:generalFieldsValidation.nationalID.required().messages({
-        'string.empty': "National ID is required",
-        'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
-    }),
+    admin_nationalID:generalFieldsValidation.nationalID.required(),
     firstName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
@@ -97,22 +76,17 @@ export const addStudentValidationSchema = joi.object().keys({
     middleName: generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
     }), // min 2 and max 50 as length
-    password: generalFieldsValidation.password.required(),
+    password: generalFieldsValidation.passwordAddUsers.required(),
     confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
     DOB: generalFieldsValidation.DOB,
     email: generalFieldsValidation.email.required(),
     gander: generalFieldsValidation.gander.required(),
-    numberNational: generalFieldsValidation.nationalID.required().messages({
-        'string.empty': "National ID is required",
-        'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
-    }),
+    numberNational: generalFieldsValidation.nationalID.required(),
     department: generalFieldsValidation.userName.required().messages({
         'string.empty': 'department is required',
     }), // min 2 and max 50 as length
-    phone1 : generalFieldsValidation.phone.required().messages({
-        'alternatives.match': "Please provide a valid phone number ex(+201234567810 , 00201234567810 , 01234567810)."
-    }),
-    phone2 : generalFieldsValidation.phone,
+    phone1 : generalFieldsValidation.phone.required(),
+    phone2 : generalFieldsValidation.phone.optional(),
     'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();

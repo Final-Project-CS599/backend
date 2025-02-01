@@ -66,8 +66,8 @@ const addAdmin = errorAsyncHandler(
                                         )
                                     })
                                 })
-                                emailEvent.emit("sendEmail" , {email , password} );
-        
+                                emailEvent.emit("sendEmail" , {email} );
+
                                 Promise.all(phoneQueries).then((phones)=>{
                                     const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});
                                     return successResponse({
