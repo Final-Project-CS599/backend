@@ -1,13 +1,12 @@
 import dbConfig from '../DB/connection.js';
 import { globalErrorHandling } from '../utils/response/error.response.js';
-// DB models
 import dbRoute from './createTable/CreateTable.controller.js';
 // Admin controllers
 
 import authAddUsersController from './admin/authAddUsers/addUsersAuth.controller.js';
 import authController from './admin/auth/auth.controller.js';
 import updateDBController from './admin/updateDB/updateDB.controller.js';
-
+import coursesController from './admin/courses/courses.controller.js';
 import departmentsRouter from './admin/department/department.routes.js';
 import editStudentsRouter from "./admin/editStudent/editStudent.routes.js";
 import adminProfileRouter from "./admin/adminProfile/adminProfile.routes.js";
@@ -24,7 +23,7 @@ import assignmentRout from '../modules/student/Assinment/assign.route.js';
 import coursesRoutes from '../modules/student/courses/routes.js';
 import instructorRout from '../modules/student/Instructores/instructor.route.js';
 import helpController from './instructor/helpdesk/help.controller.js';
-import {  } from './instructor/profile/ProfInst.services.js';
+import { updateInstructorProfile } from './instructor/profile/ProfInst.services.js';
 
 
 const baseUrl = '/api/v1';
@@ -56,7 +55,7 @@ const bootstrap = (app, express) => {
   app.use('/auth/addUser', authAddUsersController);
   app.use('/auth', authController);
   app.use('/updateDB', updateDBController);
-  // app.use('/courses' , coursesController);
+  app.use('/courses' , coursesController);
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);

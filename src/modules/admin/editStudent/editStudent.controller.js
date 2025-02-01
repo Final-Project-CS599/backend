@@ -5,7 +5,10 @@ import { AppError } from '../../../utils/AppError.js';
 const conn = dbConfig.promise();
 
 const searchStudents = asyncHandler(async (req, res, next) => {
-  const { department, firstName, lastName } = req.body;
+  const { department, firstName, lastName } = req.query;
+
+  console.log(department, 'department')
+
 
   let query = `
         SELECT 
@@ -32,6 +35,10 @@ const searchStudents = asyncHandler(async (req, res, next) => {
   }
 
   const [students] = await conn.execute(query, params);
+
+  if (!students || students.length === 0) {
+    return res.status(200).json({ status: 'success', results: 0, data: { students: [] } });
+  }
 
   res.status(200).json({ status: 'success', results: students.length, data: { students } });
 });
@@ -80,7 +87,7 @@ const updateStudentById = asyncHandler(async (req, res, next) => {
 
   let queryParams = [];
   let changeFields = [];
-  
+
   if (firstName) {
     changeFields.push('s_first_name = ?');
     queryParams.push(firstName);
@@ -90,17 +97,17 @@ const updateStudentById = asyncHandler(async (req, res, next) => {
     changeFields.push('s_middle_name = ?');
     queryParams.push(midName);
   }
-  
+
   if (lastName) {
     changeFields.push('s_last_name = ?');
     queryParams.push(lastName);
   }
-  
+
   if (email) {
     changeFields.push('s_email = ?');
     queryParams.push(email);
   }
-  
+
   if (department) {
     const [deptResult] = await conn.query('SELECT d_id FROM department WHERE d_dept_name = ?', [department]);
     if (!deptResult.length) return next(new AppError('Department not found', 404));
@@ -118,9 +125,9 @@ const updateStudentById = asyncHandler(async (req, res, next) => {
 
   const sql = `UPDATE student SET ${changeFields.join(', ')} WHERE s_id = ?`;
 
-queryParams.push(id);
-  
-const [result] = await conn.query(sql, queryParams);
+  queryParams.push(id);
+
+  const [result] = await conn.query(sql, queryParams);
 
   if (result.affectedRows === 0) return next(new AppError('Student not found', 404));
 

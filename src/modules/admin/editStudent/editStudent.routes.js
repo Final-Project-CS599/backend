@@ -8,6 +8,7 @@ import { verifyToken } from "../../../middleware/auth.js";
 
 
 const editStudentsRouter = Router()
+
 editStudentsRouter
     .route('/')
     .get(verifyToken, validateSearchStudents, validate, searchStudents)
