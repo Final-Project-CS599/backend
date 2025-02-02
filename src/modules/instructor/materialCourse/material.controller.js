@@ -5,7 +5,6 @@ import path from "path";
 
 const router = Router();
 
-// إعداد Multer لحفظ الملفات
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -21,5 +20,6 @@ router.post("/add", upload.single("file"), materialService.uploadMaterial);
 router.put("/edit", materialService.editMaterial);
 router.get("/view", materialService.getMaterial);
 router.delete("/delete", materialService.deleteMaterial);
+router.get("/searchMaterial",materialService.searchMaterial)
 
 export default router;

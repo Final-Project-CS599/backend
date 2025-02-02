@@ -58,7 +58,6 @@ const bootstrap = (app, express) => {
 
   // DB Routes
   app.use('/DB', dbRoute);
-<<<<<<< HEAD
   //added endpoints
   app.use(`${baseUrl}/courses`,courseController)
   app.use(`${baseUrl}/instructorProfile`,instProfileController)
@@ -68,16 +67,6 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/auth`, authController);
   app.use('/updateDB', updateDBController);
   // app.use('/courses' , coursesController);
-=======
-  app.use('/updateDB', updateDBController);
-  // Admin Routes Auth
-  app.use('/auth/addUser', authAddUsersController);
-  app.use('/auth', authController);
-  // Admin Routes Help Desk
-  // app.use('/admin/helpDesk' , adminHelpDeskController);
-  // Admin Routes Courses
-  app.use('/courses' , coursesController);
->>>>>>> fe539d694e5081ab5e9fe499d9306f1a42e529fd
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
   app.use(`${baseUrl}/student`, studentHelpDeskRoutes);

@@ -18,15 +18,15 @@ export const uploadMaterial = async (req, res, next) => {
       [m_description, m_title, fileUrl, m_instructor_id, m_courseId], 
       (err, data) => {
         if (err) {
-          return res.status(500).json({ message: "خطأ أثناء تنفيذ الاستعلام", error: err.message });
+          return res.status(500).json({ message: "Fail to execute this Query", error: err.message });
         } else {
-          return res.status(200).json({ message: "تم رفع المادة بنجاح" });
+          return res.status(200).json({ message: "Upload Material successfully" });
         }
       }
     );
     
   } catch (error) {
-    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
+    res.status(500).json({ message: "Fail to execute this Query", error: error.message });
   }
 };
 
@@ -47,41 +47,64 @@ export const editMaterial = async (req, res, next) => {
       }
     );
   } catch (error) {
-    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
+    res.status(500).json({ message: "Fail to execute this Query", error: error.message });
   }
 };
 
-// عرض جميع المواد
+// view all material
 export const getMaterial = async (req, res, next) => {
   try {
     dbConfig.execute("SELECT * FROM media", (err, results) => {
       if (err) {
-        return res.status(500).json({ message: "فشل في جلب المواد", error: err.message });
+        return res.status(500).json({ message: "Fail to execute this query", error: err.message });
       }
       return res.status(200).json(results);
     });
   } catch (error) {
-    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
+    res.status(500).json({ message: "Fail to execute this Query", error: error.message });
   }
 };
 
-// حذف مادة
+// delete material
 export const deleteMaterial = async (req, res, next) => {
   try {
     const { m_id } = req.body;
 
     if (!m_id) {
-      return res.status(400).json({ message: "يجب توفير معرف المادة" });
+      return res.status(400).json({ message: "materila_id query is required" });
     }
 
     dbConfig.execute("DELETE FROM media WHERE m_id=?", [m_id], (err, data) => {
       if (err) {
-        return res.status(500).json({ message: "فشل في حذف المادة", error: err.message });
+        return res.status(500).json({ message: "Fail to execute this query", error: err.message });
       } else {
-        return res.status(200).json({ message: "تم حذف المادة بنجاح" });
+        return res.status(200).json({ message: "Delete Material Successfully" });
       }
     });
   } catch (error) {
-    res.status(500).json({ message: "خطأ في السيرفر", error: error.message });
+    res.status(500).json({ message: "Fail to execute this Query", error: error.message });
   }
+};
+
+export const searchMaterial = async (req, res, next) => {
+  const { matr } = req.query;
+  if (!matr) {
+    return res.status(400).json({ message: "Search Query is Required" });
+  }
+
+  const query = `SELECT * FROM media WHERE m_title LIKE ? OR m_link LIKE ?`;
+  
+  dbConfig.execute(query, [`%${matr}%`, `%${matr}%`], (error, data) => {
+    if (error) {
+      return res.status(500).json({ message: "Failed to execute Query" });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({ message: "No material found" });
+    }
+    
+    return res.status(200).json({ 
+      message: "Your material search Done", 
+      courses: data 
+    });
+  });
 };

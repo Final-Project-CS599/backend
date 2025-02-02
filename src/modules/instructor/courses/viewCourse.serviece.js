@@ -1,3 +1,4 @@
+import { date } from "joi";
 import dbConfig from "../../../DB/connection.js";
 
 const getMedia =(data)=>{
@@ -77,3 +78,28 @@ export const viewCourseById = async(req,res,next)=>{
     return res.status(200).json({message:"Success",course:data[0]})
   })
 }
+
+//search 
+export const searchCourse = async (req, res, next) => {
+  const { s } = req.query;
+  if (!s) {
+    return res.status(400).json({ message: "Search Query is Required" });
+  }
+
+  const query = `SELECT * FROM courses WHERE c_name LIKE ? OR c_type LIKE ?`;
+  
+  dbConfig.execute(query, [`%${s}%`, `%${s}%`], (error, data) => {
+    if (error) {
+      return res.status(500).json({ message: "Failed to execute Query" });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({ message: "No courses found" });
+    }
+    
+    return res.status(200).json({ 
+      message: "Your courses search Done", 
+      courses: data 
+    });
+  });
+};
+

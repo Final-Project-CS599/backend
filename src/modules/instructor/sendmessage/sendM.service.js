@@ -76,3 +76,51 @@ export const viewMessageStudent = (req, res, next) => {
     return res.status(200).json({ messages: results });
 });
 };
+
+export const deleteMessageInstructor = (req, res, next) => {
+    const m_instructor_id = req.user.id;
+    const { messageId } = req.params; 
+
+    if (!messageId) {
+        return res.status(400).json({ message: "Message ID is required" });
+    }
+
+    const query = `DELETE FROM message WHERE m_id = ? AND m_instructor_id = ?`;
+
+    dbConfig.execute(query, [messageId, m_instructor_id], (err, results) => {
+        if (err) {
+            console.error('Error deleting message:', err);
+            return res.status(500).json({ message: "Failed to delete message", error: err.message });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: "Message not found or you don't have permission to delete it" });
+        }
+
+        return res.status(200).json({ message: "Message deleted successfully" });
+    });
+};
+
+export const deleteMessageStudent = (req, res, next) => {
+    const m_student_id = req.user.id;
+    const { messageId } = req.params; 
+
+    if (!messageId) {
+        return res.status(400).json({ message: "Message ID is required" });
+    }
+
+    const query = `DELETE FROM message WHERE m_id = ? AND m_student_id = ?`;
+
+    dbConfig.execute(query, [messageId, m_student_id], (err, results) => {
+        if (err) {
+            console.error('Error deleting message:', err);
+            return res.status(500).json({ message: "Failed to delete message", error: err.message });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: "Message not found or you don't have permission to delete it" });
+        }
+
+        return res.status(200).json({ message: "Message deleted successfully" });
+    });
+};

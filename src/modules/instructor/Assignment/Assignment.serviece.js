@@ -103,3 +103,28 @@ export const deleteAssignment = async (req, res, next) => {
         }
     });
 }
+
+export const searchAssignment = async (req, res, next) => {
+    const { ass } = req.query;
+    if (!ass) {
+      return res.status(400).json({ message: "Search Query is Required" });
+    }
+  
+    const query = `SELECT * FROM assignment WHERE a_name LIKE ? OR a_type LIKE ?`;
+    
+    dbConfig.execute(query, [`%${ass}%`, `%${ass}%`], (error, data) => {
+      if (error) {
+        return res.status(500).json({ message: "Failed to execute Query" });
+      }
+      if (data.length === 0) {
+        return res.status(404).json({ message: "No Assignment found" });
+      }
+      
+      return res.status(200).json({ 
+        message: "Your Assignment search Done", 
+        courses: data 
+      });
+    });
+  };
+  
+  

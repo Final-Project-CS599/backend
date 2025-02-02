@@ -8,4 +8,5 @@ router.post("/add" ,verifyToken, assignmentServiece.addAssignment )
 router.put('/edit/:assinId',verifyToken,assignmentServiece.editAssignment)
 router.get("/view" , verifyToken, assignmentServiece.getAssignment )
 router.delete('/delete/:assinId',assignmentServiece.deleteAssignment)
+router.get('/searchAssignment',assignmentServiece.searchAssignment)
 export default router
