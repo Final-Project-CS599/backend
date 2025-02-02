@@ -104,3 +104,26 @@ export const deleteExam = async (req, res, next) => {
     });
 }
 
+export const searchExam = async (req, res, next) => {
+    const { exam } = req.query;
+    if (!exam) {
+      return res.status(400).json({ message: "Search Query is Required" });
+    }
+  
+    const query = `SELECT * FROM exam WHERE e_name LIKE ? OR e_type LIKE ?`;
+    
+    dbConfig.execute(query, [`%${exam}%`, `%${exam}%`], (error, data) => {
+      if (error) {
+        return res.status(500).json({ message: "Failed to execute Query" });
+      }
+      if (data.length === 0) {
+        return res.status(404).json({ message: "No exams found" });
+      }
+      
+      return res.status(200).json({ 
+        message: "Your exam search Done", 
+        courses: data 
+      });
+    });
+  };
+
