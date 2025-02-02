@@ -1,60 +1,124 @@
-import dbConfig from "../../../DB/connection.js";
-import { successResponse } from "../../../utils/response/success.response.js";
-import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import dbConfig from '../../../DB/connection.js';
+import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
-const studentAssignment = asyncHandler(async (req, res) => {
-  const { course_id } = req.body;
+export const studentAssignment = asyncHandler(async (req, res) => {
+  try {
+    const { course_id } = req.params;
 
-  // Query to select content based on course_id
-  const contentQuery = `
-    SELECT id 
-    FROM content 
-    WHERE course_id = ?
-  `;
-
-  dbConfig.query(contentQuery, [course_id], (contentError, contentResults) => {
-    if (contentError) {
-      return res.status(500).json({
+    if (!course_id) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to fetch content",
-        error: contentError.message,
+        message: 'Course ID is required',
       });
     }
 
-    // Extract content IDs from the results
-    const contentIds = contentResults.map((content) => content.id);
-
-    if (contentIds.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No content found for the given course ID",
-      });
-    }
-
-    // Query to select assignments based on content IDs
     const assignmentQuery = `
       SELECT * 
       FROM assignment 
-      WHERE content_id IN (?)
+      WHERE a_courseId = ?;
     `;
 
-    dbConfig.query(
-      assignmentQuery,
-      [contentIds],
-      (assignmentError, assignmentResults) => {
-        if (assignmentError) {
-          return res.status(500).json({
-            success: false,
-            message: "Failed to fetch assignments",
-            error: assignmentError.message,
-          });
-        }
-
-        // Return the assignments
-        successResponse(res, 200, assignmentResults);
+    dbConfig.query(assignmentQuery, [course_id], (error, results) => {
+      if (error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to fetch assignments',
+          error: error.message,
+        });
       }
-    );
-  });
+
+      if (results.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'No assignments found for the given course ID',
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        assignments: results,
+      });
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: err.message,
+    });
+  }
 });
 
-export default studentAssignment;
+export const submitAssignment = asyncHandler(async (req, res) => {
+  try {
+    const ta_student_id = req.user.id;
+    const { ta_assignment_id } = req.body;
+
+    if (!ta_student_id || !ta_assignment_id) {
+      return res.status(400).json({
+        success: false,
+        message: !ta_student_id
+          ? 'All fields (ta_student_id) are required'
+          : 'All fields (ta_assignment_id) are required',
+      });
+    }
+
+    const checkQuery = `
+      SELECT EXISTS (
+        SELECT 1 FROM assignment WHERE a_id = ?
+      ) AS assignmentExists,
+      EXISTS (
+        SELECT 1 FROM student WHERE s_id = ?
+      ) AS studentExists
+    `;
+
+    dbConfig.query(checkQuery, [ta_assignment_id, ta_student_id], (checkError, checkResults) => {
+      if (checkError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database error during validation',
+          error: checkError.message,
+        });
+      }
+
+      const { assignmentExists, studentExists } = checkResults[0];
+
+      if (!assignmentExists || !studentExists) {
+        return res.status(404).json({
+          success: false,
+          message: 'Assignment or Student not found',
+        });
+      }
+
+      const insertQuery = `
+          INSERT INTO takes_assignment (ta_assignment_id, ta_student_id)
+          VALUES (?, ?)
+        `;
+
+      dbConfig.query(
+        insertQuery,
+        [ta_assignment_id, ta_student_id],
+        (insertError, insertResults) => {
+          if (insertError) {
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to submit assignment',
+              error: insertError.message,
+            });
+          }
+
+          res.status(201).json({
+            success: true,
+            message: 'Assignment submitted successfully',
+            submission_id: insertResults.insertId,
+          });
+        }
+      );
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: err.message,
+    });
+  }
+});

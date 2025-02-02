@@ -12,11 +12,11 @@ const router = Router();
 
 // Courses
 router.post('/addCourses' ,validation(validators.addCourses) ,coursesServices.addCourses);
-router.patch('/updateCoursesStudent' , validation(validators.updateCoursesStudent) ,coursesServices.updateCoursesStudent);
+// router.patch('/updateCoursesStudent' , validation(validators.updateCoursesStudent) ,coursesServices.updateCoursesStudent);
 router.patch('/updateCourses' , validation(validators.updateCourses) ,coursesServices.updateCourses);
 router.get('/getAllCourses' , coursesServices.getAllCourses);
 router.delete('/deletedCourse' , validation(validators.deletedCourse) ,coursesServices.deletedCourses);
-
+// 
 // Academic
 router.post('/addAcademic' , academicServices.addAcademic);
 router.patch('/updateAcademic' , academicServices.updateAcademic);
@@ -27,6 +27,8 @@ router.get('/getAllDepartment', getAllDepartment)
 
 //Extra 
 router.post('/addExtra' , extraServices.addExtra);
+router.patch('/updateExtra' , extraServices.updateExtra);
+router.get('/getAllCoursesExtra' , extraServices.getAllCoursesExtra)
 
 
 export default router;

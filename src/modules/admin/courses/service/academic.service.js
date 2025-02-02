@@ -116,7 +116,7 @@ export const addAcademic = errorAsyncHandler(
             }
         )
     }
-); 
+) 
 
 export const updateAcademic = errorAsyncHandler(
     async (req, res, next) => {
