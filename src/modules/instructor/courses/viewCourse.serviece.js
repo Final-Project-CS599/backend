@@ -1,4 +1,3 @@
-import { date } from "joi";
 import dbConfig from "../../../DB/connection.js";
 
 const getMedia =(data)=>{
