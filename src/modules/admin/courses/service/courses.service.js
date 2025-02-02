@@ -165,64 +165,64 @@ export const updateCourses = errorAsyncHandler(
 
 
 //update Student
-export const updateCoursesStudent = errorAsyncHandler(
-    async (req, res, next) => {
-        const { studentName, courseName } = req.body;
+// export const updateCoursesStudent = errorAsyncHandler(
+//     async (req, res, next) => {
+//         const { studentName, courseName } = req.body;
 
-        const [studentFirstName, studentLastName, studentMiddleName] = studentName.split(' ');
+//         const [studentFirstName, studentLastName, studentMiddleName] = studentName.split(' ');
 
-        dbConfig.execute(
-            `SELECT * FROM student WHERE s_first_name = ? AND s_last_name = ? AND s_middle_name = ?`,
-            [studentFirstName, studentLastName, studentMiddleName],
-            (err, data) => {
-                if (err) {
-                    return next(new Error(`Error verifying student data`, { cause: 500 }));
-                }
-                if (!data.length) {
-                    return next(new Error("Student not found", { cause: 404 }));
-                }
+//         dbConfig.execute(
+//             `SELECT * FROM student WHERE s_first_name = ? AND s_last_name = ? AND s_middle_name = ?`,
+//             [studentFirstName, studentLastName, studentMiddleName],
+//             (err, data) => {
+//                 if (err) {
+//                     return next(new Error(`Error verifying student data`, { cause: 500 }));
+//                 }
+//                 if (!data.length) {
+//                     return next(new Error("Student not found", { cause: 404 }));
+//                 }
 
-                const studentId = data[0].s_id;
+//                 const studentId = data[0].s_id;
 
-                dbConfig.execute( `SELECT * FROM courses WHERE c_name = ?`, [courseName],
-                    (err, data) => {
-                        if (err) {
-                            return next(new Error("Error check course existence", { cause: 500 }));
-                        }
-                        if (!data.length) {
-                            return next(new Error("Course not found", { cause: 404 }));
-                        }
+//                 dbConfig.execute( `SELECT * FROM courses WHERE c_name = ?`, [courseName],
+//                     (err, data) => {
+//                         if (err) {
+//                             return next(new Error("Error check course existence", { cause: 500 }));
+//                         }
+//                         if (!data.length) {
+//                             return next(new Error("Course not found", { cause: 404 }));
+//                         }
 
-                        const courseId = data[0].c_id;
+//                         const courseId = data[0].c_id;
 
-                        dbConfig.execute(
-                            `UPDATE courses SET c_studentId = ? WHERE c_id = ?`, [studentId, courseId], 
-                            (err, result) => {
-                                if (err) {
-                                    return next(new Error(`Error updating course with student ID: ${err.message}`, { cause: 500 }));
-                                }
-                                if (result.affectedRows === 0) {
-                                    return next(new Error("Course not found or no changes made", { cause: 404 }));
-                                }
+//                         dbConfig.execute(
+//                             `UPDATE courses SET c_studentId = ? WHERE c_id = ?`, [studentId, courseId], 
+//                             (err, result) => {
+//                                 if (err) {
+//                                     return next(new Error(`Error updating course with student ID: ${err.message}`, { cause: 500 }));
+//                                 }
+//                                 if (result.affectedRows === 0) {
+//                                     return next(new Error("Course not found or no changes made", { cause: 404 }));
+//                                 }
 
-                                return successResponse({
-                                    res,
-                                    message: "Student added to course successfully",
-                                    status: 200,
-                                    data: {
-                                        courseId: courseId, 
-                                        studentId: studentId,
-                                        studentName: studentName,
-                                    }
-                                });
-                            }
-                        );
-                    }
-                );
-            }
-        );
-    }
-);
+//                                 return successResponse({
+//                                     res,
+//                                     message: "Student added to course successfully",
+//                                     status: 200,
+//                                     data: {
+//                                         courseId: courseId, 
+//                                         studentId: studentId,
+//                                         studentName: studentName,
+//                                     }
+//                                 });
+//                             }
+//                         );
+//                     }
+//                 );
+//             }
+//         );
+//     }
+// );
 
 
 export const getAllCourses = errorAsyncHandler(
