@@ -14,8 +14,9 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
+    let tokenResult = process.env.TOKEN_SIGNATURE || process.env.TOKEN_SIGNATURE_ADMIN
     // Verify the token
-    const decoded = jwt.verify(token, process.env.TOKEN_SIGNATURE_ADMIN);
+    const decoded = jwt.verify(token, tokenResult);
     // Attach the decoded payload (e.g., user ID) to the request object
     req.user = decoded;
 
