@@ -104,7 +104,8 @@ const updateInstructorById = asyncHandler(async (req, res, next) => {
     queryParams.push(deptResult[0].d_id);
   }
 
-  changeFields.push('i_updatedAt = CURRENT_TIMESTAMP ');
+  changeFields.push('i_updatedAt = CURRENT_TIMESTAMP , s_admin_id = ?');
+  queryParams.push(AdminId);
   
 
   const sql = `UPDATE Instructors SET ${changeFields.join(', ')} WHERE i_id = ?`;
