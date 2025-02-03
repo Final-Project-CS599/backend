@@ -17,7 +17,7 @@ export const  generalFieldsValidation = {
         'string.empty' : "password cannot be empty",
         'string.pattern.base': 'password must be exactly 14 digits National ID (example: 12345678910121) ',
     }),
-    password: joi.string().pattern(new RegExp(/^(?=.*\d)(?=.*[a-zA-Z]?)[a-zA-Z0-9!@#$%^&*-_+=]{8,}$/)).messages({
+    password: joi.string().pattern(new RegExp(/^(?=.*\d)(?=.*[a-zA-Z]?)[a-zA-Z0-9@#$%^&*-_]{8,}$/)).messages({
         'string.empty' : "password cannot be empty",
         'string.pattern.base': 'password must be exactly 8 digits (example: 12345678 , A.s12345 , a1234567 , a.x12345 ,a.@x12345) ',
     }),
@@ -25,7 +25,6 @@ export const  generalFieldsValidation = {
     phone: joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/)).messages({
         'alternatives.match': "Please provide a valid phone number ex: (+201234567810 , 00201234567810 , 01234567810)"
     }),
-    phoneArray: joi.array().items(joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/))),
     acceptLanguage: joi.string().valid('en' , 'ar' ,'en-US' ,"en-US,en;q=0.9").default('en'),
     DOB: joi.date().less("now"),
     gander: joi.string().valid('Male' , 'Female').default('Female'),
@@ -41,11 +40,15 @@ export const  generalFieldsValidation = {
 export const validation = (scheme) => {
     return (req , res , next) => {
         
-        const inputDate = {...req.body , ...req.query };
+        const inputDate = {...req.body , ...req.query  };
 
+        // abortEarly to get all errors
         const validationError = scheme.validate( inputDate , {abortEarly: false});
         if(validationError.error){
-            return res.status(400).json({message:`Validation Error in the check input` , validationError:validationError.error.details});
+            return res.status(400).json({
+                message: `Validation Error in the check input ${validationError.error.details[0].message}` , 
+                validationError:validationError.error.details.message
+            });
         }
 
         return next();

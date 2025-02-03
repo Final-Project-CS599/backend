@@ -3,7 +3,7 @@ import { generalFieldsValidation } from '../../../middleware/validation.middlewa
 
 
 
-export const signupValidationSchema = joi.object().keys({
+export const defaultSuperAdminValidationSchema = joi.object().keys({
     nationalID : generalFieldsValidation.nationalID.required(),
     firstName : generalFieldsValidation.userName.required().messages({
         'string.empty': 'userName is required',
