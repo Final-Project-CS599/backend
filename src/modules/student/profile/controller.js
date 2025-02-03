@@ -4,7 +4,6 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const editProfile = asyncHandler(async (req, res) => {
   const studentId = req.user.id; // Get the student ID from the authenticated user
-  console.log('studentId:', studentId);
   const { phoneNumbers, password, birthDate, gender } = req.body; // Data to update
 
   // Hash the password if provided
@@ -176,3 +175,49 @@ const fetchUpdatedStudentData = (studentId, res) => {
     res.status(200).json({ message: 'Profile updated successfully', student: studentData });
   });
 };
+
+export const getStudentData = asyncHandler(async (req, res) => {
+  const studentId = req.user.id;
+
+  if (!studentId) {
+    return res.status(400).json({ message: 'Student ID is required' });
+  }
+
+  const selectStudentQuery = `
+    SELECT s.*, GROUP_CONCAT(sp.sp_phone) AS phone_numbers
+    FROM student s  
+    LEFT JOIN student_phone sp ON s.s_id = sp.sp_student_id
+    WHERE s.s_id = ?`;
+
+  dbConfig.query(selectStudentQuery, [studentId], (err, results) => {
+    if (err) {
+      console.error('Error retrieving data:', err);
+      return res.status(500).json({ message: 'Failed to retrieve data' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const fullStudentData = results[0];
+
+    // Process phone numbers
+    const phoneNumbers = fullStudentData.phone_numbers
+      ? fullStudentData.phone_numbers.split(',')
+      : [];
+
+    const studentData = {
+      id: fullStudentData.s_id, // Student ID
+      firstName: fullStudentData.s_first_name, // First name
+      middleName: fullStudentData.s_middle_name, // Middle name
+      lastName: fullStudentData.s_last_name, // Last name
+      email: fullStudentData.s_email, // Email
+      phoneNumbers: phoneNumbers, // Phone numbers
+      dateOfBirth: fullStudentData.s_DOB, // Date of birth
+      gender: fullStudentData.s_gender, // Gender
+      department: fullStudentData.d_dept_name, // Department
+    };
+
+    res.status(200).json({ message: 'data retrieved successfully', data: { studentData } });
+  });
+});

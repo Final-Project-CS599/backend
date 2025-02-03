@@ -1,5 +1,6 @@
-import dbConfig from "../../../DB/connection.js";
-import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import dbConfig from '../../../DB/connection.js';
+import { asyncHandler } from '../../../middleware/asyncHandler.js';
+import { successResponse } from '../../../utils/response/success.response.js';
 
 export const getInstructors = asyncHandler(async (req, res) => {
   try {
@@ -19,18 +20,23 @@ export const getInstructors = asyncHandler(async (req, res) => {
 
     const [results] = await dbConfig.promise().query(query, [studentId]);
 
-    if (!results.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No instructors found for this student",
+    if (results.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No instructors found for this student',
+        data: [],
       });
     }
 
-    successResponse(res, 200, results);
+    return res.status(200).json({
+      success: true,
+      message: 'No instructors found for this student',
+      data: results,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch instructors",
+      message: 'Failed to fetch instructors',
       error: error.message,
     });
   }
@@ -55,8 +61,7 @@ export const getInstructorProfile = asyncHandler(async (req, res) => {
     if (!enrollmentCheck.length) {
       return res.status(403).json({
         success: false,
-        message:
-          "Access denied: You are not enrolled in any course by this instructor.",
+        message: 'Access denied: You are not enrolled in any course by this instructor.',
       });
     }
 
@@ -74,7 +79,7 @@ export const getInstructorProfile = asyncHandler(async (req, res) => {
     if (!results.length) {
       return res.status(404).json({
         success: false,
-        message: "Instructor not found.",
+        message: 'Instructor not found.',
       });
     }
 
@@ -82,7 +87,7 @@ export const getInstructorProfile = asyncHandler(async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch instructor profile.",
+      message: 'Failed to fetch instructor profile.',
       error: error.message,
     });
   }

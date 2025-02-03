@@ -8,6 +8,7 @@ export const AssignmentTable = `CREATE TABLE IF NOT EXISTS assignment(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
      )`;
 
+
 export const TakesAssignmentTable = `CREATE TABLE IF NOT EXISTS takes_assignment(
   ta_id INT AUTO_INCREMENT PRIMARY KEY,
   ta_grade FLOAT NOT NULL,

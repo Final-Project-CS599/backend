@@ -36,7 +36,7 @@ export const createdTables = async (req, res) => {
     { query: AdminModels.createAcademicTableQuery, name: 'Academic Courses' },
     { query: AdminModels.createExtraTableQuery, name: 'Extra Courses' },
     // { query: InstructorModels.createContentTable, name: 'Content' },
-    { query: StudentModels.createAssignmentTable, name: 'Assignment Table' },
+    { query: StudentModels.AssignmentTable, name: 'Assignment Table' },
     { query: StudentModels.TakesAssignmentTable, name: 'Takes Assignment Table' },
     { query: StudentModels.PaymentTable, name: 'Payment Table' },
     { query: StudentModels.ExtraPaymentTable, name: 'Extra Payment Table' },

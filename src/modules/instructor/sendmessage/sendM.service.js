@@ -118,10 +118,10 @@ export const viewMessageStudent = (req, res, next) => {
   console.log('Received body:', req.body);
 
   dbConfig.execute(
-    `SELECT message.*, instructor.i_first_name AS instructor_first_name, instructor.i_last_name AS instructor_last_name, instructor.i_email AS instructor_email 
-       FROM message 
-       INNER JOIN instructor ON message.m_instructor_id = instructor.i_id 
-       WHERE message.m_student_id = ?`,
+    `SELECT message.*, Instructors.i_firstName, Instructors.i_lastName, Instructors.i_email  
+     FROM message 
+     INNER JOIN Instructors ON message.m_instructor_id = Instructors.i_id 
+     WHERE message.m_student_id = ?`,
     [m_student_id],
     (err, results) => {
       if (err) {
@@ -129,14 +129,21 @@ export const viewMessageStudent = (req, res, next) => {
         return res.status(500).json({ message: 'Failed to retrieve messages', error: err.message });
       }
 
+      // Convert results to a plain object (if necessary)
       results = JSON.parse(JSON.stringify(results));
+
+      // Process each message to add a 'type' field and remove unnecessary fields
       for (let i = 0; i < results.length; i++) {
         results[i].m_sender == 'student'
           ? (results[i].type = 'sender')
-          : (results[i].type = 'reciever');
+          : (results[i].type = 'receiver');
+
+        // Remove the m_sender and m_reciever fields from the response
         delete results[i].m_sender;
         delete results[i].m_reciever;
       }
+
+      // Send the processed messages back to the client
       return res.status(200).json({ messages: results });
     }
   );
