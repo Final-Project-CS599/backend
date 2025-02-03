@@ -45,7 +45,7 @@ const confirmEmail = errorAsyncHandler(
                 if (data.length > 0) {
                     emailUserFound = true;
                     if (data[0][query.activeColumn] === 1) {
-                        return next(new Error("Email Email already confirmed. Please page login." , {cause: 400}))
+                        return next(new Error("Email Email already confirmed. Please login." , {cause: 400}))
                         // return successResponse({
                         //     res,
                         //     message: "Email already confirmed. Please login.",
@@ -69,7 +69,7 @@ const confirmEmail = errorAsyncHandler(
                     });
                 }
             } catch (err) {
-                return next(new Error(`Error Server Database Failed to get data : ${err.message}`, { cause: 500 }));
+                return next(new Error(`Error Server Database Failed to get data`, { cause: 500 }));
             }
         }
 

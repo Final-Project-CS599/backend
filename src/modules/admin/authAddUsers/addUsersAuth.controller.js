@@ -11,7 +11,7 @@ import { validation } from "../../../middleware/validation.middleware.js";
 const router = Router();
 
 
-router.post(`/insertDefaultAdmin` ,validation(validators.signupValidationSchema), insertDefaultAdmin);
+router.post(`/insertDefaultAdmin` ,validation(validators.defaultSuperAdminValidationSchema), insertDefaultAdmin);
 router.post('/insertAddAdmin' , validation(validators.addAdminValidationSchema), addAdmin);
 router.post('/addInstructor' , validation(validators.addInstructorValidationSchema), addInstructor);
 router.post(`/addStudent` ,validation(validators.addStudentValidationSchema) ,addStudent);
