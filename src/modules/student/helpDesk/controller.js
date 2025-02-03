@@ -33,7 +33,7 @@ export const sendMessageToHelpDesk = asyncHandler(async (req, res) => {
   });
 });
 
-// Controller for retrieving student messages from the help desk
+// // Controller for retrieving student messages from the help desk
 export const getStudentMessages = asyncHandler(async (req, res) => {
   const studentId = req.user.id; // Get the student ID from the authenticated user
   // Retrieve messages for the student
