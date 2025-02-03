@@ -11,7 +11,7 @@ export const sendMsgHelp = (req, res, next) => {
     }
 
     dbConfig.execute(`INSERT INTO helpDesk (hd_title, hd_description, hd_email, hd_studentId, hd_instructorsId) VALUES (?, ?, ?, ?, ?)`,
-        [title, description, email, 6, instructorsId], (err, result) => {
+        [title, description, email,instructorsId], (err, result) => {
         if (err) {
             console.error('Failed to send message:', err);
             return res.status(500).json({ message: "Failed to send message", err: err.message });

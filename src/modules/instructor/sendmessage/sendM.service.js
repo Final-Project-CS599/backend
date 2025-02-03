@@ -131,7 +131,7 @@ export const viewMessageStudent = (req, res, next) => {
 
       results = JSON.parse(JSON.stringify(results));
       for (let i = 0; i < results.length; i++) {
-        results[i].m_sender == 'instructor'
+        results[i].m_sender == 'student'
           ? (results[i].type = 'sender')
           : (results[i].type = 'reciever');
         delete results[i].m_sender;
