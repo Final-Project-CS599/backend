@@ -44,8 +44,7 @@ export const createdTables = async (req, res) => {
     { query: InstructorModels.createExamTable, name: 'Exam' },
     { query: InstructorModels.createTakesExamTable, name: 'Takes Exam' },
     { query: InstructorModels.createMedia, name: 'Media' },
-    { query: InstructorModels.createReceiveTable, name: 'Receive' },
-    { query: StudentModels.createSendTableQuery, name: 'Send' },
+    { query: StudentModels.createSendTableQuery, name: 'message' },
     { query: AdminModels.createdTableHelpDesk, name: 'HelpDesk' },
   ];
 

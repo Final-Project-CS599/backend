@@ -43,20 +43,17 @@ const editProfile = asyncHandler(async (req, res, next) => {
   const nationalId = req.user.id;
   const { primaryPhone, secondaryPhone, newPassword, confirmPassword } = req.body;
 
-  // Validate password match if password is being updated
   if (newPassword && newPassword !== confirmPassword) {
     return next(new AppError('Passwords do not match', 400));
   }
 
-  // Update phone numbers
+
   if (primaryPhone || secondaryPhone) {
-    // Fetch existing phone numbers for the user
     const [existingPhones] = await conn.query(
       'SELECT p_id, p_number FROM superAdminsPhone WHERE sAdmin_nationalID = ?',
       [nationalId]
     );
 
-    // Helper function to update or insert phone number
     const upsertPhone = async (phoneNumber, index) => {
       if (phoneNumber) {
         if (existingPhones[index]) {
@@ -77,7 +74,6 @@ const editProfile = asyncHandler(async (req, res, next) => {
     await upsertPhone(secondaryPhone, 1);
   }
 
-  // Update password if provided
   if (newPassword) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);

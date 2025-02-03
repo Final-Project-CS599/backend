@@ -1,4 +1,4 @@
-import dbConfig from '../../../DB/connection.js';
+import dbConfig from "../../../DB/connection.js";
 
 const getMedia = (data) => {
   let media = [];
