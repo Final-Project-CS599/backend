@@ -5,7 +5,7 @@ import dbConfig from '../../../DB/connection.js';
 export const sendMessageToHelpDesk = asyncHandler(async (req, res) => {
   const { title, description, email } = req.body; // Extract data from the request body
   const studentId = req.user.id; // Get the student ID from the authenticated user
-
+ 
   // Insert the message into the helpDesk table
   const query = `
     INSERT INTO helpDesk (hd_title, hd_description, hd_email, hd_studentId)

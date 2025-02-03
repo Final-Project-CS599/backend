@@ -134,7 +134,7 @@ export const viewMessageStudent = (req, res, next) => {
 
       // Process each message to add a 'type' field and remove unnecessary fields
       for (let i = 0; i < results.length; i++) {
-        results[i].m_sender === 'student'
+        results[i].m_sender == 'student'
           ? (results[i].type = 'sender')
           : (results[i].type = 'receiver');
 

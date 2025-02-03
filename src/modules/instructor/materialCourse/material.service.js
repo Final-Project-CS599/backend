@@ -31,7 +31,6 @@ export const uploadMaterial = async (req, res, next) => {
   }
 };
 
-// تحديث المادة
 export const editMaterial = async (req, res, next) => {
   try {
     const { m_description, m_title, m_link } = req.body;
