@@ -10,8 +10,7 @@ import { verifyToken } from '../../../middleware/auth.js';
 const router = Router();
 
 // Courses
-router.post('/addCourses', validation(validators.addCourses), coursesServices.addCourses);
-// router.patch('/updateCoursesStudent' , validation(validators.updateCoursesStudent) ,coursesServices.updateCoursesStudent);
+
 router.patch('/updateCourses', validation(validators.updateCourses), coursesServices.updateCourses);
 router.get('/getAllCourses', coursesServices.getAllCourses);
 router.delete(
