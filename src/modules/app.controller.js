@@ -59,9 +59,9 @@ const bootstrap = (app, express) => {
   // DB Routes
   app.use('/DB', dbRoute);
   //added endpoints
-  app.use(`${baseUrl}/courses`,courseController)
-  app.use(`${baseUrl}/instructorProfile`,instProfileController)
-  app.use(`${baseUrl}/message`,MessageController)
+  app.use(`${baseUrl}/courses`, courseController);
+  app.use(`${baseUrl}/instructorProfile`, instProfileController);
+  app.use(`${baseUrl}/message`, MessageController);
   //
   app.use(`/auth/addUser`, authAddUsersController);
   app.use(`/auth`, authController);
@@ -89,6 +89,7 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/student`, examRoute);
   app.use(`${baseUrl}/editStudents`, editStudentsRouter);
   app.use(`${baseUrl}/editInstructors`, editinstructorsRouter);
+  app.use(`${baseUrl}/courses`, coursesController);
 
   app.all('*', (req, res, next) => {
     return res.status(404).json({ message: 'In-valid routing' });
