@@ -9,6 +9,13 @@ const dbConfig = mysql2.createConnection({
   database : process.env.MYSQL_ADDON_DB,
   user     : process.env.MYSQL_ADDON_USER,
   password : process.env.MYSQL_ADDON_PASSWORD
+
+
+  // host     : process.env.DB_HOST,
+  // user     : process.env.DB_USER,
+  // password : process.env.DB_PASSWORD,
+  // database : process.env.DB_NAME
+
 });
 
 

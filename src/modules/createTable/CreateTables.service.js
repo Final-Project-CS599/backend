@@ -35,7 +35,7 @@ export const createdTables = async (req, res) => {
     { query: AdminModels.createCoursesTableQuery, name: 'Courses' },
     { query: AdminModels.createAcademicTableQuery, name: 'Academic Courses' },
     { query: AdminModels.createExtraTableQuery, name: 'Extra Courses' },
-    { query: InstructorModels.createContentTable, name: 'Content' },
+    // { query: InstructorModels.createContentTable, name: 'Content' },
     { query: StudentModels.AssignmentTable, name: 'Assignment Table' },
     { query: StudentModels.TakesAssignmentTable, name: 'Takes Assignment Table' },
     { query: StudentModels.PaymentTable, name: 'Payment Table' },
@@ -44,8 +44,7 @@ export const createdTables = async (req, res) => {
     { query: InstructorModels.createExamTable, name: 'Exam' },
     { query: InstructorModels.createTakesExamTable, name: 'Takes Exam' },
     { query: InstructorModels.createMedia, name: 'Media' },
-    { query: InstructorModels.createReceiveTable, name: 'Receive' },
-    { query: StudentModels.createSendTableQuery, name: 'Send' },
+    { query: StudentModels.createSendTableQuery, name: 'message' },
     { query: AdminModels.createdTableHelpDesk, name: 'HelpDesk' },
   ];
 
