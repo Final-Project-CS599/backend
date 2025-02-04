@@ -1,5 +1,6 @@
-import dbConfig from '../../../../DB/connection';
-import { errorAsyncHandler } from '../../../../utils/response/error.response';
+import dbConfig from '../../../../DB/connection.js';
+import { errorAsyncHandler } from '../../../../utils/response/error.response.js';
+import { successResponse } from '../../../../utils/response/success.response.js';
 
 export const updateEnrollment = errorAsyncHandler(async (req, res, next) => {
   const studentId = req.user.id;
@@ -28,4 +29,31 @@ export const updateEnrollment = errorAsyncHandler(async (req, res, next) => {
   });
 });
 
-export default updateEnrollment;
+export const getPayments = errorAsyncHandler(async (req, res, next) => {
+  const query = `
+  SELECT
+    *
+  FROM payment`;
+
+  dbConfig.execute(query, (error, results) => {
+    if (error) {
+      return next(new Error('Internal server error', { cause: 500 }));
+    }
+
+    if (results.length === 0) {
+      return successResponse({
+        res,
+        message: 'No payments found',
+        status: 200,
+        data: [],
+      });
+    }
+
+    return successResponse({
+      res,
+      message: 'Payments retrieved successfully',
+      status: 200,
+      data: results,
+    });
+  });
+});

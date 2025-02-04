@@ -3,8 +3,10 @@ import { errorAsyncHandler } from '../../../../utils/response/error.response.js'
 import { successResponse } from '../../../../utils/response/success.response.js';
 
 export const addExtra = errorAsyncHandler(async (req, res, next) => {
+  const adminNationalID = req.user.id;
+
+  console.log(adminNationalID, 'adminNationalID');
   const {
-    adminNationalID,
     instructorName,
     courseName,
     courseCode,
@@ -15,6 +17,21 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
     courseEndDate,
     sections,
   } = req.body;
+
+  if (
+    !adminNationalID ||
+    !instructorName ||
+    !courseName ||
+    !courseCode ||
+    !price ||
+    !category ||
+    !description ||
+    !courseStartDate ||
+    !courseEndDate ||
+    !sections
+  ) {
+    return next(new Error('All fields are required', { cause: 400 }));
+  }
 
   dbConfig.execute(
     `SELECT * FROM superAdmin WHERE sAdmin_nationalID = ?`,
@@ -28,7 +45,9 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
           new Error('Access denied, Only admins or superAdmins can add courses', { cause: 403 })
         );
       }
-      const [instructorFirstName, instructorLastName] = instructorName.split(' ');
+      const instructorNameParts = instructorName.trim().split(' ');
+      const instructorFirstName = instructorNameParts[0] || null;
+      const instructorLastName = instructorNameParts.slice(1).join(' ') || null;
 
       dbConfig.execute(
         `SELECT * FROM Instructors WHERE i_firstName = ? AND i_lastName = ?`,
@@ -78,7 +97,7 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
                     return next(new Error('Error Server add course', { cause: 500 }));
                   }
 
-                  const courseId = dataCourse.insertId;
+                  const id = dataCourse.insertId;
 
                   dbConfig.execute(
                     `SELECT * FROM Extra WHERE e_Course_code = ?`,
@@ -90,11 +109,25 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
                       if (dataExtra.length) {
                         return next(new Error('Extra record already exists', { cause: 409 }));
                       }
+                      const trimmedSection =
+                        typeof sections === 'string' ? sections.trim() : sections;
+
+                      // If it's an ENUM, validate against allowed values
+                      const allowedSections = [
+                        'Back end',
+                        'Front end',
+                        'languages',
+                        'programming',
+                        'Digital marketing',
+                      ];
+                      if (!allowedSections.includes(trimmedSection)) {
+                        return next(new Error('Invalid section value', { cause: 400 }));
+                      }
 
                       dbConfig.execute(
-                        `INSERT INTO Extra (e_courseId, e_Course_code, e_sections, e_price)
+                        `INSERT INTO Extra (e_id, e_Course_code, e_sections, e_price)
                                                     VALUES (?, ?, ? , ?)`,
-                        [courseId, courseCode, sections, price],
+                        [id, courseCode, trimmedSection, price],
                         (err, extraResult) => {
                           if (err) {
                             return next(
@@ -137,8 +170,9 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
 
 //  Update extra again
 export const updateExtra = errorAsyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const adminNationalID = req.user.id;
   const {
-    adminNationalID,
     instructorName,
     courseName,
     courseNameUpdate,
@@ -195,7 +229,7 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
                 return next(new Error('Course already exists', { cause: 409 }));
               }
 
-              const courseId = courseData[0].c_id;
+              const id = courseData[0].c_id;
 
               dbConfig.execute(
                 `UPDATE courses SET c_adminNid=?, c_name=?, c_type='Extra', c_instructorId=?, c_description=?, c_category=?, c_start_date=?, c_end_date=?`,
@@ -213,7 +247,7 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
                     return next(new Error('Error Server update course', { cause: 500 }));
                   }
 
-                  // const courseId = dataCourse[0].c_id;
+                  // const id = dataCourse[0].c_id;
 
                   dbConfig.execute(
                     `SELECT * FROM Extra WHERE e_Course_code = ?`,
@@ -227,8 +261,8 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
                       }
 
                       dbConfig.execute(
-                        `UPDATE Extra SET e_courseId=?, e_Course_code=?, e_sections=?, e_price=? WHERE e_Course_code =?`,
-                        [courseId, courseCodeUpdate, sections, price, courseCode],
+                        `UPDATE Extra SET e_id=?, e_Course_code=?, e_sections=?, e_price=? WHERE e_Course_code =?`,
+                        [id, courseCodeUpdate, sections, price, courseCode],
                         (err, extraResult) => {
                           if (err) {
                             return next(
@@ -277,7 +311,7 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
 export const getAllCoursesExtra = errorAsyncHandler(async (req, res, next) => {
   dbConfig.execute(
     `SELECT 
-                courses.c_id AS courseId,
+                courses.c_id AS id,
                 courses.c_name AS courseName,
                 courses.c_type AS courseType,
                 courses.c_start_date AS startDate,
@@ -289,7 +323,7 @@ export const getAllCoursesExtra = errorAsyncHandler(async (req, res, next) => {
                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
             FROM courses
             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
-            INNER JOIN Extra ON courses.c_id = Extra.e_courseId 
+            INNER JOIN Extra ON courses.c_id = Extra.e_id 
             WHERE courses.c_type = "Extra"
             `,
     (err, data) => {
@@ -317,11 +351,11 @@ export const getAllCoursesExtra = errorAsyncHandler(async (req, res, next) => {
 });
 
 export const getCourseExtra = errorAsyncHandler(async (req, res, next) => {
-  const { courseId } = req.params;
+  const { id } = req.params;
 
   dbConfig.execute(
     `SELECT
-                courses.c_id AS courseId,
+                courses.c_id AS id,
                 courses.c_name AS courseName,
                 courses.c_type AS courseType,
                 courses.c_start_date AS startDate,
@@ -333,11 +367,11 @@ export const getCourseExtra = errorAsyncHandler(async (req, res, next) => {
                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
             FROM courses
             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
-            INNER JOIN Extra ON courses.c_id = Extra.e_courseId
+            INNER JOIN Extra ON courses.c_id = Extra.e_id
             WHERE courses.c_type = "Extra"
             AND courses.c_id = ?
             `,
-    [courseId],
+    [id],
     (err, data) => {
       if (err) {
         return next(new Error(`Error Server ${err.message}`, { cause: 500 }));
