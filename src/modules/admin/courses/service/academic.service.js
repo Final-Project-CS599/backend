@@ -13,12 +13,25 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
     courseCode,
     instructorName,
     department,
-    courseType,
     category,
     description,
     courseStartDate,
     courseEndDate,
   } = req.body;
+
+  if (
+    !adminNationalID ||
+    !instructorName ||
+    !courseName ||
+    !courseCode ||
+    !category ||
+    !description ||
+    !courseStartDate ||
+    !courseEndDate ||
+    !department
+  ) {
+    return next(new Error('All fields are required', { cause: 400 }));
+  }
 
   dbConfig.execute(
     `SELECT * FROM superAdmin WHERE sAdmin_nationalID = ? `,
@@ -33,8 +46,9 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
         );
       }
 
-      const [instructorFirstName, instructorLastName] = instructorName.split(' ');
-
+      const instructorNameParts = instructorName.trim().split(' ');
+      const instructorFirstName = instructorNameParts[0] || null;
+      const instructorLastName = instructorNameParts.slice(1).join(' ') || null;
       dbConfig.execute(
         `SELECT * FROM Instructors WHERE i_firstName = ? AND i_lastName = ?`,
         [instructorFirstName, instructorLastName],
@@ -86,7 +100,7 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
                     return next(new Error('Error Server add course', { cause: 500 }));
                   }
 
-                  const courseId = dataCourse.insertId;
+                  const id = dataCourse.insertId;
 
                   dbConfig.execute(
                     `SELECT * FROM department WHERE d_dept_name = ?`,
@@ -116,7 +130,7 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
                           dbConfig.execute(
                             `INSERT INTO academic (course_id, aDepartment_id, aCourse_code)
                                                             VALUES (?, ?, ?)`,
-                            [courseId, departmentId, courseCode],
+                            [id, departmentId, courseCode],
                             (err, academicResult) => {
                               if (err) {
                                 return next(
@@ -159,13 +173,12 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
 });
 
 export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
+  const adminNationalID = req.user.id;
   const {
-    adminNationalID,
     courseNameUpdate,
     courseCodeUpdata,
     instructorName,
     department,
-    courseType,
     category,
     description,
     courseStartDate,
@@ -187,7 +200,9 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
         );
       }
 
-      const [instructorFirstName, instructorLastName] = instructorName.split(' ');
+      const instructorNameParts = instructorName.trim().split(' ');
+      const instructorFirstName = instructorNameParts[0] || null;
+      const instructorLastName = instructorNameParts.slice(1).join(' ') || null;
 
       dbConfig.execute(
         `SELECT * FROM Instructors WHERE i_firstName = ? AND i_lastName = ?`,
@@ -247,14 +262,14 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
                   dbConfig.execute(
                     `SELECT c_id FROM courses WHERE c_name = ?`,
                     [courseNameUpdate],
-                    (err, courseIdData) => {
+                    (err, idData) => {
                       if (err) {
                         return next(new Error('Error fetching course ID', { cause: 500 }));
                       }
-                      if (!courseIdData.length) {
+                      if (!idData.length) {
                         return next(new Error('Course ID not found', { cause: 404 }));
                       }
-                      const courseId = courseIdData[0].c_id;
+                      const id = idData[0].c_id;
 
                       dbConfig.execute(
                         `SELECT * FROM department WHERE d_dept_name = ?`,
@@ -281,7 +296,7 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
 
                               dbConfig.execute(
                                 `UPDATE academic SET course_id = ?, aDepartment_id = ?, aCourse_code = ? WHERE aCourse_code = ?`,
-                                [courseId, departmentId, courseCodeUpdata, courseCode],
+                                [id, departmentId, courseCodeUpdata, courseCode],
                                 (err, academicData) => {
                                   if (err) {
                                     return next(new Error(`Error Server academic`, { cause: 500 }));
@@ -332,7 +347,7 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
 export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) => {
   dbConfig.execute(
     `SELECT
-                courses.c_id AS courseId,
+                courses.c_id AS id,
                 courses.c_name AS courseName,
                 courses.c_type AS courseType,
                 courses.c_start_date AS startDate,
@@ -341,10 +356,12 @@ export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) =>
                 courses.c_category AS category,
                 academic.aCourse_code AS courseCode,
                 academic.aDepartment_id AS departmentId,
+                department.d_dept_name AS departmentName, 
                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
             FROM courses
             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
             INNER JOIN academic ON courses.c_id = academic.course_id
+            INNER JOIN department ON academic.aDepartment_id = department.d_id  
             WHERE courses.c_type = "Academic"
             `,
     (err, data) => {
@@ -367,11 +384,11 @@ export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) =>
 });
 
 export const getCourseAcademic = errorAsyncHandler(async (req, res, next) => {
-  const { courseId } = req.params;
+  const { id } = req.params;
 
   dbConfig.execute(
     `SELECT
-                courses.c_id AS courseId,
+                courses.c_id AS id,
                 courses.c_name AS courseName,
                 courses.c_type AS courseType,
                 courses.c_start_date AS startDate,
@@ -387,7 +404,7 @@ export const getCourseAcademic = errorAsyncHandler(async (req, res, next) => {
             WHERE courses.c_type = "Academic"
             AND courses.c_id = ?
             `,
-    [courseId],
+    [id],
     (err, data) => {
       if (err) {
         return next(new Error(`Error Server ${err.message}`, { cause: 500 }));
