@@ -331,7 +331,7 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
 
 export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) => {
   dbConfig.execute(
-    `SELECT 
+    `SELECT
                 courses.c_id AS courseId,
                 courses.c_name AS courseName,
                 courses.c_type AS courseType,
@@ -344,7 +344,7 @@ export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) =>
                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
             FROM courses
             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
-            INNER JOIN academic ON courses.c_id = academic.course_id 
+            INNER JOIN academic ON courses.c_id = academic.course_id
             WHERE courses.c_type = "Academic"
             `,
     (err, data) => {
@@ -366,47 +366,43 @@ export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) =>
   );
 });
 
-// export const getAllCoursesAcademic = errorAsyncHandler(async (req, res, next) => {
-//   const { department_id } = req.body;
+export const getCourseAcademic = errorAsyncHandler(async (req, res, next) => {
+  const { courseId } = req.params;
 
-//   // Ensure department_id is provided
-//   if (!department_id) {
-//     return next(new Error('Department ID is required', { cause: 400 }));
-//   }
+  dbConfig.execute(
+    `SELECT
+                courses.c_id AS courseId,
+                courses.c_name AS courseName,
+                courses.c_type AS courseType,
+                courses.c_start_date AS startDate,
+                courses.c_end_date AS endDate,
+                courses.c_description AS description,
+                courses.c_category AS category,
+                academic.aCourse_code AS courseCode,
+                academic.aDepartment_id AS departmentId,
+                CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
+            FROM courses
+            INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
+            INNER JOIN academic ON courses.c_id = academic.course_id
+            WHERE courses.c_type = "Academic"
+            AND courses.c_id = ?
+            `,
+    [courseId],
+    (err, data) => {
+      if (err) {
+        return next(new Error(`Error Server ${err.message}`, { cause: 500 }));
+      }
 
-//   dbConfig.execute(
-//     `SELECT
-//                 courses.c_id AS courseId,
-//                 courses.c_name AS courseName,
-//                 courses.c_type AS courseType,
-//                 courses.c_start_date AS startDate,
-//                 courses.c_end_date AS endDate,
-//                 courses.c_description AS description,
-//                 courses.c_category AS category,
-//                 academic.aCourse_code AS courseCode,
-//                 academic.aDepartment_id AS departmentId,
-//                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
-//             FROM courses
-//             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
-//             INNER JOIN academic ON courses.c_id = academic.course_id
-//             WHERE courses.c_type = "Academic" AND academic.aDepartment_id = ?
-//             `,
-//     [department_id], // Pass department_id as a parameter
-//     (err, data) => {
-//       if (err) {
-//         return next(new Error(`Error Server ${err.message}`, { cause: 500 }));
-//       }
+      if (!data.length) {
+        return next(new Error('Course not found', { cause: 404 }));
+      }
 
-//       if (!data.length) {
-//         return res.status(200).json({ message: 'No Courses found', data: [] });
-//       }
-
-//       return successResponse({
-//         res,
-//         message: 'Academic courses retrieved successfully',
-//         status: 200,
-//         data: data,
-//       });
-//     }
-//   );
-// });
+      return successResponse({
+        res,
+        message: 'Academic course retrieved successfully',
+        status: 200,
+        data: data[0],
+      });
+    }
+  );
+});

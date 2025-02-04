@@ -166,7 +166,7 @@ export const searchByRoleAndName = asyncHandler(async (req, res, next) => {
 
   // SQL query to select only first_name and id with name filtering
   const studentQuery = `SELECT s_id, s_first_name FROM student WHERE s_first_name LIKE ?`;
-  const instructorQuery = `SELECT i_id, i_first_name FROM instructors WHERE i_first_name LIKE ?`;
+  const instructorQuery = `SELECT i_id, i_firstName FROM Instructors WHERE i_firstName LIKE ?`;
 
   const query = role === 'student' ? instructorQuery : studentQuery;
   const searchTerm = `%${name}%`; // Add wildcards for partial matching

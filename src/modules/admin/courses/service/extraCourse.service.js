@@ -315,3 +315,44 @@ export const getAllCoursesExtra = errorAsyncHandler(async (req, res, next) => {
     }
   );
 });
+
+export const getCourseExtra = errorAsyncHandler(async (req, res, next) => {
+  const { courseId } = req.params;
+
+  dbConfig.execute(
+    `SELECT
+                courses.c_id AS courseId,
+                courses.c_name AS courseName,
+                courses.c_type AS courseType,
+                courses.c_start_date AS startDate,
+                courses.c_end_date AS endDate,
+                courses.c_description AS description,
+                courses.c_category AS category,
+                Extra.e_Course_code AS courseCode,
+                Extra.e_sections AS sections,
+                CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
+            FROM courses
+            INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
+            INNER JOIN Extra ON courses.c_id = Extra.e_courseId
+            WHERE courses.c_type = "Extra"
+            AND courses.c_id = ?
+            `,
+    [courseId],
+    (err, data) => {
+      if (err) {
+        return next(new Error(`Error Server ${err.message}`, { cause: 500 }));
+      }
+
+      if (!data.length) {
+        return next(new Error('Extra course not found', { cause: 404 }));
+      }
+
+      return successResponse({
+        res,
+        message: 'Extra course retrieved successfully',
+        status: 200,
+        data: data[0],
+      });
+    }
+  );
+});
