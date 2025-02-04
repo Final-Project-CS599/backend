@@ -8,7 +8,9 @@ export const validateUpdateStudents = [
   body('lastName').optional().trim().notEmpty().withMessage('Last name is required'),
   body('email').optional().trim().isEmail().withMessage('Invalid email address'),
   body('department').optional().trim().notEmpty().withMessage('Department is required'),
-  body('nationalId').optional().trim().notEmpty().withMessage('National Id is required'),
+  body('nationalId').optional().trim().notEmpty().withMessage('National Id is required')
+  .isLength({ min: 14, max: 14 }).withMessage('National Id must be exactly 14 characters')
+  .isNumeric().withMessage('National Id must contain only numbers')
 ];
 
 

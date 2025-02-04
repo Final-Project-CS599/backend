@@ -1,10 +1,10 @@
 import { body } from 'express-validator';
 
 export const validateEditProfile = [
-  body('primaryPhone').optional().trim().isMobilePhone('any')
+  body('primaryPhone').optional().trim().isMobilePhone('ar-EG')
     .withMessage('Primary phone must be a valid phone number'),
 
-  body('secondaryPhone').optional().trim().isMobilePhone('any')
+  body('secondaryPhone').optional().trim().isMobilePhone('ar-EG')
     .withMessage('Secondary phone must be a valid phone number'),
 
   body('newPassword').optional().trim().isLength({ min: 8 })
