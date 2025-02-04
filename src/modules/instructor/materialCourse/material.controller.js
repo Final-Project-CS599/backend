@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as materialService from './material.service.js';
 import multer from 'multer';
-import path from 'path';
+import { verifyToken } from '../../../middleware/auth.js';
 
 const router = Router();
 
@@ -16,10 +16,14 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/add', upload.single('file'), materialService.uploadMaterial);
-router.put('/edit', materialService.editMaterial);
+router.post('/add', verifyToken, upload.single('file'), materialService.uploadMaterial);
+
+router.put('/edit/:m_id', verifyToken, materialService.editMaterial);
+
 router.get('/view', materialService.getMaterial);
-router.delete('/delete', materialService.deleteMaterial);
-router.get('/searchMaterial', materialService.searchMaterial);
+
+router.delete('/delete/:m_id', verifyToken, materialService.deleteMaterial);
+
+router.get('/search', verifyToken, materialService.searchMaterial);
 
 export default router;

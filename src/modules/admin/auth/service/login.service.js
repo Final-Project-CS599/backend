@@ -5,19 +5,17 @@ import { compareHash } from '../../../../utils/hash/hash.js';
 import { generateToken } from '../../../../utils/token/token.js';
 import { roleTypes } from '../../../../middleware/auth.middleware.js';
 
-
-
 const loginUtility = async (
-        tableName, emailColumn, passwordColumn, idColumn, roleColumn, updatedAtColumn, firstNameColumn,
-        lastNameColumn, middleNameColumn , email, password, department ,confirmEmail , res, next
-    ) => {
+    tableName, emailColumn, passwordColumn, idColumn, roleColumn, updatedAtColumn, firstNameColumn,
+    lastNameColumn, middleNameColumn, email, password, departmentColumn, confirmEmailColumn
+) => {
     return new Promise((resolve, reject) => {
         dbConfig.execute(
             `SELECT * FROM ${tableName} WHERE ${emailColumn} = ?`,
             [email],
             async (err, userData) => {
                 if (err) {
-                    return reject({ status: 500, message: `Error Server Database Failed to get data ` });
+                    return reject({ status: 500, message: `Error: Failed to fetch data from database.` });
                 }
                 if (!userData.length) {
                     return resolve(null);
@@ -25,167 +23,139 @@ const loginUtility = async (
 
                 const user = userData[0];
 
-                if (user[confirmEmail] !== 1){
-                    return reject(JSON.stringify({
-                        status: 400, message: "In_valid account user not confirmEmail , please check your email" 
-                    }));
+                if (user[confirmEmailColumn] !== 1) {
+                    return reject({ status: 400, message: "Invalid account. Please confirm your email." });
                 }
-                
+
                 const match = compareHash({ plainText: password, hashValue: user[passwordColumn] });
-                if (!match) { 
-                    return reject(JSON.stringify({ status: 401, message: "Invalid password" }));
+                if (!match) {
+                    return reject({ status: 401, message: "Invalid password." });
                 }
 
-                await dbConfig.execute(
-                    `UPDATE ${tableName} SET ${updatedAtColumn} = NOW() WHERE ${emailColumn} = ?`,
-                    [email]
-                );
+                dbConfig.execute(`UPDATE ${tableName} SET ${updatedAtColumn} = NOW() WHERE ${emailColumn} = ?`, [email]);
 
-                const tokenPayload = { id: user[idColumn], isLoggedIn: true, role: user[roleColumn] };
-
-                let signature ;
-                if(user[roleColumn] === roleTypes.Admin || user[roleColumn] === roleTypes.SuperAdmin){
-                    signature = process.env.TOKEN_SIGNATURE_ADMIN; 
-                }
-                else if (user[roleColumn] === roleTypes.Instructor || user[roleColumn] === roleTypes.Student){
-                    signature = process.env.TOKEN_SIGNATURE;
-                }
-                else{
-                    signature = process.env.TOKEN_SIGNATURE; 
+                const userRole = roleColumn ? user[roleColumn] : null;
+                let signature = process.env.TOKEN_SIGNATURE;
+                if (userRole === roleTypes.Admin || userRole === roleTypes.SuperAdmin) {
+                    signature = process.env.TOKEN_SIGNATURE_ADMIN;
                 }
 
                 const token = generateToken({
-                    payload: tokenPayload,
+                    payload: { id: user[idColumn], isLoggedIn: true, role: userRole },
                     signature: signature,
-                    // options: { expiresIn: '24h' }
                 });
 
-                let fullName;
-                if( middleNameColumn){
-                    fullName = `${user[firstNameColumn]} ${user[lastNameColumn]} ${user[middleNameColumn]}`;
-                }
-                else{
-                    fullName = `${user[firstNameColumn]} ${user[lastNameColumn]}`;
-                }
+                const fullName = middleNameColumn
+                    ? `${user[firstNameColumn]} ${user[lastNameColumn]} ${user[middleNameColumn]}`
+                    : `${user[firstNameColumn]} ${user[lastNameColumn]}`;
 
                 return resolve({ 
-                    token , 
+                    token, 
                     id: user[idColumn],
                     fullName,
                     email: user[emailColumn],
-                    department: user[department],
-                    role: user[roleColumn]
+                    department: departmentColumn ? user[departmentColumn] : null,
+                    role: userRole
                 });
             }
         );
     });
 };
 
-const login = errorAsyncHandler(
-    async (req, res, next) => {
-        const { email, password } = req.body;
+const login = errorAsyncHandler(async (req, res, next) => {
+    const { email, password } = req.body;
 
-        try {
-            const superAdminResult = await loginUtility(
-                'superAdmin',
-                'sAdmin_email',
-                'sAdmin_password',
-                'sAdmin_nationalID',
-                'sAdmin_role',
-                'sAdmin_updatedAt',
-                'sAdmin_firstName',
-                'sAdmin_lastName',
-                null,
-                email,
-                password,
-                null,
-                'sAdmin_active',
-                res,
-                next
-            );
-
-            if (superAdminResult) {
-                return successResponse({ 
-                    res, 
-                    message: "Welcome SuperAdmin to your account (login)",
-                    status: 200, 
-                    data: { token: superAdminResult.token , userId: superAdminResult.id ,
-                        fullName: superAdminResult.fullName,
-                        email: superAdminResult.email,
-                        role: superAdminResult.role
-                    } 
-                });
+    try {
+        const users = [
+            {
+                table: 'superAdmin',
+                emailColumn: 'sAdmin_email',
+                passwordColumn: 'sAdmin_password',
+                idColumn: 'sAdmin_nationalID',
+                roleColumn: 'sAdmin_role',
+                updatedAtColumn: 'sAdmin_updatedAt',
+                firstNameColumn: 'sAdmin_firstName',
+                lastNameColumn: 'sAdmin_lastName',
+                middleNameColumn: null,
+                departmentColumn: null,
+                confirmEmailColumn: 'sAdmin_active',
+                roleType: 'SuperAdmin',
+                message: "Welcome SuperAdmin to your account (login)"
+            },
+            {
+                table: 'Instructors',
+                emailColumn: 'i_email',
+                passwordColumn: 'i_password',
+                idColumn: 'i_id',
+                roleColumn: null,
+                updatedAtColumn: 'i_updatedAt',
+                firstNameColumn: 'i_firstName',
+                lastNameColumn: 'i_lastName',
+                middleNameColumn: null,
+                departmentColumn: 'i_departmentId',
+                confirmEmailColumn: 'i_active',
+                roleType: roleTypes.Instructor,
+                message: "Welcome Instructor to your account (login)"
+            },
+            {
+                table: 'student',
+                emailColumn: 's_email',
+                passwordColumn: 's_password',
+                idColumn: 's_id',
+                roleColumn: null,
+                updatedAtColumn: 's_updated_at',
+                firstNameColumn: 's_first_name',
+                lastNameColumn: 's_last_name',
+                middleNameColumn: 's_middle_name',
+                departmentColumn: 's_department_id',
+                confirmEmailColumn: 's_active',
+                roleType: roleTypes.Student,
+                message: "Welcome Student to your account (login)"
             }
+        ];
 
-            const instructorsResult = await loginUtility(
-                'Instructors',
-                'i_email',
-                'i_password',
-                'i_id',
-                null,
-                'i_updatedAt',
-                'i_firstName',
-                'i_lastName',
-                null,
+        for (const userConfig of users) {
+            const result = await loginUtility(
+                userConfig.table,
+                userConfig.emailColumn,
+                userConfig.passwordColumn,
+                userConfig.idColumn,
+                userConfig.roleColumn,
+                userConfig.updatedAtColumn,
+                userConfig.firstNameColumn,
+                userConfig.lastNameColumn,
+                userConfig.middleNameColumn,
                 email,
                 password,
-                'i_departmentId',
-                'i_active',
-                res,
-                next
+                userConfig.departmentColumn,
+                userConfig.confirmEmailColumn
             );
 
-            if (instructorsResult) {
-                return successResponse({ 
+            if (result) {
+                return successResponse({
                     res,
-                    message: "Welcome Instructor to your account (login)", 
-                    status: 200, 
-                    data: { token: instructorsResult.token , userId: instructorsResult.id,
-                        fullName: instructorsResult.fullName,
-                        email: instructorsResult.email,
-                        department: instructorsResult.department,
-                        role: roleTypes.Instructor
-                    } 
+                    message: userConfig.message,
+                    status: 200,
+                    data: {
+                        token: result.token,
+                        userId: result.id,
+                        fullName: result.fullName,
+                        email: result.email,
+                        department: result.department,
+                        role: userConfig.roleType
+                    }
                 });
             }
-            const studentResult = await loginUtility(
-                'student',
-                's_email',
-                's_password',
-                's_id',
-                null,
-                's_updated_at',
-                's_first_name',
-                's_last_name',
-                's_middle_name',
-                email,
-                password,
-                's_department_id',
-                's_active',
-                res,
-                next
-            );
-
-            if (studentResult) {
-                return successResponse({ 
-                    res, 
-                    message: "Welcome Student to your account (login)", 
-                    status: 200, 
-                    data: { token: studentResult.token , userId: studentResult.id,
-                        fullName: studentResult.fullName,
-                        email: studentResult.email,
-                        department: studentResult.department,
-                        role: roleTypes.Student
-                    } 
-                });
-            }
-            return next(new Error("User not found",{ cause: 404 }));
-        } catch (error) {
-            const errorObj = JSON.parse(error);
-            return next(new Error(errorObj.message, { cause: errorObj.status }));
         }
+
+        return next(new Error("User not found", { cause: 404 }));
+
+    } catch (error) {
+        if (typeof error === 'object' && error !== null && error.status) {
+            return next(new Error(error.message, { cause: error.status }));
+        }
+        return next(new Error("Internal Server Error", { cause: 500 }));
     }
-);
+});
 
 export default login;
-

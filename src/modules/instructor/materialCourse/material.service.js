@@ -1,7 +1,9 @@
 import dbConfig from '../../../DB/connection.js';
-export const uploadMaterial = async (req, res, next) => {
+
+export const uploadMaterial = async (req, res) => {
   try {
-    const { m_description, m_title, m_instructor_id, m_courseId, m_link } = req.body;
+    const m_instructor_id=req.user.id;
+    const { m_description, m_title,m_courseId, m_link } = req.body;
 
     let fileUrl = m_link;
     if (req.file) {
@@ -9,102 +11,92 @@ export const uploadMaterial = async (req, res, next) => {
     }
 
     if (!m_description || !m_title || !fileUrl || !m_instructor_id || !m_courseId) {
-      return res.status(400).json({ message: 'all fields are required' });
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     dbConfig.execute(
-      `INSERT INTO media (m_description, m_publish_date, m_title, m_link, m_instructor_id, m_courseId)
+      `INSERT INTO media (m_description, m_publish_date, m_title, m_link, m_instructor_id, m_courseId) 
        VALUES (?, NOW(), ?, ?, ?, ?)`,
       [m_description, m_title, fileUrl, m_instructor_id, m_courseId],
-      (err, data) => {
+      (err) => {
         if (err) {
-          return res
-            .status(500)
-            .json({ message: 'Fail to execute this Query', error: err.message });
-        } else {
-          return res.status(200).json({ message: 'Upload Material successfully' });
+          return res.status(500).json({ message: 'Failed to execute query', error: err.message });
         }
+        return res.status(200).json({ message: 'Material uploaded successfully' });
       }
     );
   } catch (error) {
-    res.status(500).json({ message: 'Fail to execute this Query', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-export const editMaterial = async (req, res, next) => {
+export const editMaterial = async (req, res) => {
   try {
     const { m_description, m_title, m_link } = req.body;
+    const { m_id } = req.params;
 
     dbConfig.execute(
-      `UPDATE media SET  m_description=?, m_title=?, m_link=? WHERE m_id=?`,
-      [m_type, m_description, m_title, m_link, m_id],
-      (err, data) => {
+      `UPDATE media SET m_description=?, m_title=?, m_link=? WHERE m_id=?`,
+      [m_description, m_title, m_link, m_id],
+      (err) => {
         if (err) {
-          return res.status(500).json({ message: 'fail to execute query', error: err.message });
-        } else {
-          return res.status(200).json({ message: 'success update ' });
+          return res.status(500).json({ message: 'Failed to execute query', error: err.message });
         }
+        return res.status(200).json({ message: 'Material updated successfully' });
       }
     );
   } catch (error) {
-    res.status(500).json({ message: 'Fail to execute this Query', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// view all material
-export const getMaterial = async (req, res, next) => {
+export const getMaterial = async (req, res) => {
   try {
     dbConfig.execute('SELECT * FROM media', (err, results) => {
       if (err) {
-        return res.status(500).json({ message: 'Fail to execute this query', error: err.message });
+        return res.status(500).json({ message: 'Failed to execute query', error: err.message });
       }
       return res.status(200).json(results);
     });
   } catch (error) {
-    res.status(500).json({ message: 'Fail to execute this Query', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// delete material
-export const deleteMaterial = async (req, res, next) => {
+export const deleteMaterial = async (req, res) => {
   try {
     const { m_id } = req.body;
 
     if (!m_id) {
-      return res.status(400).json({ message: 'materila_id query is required' });
+      return res.status(400).json({ message: 'Material ID is required' });
     }
 
-    dbConfig.execute('DELETE FROM media WHERE m_id=?', [m_id], (err, data) => {
+    dbConfig.execute('DELETE FROM media WHERE m_id=?', [m_id], (err) => {
       if (err) {
-        return res.status(500).json({ message: 'Fail to execute this query', error: err.message });
-      } else {
-        return res.status(200).json({ message: 'Delete Material Successfully' });
+        return res.status(500).json({ message: 'Failed to execute query', error: err.message });
       }
+      return res.status(200).json({ message: 'Material deleted successfully' });
     });
   } catch (error) {
-    res.status(500).json({ message: 'Fail to execute this Query', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-export const searchMaterial = async (req, res, next) => {
-  const { matr } = req.query;
-  if (!matr) {
-    return res.status(400).json({ message: 'Search Query is Required' });
+export const searchMaterial = async (req, res) => {
+  const { s } = req.query;
+  if (!s) {
+    return res.status(400).json({ message: 'Search query is required' });
   }
 
   const query = `SELECT * FROM media WHERE m_title LIKE ? OR m_link LIKE ?`;
 
-  dbConfig.execute(query, [`%${matr}%`, `%${matr}%`], (error, data) => {
+  dbConfig.execute(query, [`%${s}%`, `%${s}%`], (error, data) => {
     if (error) {
-      return res.status(500).json({ message: 'Failed to execute Query' });
+      return res.status(500).json({ message: 'Failed to execute query' });
     }
     if (data.length === 0) {
       return res.status(404).json({ message: 'No material found' });
     }
-
-    return res.status(200).json({
-      message: 'Your material search Done',
-      courses: data,
-    });
+    return res.status(200).json({ message: 'Search completed', materials: data });
   });
 };

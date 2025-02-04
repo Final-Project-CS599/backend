@@ -16,6 +16,12 @@ export const updateInstructorProfile2 = asyncHandler(async (req, res, next) => {
   const  id  = req.user.id;
   const { phoneNumbers, password } = req.body;
 
+  // Validate request body
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
   // Authorization check
   if (req.user.id !== parseInt(id)) {
     return res
@@ -28,6 +34,7 @@ export const updateInstructorProfile2 = asyncHandler(async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     hashedPassword = await bcrypt.hash(password, salt);
   }
+
   dbConfig.beginTransaction((err) => {
     if (err) {
       console.error("Error starting transaction:", err);
@@ -53,6 +60,7 @@ export const updateInstructorProfile2 = asyncHandler(async (req, res, next) => {
         }
       );
     }
+
     if (phoneNumbers && phoneNumbers.length > 0) {
       const deletePhoneQuery =
         "DELETE FROM InstructorsPhone WHERE i_instructorId = ?";
@@ -66,6 +74,7 @@ export const updateInstructorProfile2 = asyncHandler(async (req, res, next) => {
 
         const insertPhoneQuery =
           "INSERT INTO InstructorsPhone (i_instructorId, p_instructorPhone) VALUES ?";
+
         const phoneValues = phoneNumbers.map((phone) => [id, phone]);
         dbConfig.query(
           insertPhoneQuery,
@@ -93,15 +102,18 @@ export const updateInstructorProfile2 = asyncHandler(async (req, res, next) => {
           }
         );
       });
-    } 
-    if(hashedPassword || phoneNumbers || phoneNumbers?.length >0 ){
-      return res.status(200).json({message:"profile updated successfully!"})
+    } else {
+      console.log('No phone numbers to update');
     }
-    else{
-      return res.status(400).json({message:"no updates done!"})
+
+    if (hashedPassword || phoneNumbers?.length > 0) {
+      return res.status(200).json({ message: "Profile updated successfully!" });
+    } else {
+      return res.status(400).json({ message: "No updates done!" });
     }
   });
 });
+
 
 export const viewInstructorProfile = async (req, res, next) => {
   try {

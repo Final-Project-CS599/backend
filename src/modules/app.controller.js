@@ -33,12 +33,24 @@ import coursesRoutes from '../modules/student/courses/routes.js';
 import instProfileController from './instructor/profile/InsPro.controller.js';
 import courseController from './instructor/courses/viewCourse.controller.js';
 
-
 const baseUrl = '/api/v1';
 
 const bootstrap = (app, express) => {
   app.use(express.json());
-  
+
+  app.all(`*`, (req, res, next) => {
+    console.log(
+      `
+        User with ip: ${req.ip} send request with:
+        URL: ${req.url}
+        method: ${req.method}
+        body: ${JSON.stringify(req.body)}
+        Headers:${JSON.stringify(req.headers['authorization'])}
+      `
+    );
+    next();
+  });
+
   app.get('/', (req, res, next) => {
     return res.status(200).json({
       message: 'Welcome in node.js project powered by express and ES6',
@@ -52,12 +64,12 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/auth`, authController);
   app.use(`${baseUrl}/auth/addUser`, authAddUsersController);
   // Admin Routes Help Desk
-  app.use(`${baseUrl}/admin/helpDesk` , adminHelpDeskController);
+  app.use(`${baseUrl}/admin/helpDesk`, adminHelpDeskController);
 
   //added endpoints
-  app.use(`${baseUrl}/courses`,courseController)
-  app.use(`${baseUrl}/instructorProfile`,instProfileController)
-  app.use(`${baseUrl}/message`,MessageController)
+  app.use(`${baseUrl}/courses`, courseController);
+  app.use(`${baseUrl}/instructorProfile`, instProfileController);
+  app.use(`${baseUrl}/message`, MessageController);
   //
   app.use(`/auth/addUser`, authAddUsersController);
   app.use(`/auth`, authController);
