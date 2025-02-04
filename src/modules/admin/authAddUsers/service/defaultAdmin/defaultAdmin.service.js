@@ -1,6 +1,5 @@
 import { errorAsyncHandler } from "../../../../../utils/response/error.response.js";
 import { successResponse } from "../../../../../utils/response/success.response.js";
-import { generateEncryption } from '../../../../../utils/hash/encryption.js';
 import { generateHash } from "../../../../../utils/hash/hash.js";
 import dbConfig from '../../../../../DB/connection.js';
 import { emailEvent } from "../../../../../utils/events/sendEmailEvent.js";
@@ -25,7 +24,7 @@ const insertDefaultAdmin = errorAsyncHandler(
             [email],
             (err, results) => {
                 if (err) {
-                    return next(new Error(`Error Server Database Failed to data default admin password ${err.message}`, {cause:500}));
+                    return next(new Error(`Error Server Database Failed to data check email`, {cause:500}));
                 }
 
                 if (results.length > 0) {
@@ -34,19 +33,19 @@ const insertDefaultAdmin = errorAsyncHandler(
                 dbConfig.execute(
                     `INSERT INTO superAdmin (
                             sAdmin_nationalID, sAdmin_firstName, sAdmin_lastName,sAdmin_email, sAdmin_password, sAdmin_role
-                    ) VALUES (?,?,?,?,'AdminPass123', 'sAdmin')`,
+                    ) VALUES (?,?,?,?,'12345678910124', 'sAdmin')`,
                     [nationalID, firstName, lastName, email],
                     async (err, data) => {
                         if (err || data.affectedRows === 0) {
-                            return next(new Error(`Error Server Database Failed to get data , Failed to execute query:${err.message}`, {cause:500}));
+                            return next(new Error(`Error Server Database Failed to get data , Failed to execute query`, {cause:500}));
                         }
-                        const hashPassword = generateHash({ plainText: "AdminPass123" });
+                        const hashPassword = generateHash({ plainText: "12345678910124" });
                         dbConfig.execute(
                             `UPDATE superAdmin SET sAdmin_password = ? WHERE sAdmin_nationalID = ?`,
                             [hashPassword, nationalID],
                             (err, data) => {
                                 if (err || data.affectedRows === 0) {
-                                    return next(new Error(`Error Server Database Failed to data default admin password ${err.message}`, {cause:500}));
+                                    return next(new Error(`Error Server Database Failed to data default admin password`, {cause:500}));
                                 }
                             }
                         );
@@ -65,7 +64,7 @@ const insertDefaultAdmin = errorAsyncHandler(
                                 )
                             })
                         })
-                        emailEvent.emit("sendEmail" , {email: email });
+                        emailEvent.emit("sendEmail" , {email: email })
 
                         Promise.all(phoneQueries).then((phones)=>{
                             const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});
