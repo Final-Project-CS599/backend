@@ -13,7 +13,7 @@ export const  generalFieldsValidation = {
         'string.empty' : "email cannot be empty",
         'any.required' : "email is required"
     }),
-    passwordAddUsers : joi.string().pattern(new RegExp(/^[0-9]{14,}$/)).messages({
+    passwordAddUsers : joi.string().pattern(new RegExp(/^[0-9]{14}$/)).messages({
         'string.empty' : "password cannot be empty",
         'string.pattern.base': 'password must be exactly 14 digits National ID (example: 12345678910121) ',
     }),

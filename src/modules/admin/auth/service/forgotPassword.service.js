@@ -7,6 +7,15 @@ import { compareHash, generateHash } from '../../../../utils/hash/hash.js';
 
 
 
+const executeQuery = (query, params = []) => {
+    return new Promise((resolve, reject) => {
+        dbConfig.execute(query, params, (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+};
+
 // check to columns exist or not exist
 const addColumnsIfNotExists = async (tableName) => {
     return new Promise((resolve, reject) => {
