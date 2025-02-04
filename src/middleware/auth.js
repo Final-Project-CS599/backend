@@ -24,23 +24,19 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
   // Try each signature in sequence
   for (const signature of tokenSignatures) {
     try {
-      if (!signature) continue; // Skip if the signature is not defined
+      if (!signature) continue;
       decoded = jwt.verify(token, signature);
-      break; // Exit the loop if verification succeeds
+      break;
     } catch (err) {
-      // Continue to the next signature if verification fails
       continue;
     }
   }
 
-  // If no signature worked, throw an error
   if (!decoded) {
     return next(new AppError('Invalid token', 401));
   }
 
-  // Attach the decoded payload (e.g., user ID) to the request object
   req.user = decoded;
 
-  // Proceed to the next middleware or controller
   return next();
 });

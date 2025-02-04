@@ -115,7 +115,6 @@ export const viewMessagesInstructor = (req, res, next) => {
 
 export const viewMessageStudent = (req, res, next) => {
   const m_student_id = req.user.id;
-  console.log('Received body:', req.body);
 
   dbConfig.execute(
     `SELECT message.*, Instructors.i_firstName, Instructors.i_lastName, Instructors.i_email  

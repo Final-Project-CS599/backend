@@ -4,7 +4,12 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const editProfile = asyncHandler(async (req, res) => {
   const studentId = req.user.id; // Get the student ID from the authenticated user
-  const { phoneNumbers, password, birthDate, gender } = req.body; // Data to update
+  const { primaryPhone, secondaryPhone, password, birthDate, gender } = req.body; // Data to update
+
+  // Create an array of phone numbers to update
+  const phoneNumbers = [];
+  if (primaryPhone) phoneNumbers.push(primaryPhone);
+  if (secondaryPhone) phoneNumbers.push(secondaryPhone);
 
   // Hash the password if provided
   let hashedPassword = null;
@@ -41,7 +46,7 @@ export const editProfile = asyncHandler(async (req, res) => {
           }
 
           // Update phone numbers
-          if (phoneNumbers && phoneNumbers.length > 0) {
+          if (phoneNumbers.length > 0) {
             const deletePhoneQuery = 'DELETE FROM student_phone WHERE sp_student_id = ?';
             dbConfig.query(deletePhoneQuery, [studentId], (err, results) => {
               if (err) {
@@ -94,7 +99,7 @@ export const editProfile = asyncHandler(async (req, res) => {
       );
     } else {
       // If no updates to student table, just update phone numbers
-      if (phoneNumbers && phoneNumbers.length > 0) {
+      if (phoneNumbers.length > 0) {
         const deletePhoneQuery = 'DELETE FROM student_phone WHERE sp_student_id = ?';
         dbConfig.query(deletePhoneQuery, [studentId], (err, results) => {
           if (err) {
