@@ -1,11 +1,20 @@
 import { body } from 'express-validator';
 
-export const validateEditProfile = [
-  body('primaryPhone').optional().trim().isMobilePhone('ar-EG')
-    .withMessage('Primary phone must be a valid phone number'),
+const normalizeEgyptianPhone = (value) => {
+  if (value.startsWith("002")) {
+    return "+2" + value.slice(3);
+  }
+  return value;
+};
 
-  body('secondaryPhone').optional().trim().isMobilePhone('ar-EG')
-    .withMessage('Secondary phone must be a valid phone number'),
+export const validateEditProfile = [
+  body('primaryPhone').optional().trim().customSanitizer(normalizeEgyptianPhone)
+  .isMobilePhone("ar-EG")
+  .withMessage("Primary phone must be a valid Egyptian phone number"),
+
+  body('secondaryPhone').optional().trim().customSanitizer(normalizeEgyptianPhone)
+  .isMobilePhone("ar-EG")
+  .withMessage("Secondary phone must be a valid Egyptian phone number"),
 
   body('newPassword').optional().trim().isLength({ min: 8 })
     .withMessage('New password must be at least 8 characters long')
