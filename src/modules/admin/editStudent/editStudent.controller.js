@@ -43,7 +43,7 @@ const searchStudents = asyncHandler(async (req, res, next) => {
 const findStudentById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  if (!id || isNaN(id)) return next(new AppError('Valid student ID is required', 400));
+  if (!id || isNaN(id)) return next(new AppError('Student ID is required', 400));
 
   const query = `
         SELECT 

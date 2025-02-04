@@ -13,20 +13,24 @@ const conn = dbConfig.promise();
 
 // (async () => {
 //     try {
-//         const deptCodes = `'${mainDepartments.map(dept => dept.deptCode).join("','")}'`;
-//         const [existingDepts] = await conn.execute( `SELECT d_dept_code FROM department WHERE d_dept_code IN (${deptCodes})`);
-//         if (existingDepts.length === 0) {
-//             for (const dept of mainDepartments) {
-//                 await conn.execute(`INSERT INTO department (d_dept_name, d_dept_code) VALUES (?, ?)`,[dept.deptName, dept.deptCode]);
+//         for (const dept of mainDepartments) {
+//             const [existingDept] = await conn.execute(
+//                 `SELECT d_dept_code FROM department WHERE d_dept_code = ?`,
+//                 [dept.deptCode]
+//             );
+//             if (existingDept.length === 0) {
+//                 await conn.execute(`INSERT INTO department (d_dept_name, d_dept_code) VALUES (?, ?)`,
+//                     [dept.deptName, dept.deptCode]);
+//                 console.log(`Inserted: ${dept.deptName} (${dept.deptCode})`);
+//             } else {
+//                 console.log(`Skipped: ${dept.deptName} (${dept.deptCode}) - Already exists`);
 //             }
-//             console.log("Main departments inserted successfully");
-//         } else {
-//             console.log("Main departments already exist");
 //         }
 //     } catch (error) {
 //         console.error("Error inserting core departments:", error);
 //     }
 // })();
+
 
 
 const addDepartment = asyncHandler(async (req, res, next) => {

@@ -75,7 +75,7 @@ const findInstructorById = asyncHandler(async (req, res, next) => {
 
 
 const updateInstructorById = asyncHandler(async (req, res, next) => {
-  const AdminId = req.user.id;
+  //const AdminId = req.user.id;
   const { id } = req.params;
   const { firstName, lastName, email, department } = req.body;
 
@@ -104,8 +104,9 @@ const updateInstructorById = asyncHandler(async (req, res, next) => {
     queryParams.push(deptResult[0].d_id);
   }
 
-  changeFields.push('i_updatedAt = CURRENT_TIMESTAMP , s_admin_id = ?');
-  queryParams.push(AdminId);
+  changeFields.push('i_updatedAt = CURRENT_TIMESTAMP ');
+  // , s_admin_id = ?
+  // queryParams.push(AdminId);
   
 
   const sql = `UPDATE Instructors SET ${changeFields.join(', ')} WHERE i_id = ?`;
