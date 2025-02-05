@@ -20,3 +20,4 @@ const dbConfig = mysql2.createConnection({
 
 
 export default dbConfig;
+

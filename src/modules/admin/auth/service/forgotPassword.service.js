@@ -6,7 +6,6 @@ import { emailEvent } from '../../../../utils/events/sendEmailEvent.js';
 import { compareHash, generateHash } from '../../../../utils/hash/hash.js';
 
 
-
 const executeQuery = (query, params = []) => {
     return new Promise((resolve, reject) => {
         dbConfig.execute(query, params, (err, results) => {
@@ -191,7 +190,7 @@ const verifyCodeUtility = async (tableName, emailColumn, email, code) => {
                             return reject({ status: 500, message: `Error Server Database Failed to delete columns ` });
                         }
 
-                        return reject({ status: 400, message: "Code expired. Please request a new code." });
+                        return reject({ status: 400, message: "Code expired. Please request a new code , please again forget password" });
                     });
                 } else {
                     const compareHashCode = compareHash({ plainText: code, hashValue: user.resetPasswordCode });
@@ -279,8 +278,9 @@ export const verifyCode = errorAsyncHandler(async (req, res, next) => {
     }
 });
 
+
 // Reset Password
-export const resetPasswordUtility = async (tableName, emailColumn, passwordColumn, email, newPassword) => {
+export const resetPasswordUtility = async (tableName, emailColumn, passwordColumn, email, newPassword , updatedAtColumn) => {
     return new Promise((resolve, reject) => {
         dbConfig.execute(
             `SELECT * FROM ${tableName} WHERE ${emailColumn} = ?`, 
@@ -306,7 +306,7 @@ export const resetPasswordUtility = async (tableName, emailColumn, passwordColum
                 const hashPassword = generateHash({ plainText: newPassword });
 
                 dbConfig.execute( `UPDATE ${tableName} 
-                    SET ${passwordColumn} = ?, resetPasswordCode = NULL, resetPasswordCodeExpiry = NULL , sAdmin_updatedAt = NOW() 
+                    SET ${passwordColumn} = ?, resetPasswordCode = NULL, resetPasswordCodeExpiry = NULL , ${updatedAtColumn} = NOW() 
                     WHERE ${emailColumn} = ?`,
                     [hashPassword, email],
                     (err, data) => {
@@ -341,9 +341,9 @@ export const resetPassword = errorAsyncHandler(
         }
 
         const tables = [
-            { tableName: 'superAdmin', emailColumn: 'sAdmin_email', passwordColumn: 'sAdmin_password' },
-            { tableName: 'student', emailColumn: 's_email', passwordColumn: 's_password' },
-            { tableName: 'Instructors', emailColumn: 'i_email', passwordColumn: 'i_password' }
+            { tableName: 'superAdmin', emailColumn: 'sAdmin_email', passwordColumn: 'sAdmin_password' , updatedAtColumn: 'sAdmin_updatedAt'},
+            { tableName: 'student', emailColumn: 's_email', passwordColumn: 's_password' ,updatedAtColumn: 's_updated_at '},
+            { tableName: 'Instructors', emailColumn: 'i_email', passwordColumn: 'i_password' ,updatedAtColumn: 'i_updatedAt '}
         ];
 
         for (const table of tables) {
@@ -353,6 +353,7 @@ export const resetPassword = errorAsyncHandler(
                 table.passwordColumn,
                 email,
                 newPassword,
+                table.updatedAtColumn 
             );
 
             if(result){
