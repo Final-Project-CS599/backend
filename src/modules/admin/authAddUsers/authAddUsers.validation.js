@@ -66,7 +66,7 @@ export const addInstructorValidationSchema = joi.object().keys({
     // Email
     email: generalFieldsValidation.email.required(),
     // Password
-    password: generalFieldsValidation.passwordAddUsers.required(),
+    password: generalFieldsValidation.passwordAddInstructor.required(),
     confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
     // Department
     department: generalFieldsValidation.userName.required().messages({
