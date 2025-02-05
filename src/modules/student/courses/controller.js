@@ -190,23 +190,35 @@ export const getCourseById = asyncHandler(async (req, res) => {
     res.status(200).json(courseDetails);
   });
 });
+export const storePaymentData = async (req, res) => {
+  const studentId = req.user.id;
 
-export const storePaymentData = asyncHandler(async (req, res) => {
-  const { student_id, admin_nid } = req.body;
-  if (!req.file || !student_id) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
   }
 
-  const img = req.file.filename;
-  const initiation_date = new Date().toISOString().split('T')[0];
-  const query = `INSERT INTO payment (img, initiation_date, student_id, admin_nid) VALUES (?, ?, ?, ?)`;
-  const values = [img, initiation_date, student_id, admin_nid || null];
+  const filePath = `uploads/student/${req.file.filename}`;
 
-  db.query(query, values, (err, result) => {
-    if (err) {
-      console.error('Error inserting payment record: ', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.status(201).json({ message: 'Payment record added successfully', id: result.insertId });
+  const checkStudentQuery = 'SELECT s_id FROM student WHERE s_id = ?';
+  const [studentExists] = await dbConfig.promise().query(checkStudentQuery, [studentId]);
+
+  if (studentExists.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid student ID: Student does not exist',
+    });
+  }
+
+  const insertQuery = `
+      INSERT INTO payment (img, initiation_date, student_id, admin_nid)
+      VALUES (?, NOW(), ?, NULL)
+    `;
+
+  await dbConfig.promise().query(insertQuery, [filePath, studentId]);
+
+  return res.status(200).json({
+    success: true,
+    message: 'Payment file uploaded successfully',
+    filePath,
   });
-});
+};

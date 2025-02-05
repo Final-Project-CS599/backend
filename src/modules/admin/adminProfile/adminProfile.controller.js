@@ -6,38 +6,42 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 const conn = dbConfig.promise();
 
 const viewProfile = asyncHandler(async (req, res, next) => {
-  const nationalId = req.user.id;
-  const [rows] = await conn.query(
-    `SELECT 
-      admin.sAdmin_nationalID, 
-      admin.sAdmin_firstName,
-      admin.sAdmin_lastName,
-      admin.sAdmin_email, 
-      admin.sAdmin_role,
-      GROUP_CONCAT(adminPhones.p_number) as phones
-    FROM superAdmin admin
-    LEFT JOIN superAdminsPhone adminPhones 
-      ON admin.sAdmin_nationalID = adminPhones.sAdmin_nationalID
-    WHERE admin.sAdmin_nationalID = ?
-    GROUP BY admin.sAdmin_nationalID`,
-    [nationalId]
-  );
+  const nationalId = req.user.id; 
 
-  console.log(rows, 'rows')
-  if (!rows[0]) return next(new AppError('Admin not found', 404));
+  const query = `
+    SELECT 
+      a.sAdmin_nationalID AS nationalId, 
+      a.sAdmin_firstName AS firstName,
+      a.sAdmin_lastName AS lastName,
+      a.sAdmin_email AS email, 
+      a.sAdmin_role AS role,
+      GROUP_CONCAT(adminPhones.p_number) AS phones
+    FROM superAdmin a
+    LEFT JOIN superAdminsPhone adminPhones 
+      ON a.sAdmin_nationalID = adminPhones.sAdmin_nationalID
+    WHERE a.sAdmin_nationalID = ?
+    GROUP BY a.sAdmin_nationalID
+  `;
+
+  const [admins] = await conn.execute(query, [nationalId]);
+
+  if (!admins.length) {
+    return next(new AppError('Admin not found', 404));
+  }
+
+  console.log(admins, 'admins'); 
+
+  const phoneNumbers = admins[0].phones ? admins[0].phones.split(',') : [];
 
   const adminData = {
-    nationalId: rows[0].sAdmin_nationalID,
-    firstName: rows[0].sAdmin_firstName,
-    lastName: rows[0].sAdmin_lastName,
-    email: rows[0].sAdmin_email,
-    role: rows[0].sAdmin_role,
-    primaryPhone: rows[0].phones ? rows[0].phones.split(',')[0] : '',
-    secondaryPhone: rows[0].phones ? rows[0].phones.split(',')[1] : '',
+    ...admins[0],
+    primaryPhone: phoneNumbers[0] || '',
+    secondaryPhone: phoneNumbers[1] || '',
   };
 
   res.status(200).json({ message: 'success', adminData });
 });
+
 
 const editProfile = asyncHandler(async (req, res, next) => {
   const nationalId = req.user.id;
