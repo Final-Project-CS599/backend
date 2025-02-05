@@ -9,11 +9,11 @@ import { generateHash } from "../../../../utils/hash/hash.js";
 const addStudent = errorAsyncHandler(
     async (req ,res ,next) => {
         const {admin_nationalID,firstName  , lastName , middleName, password , 
-            confirmPassword ,DOB ,email  , gander ,numberNational , department  , phone1 , phone2
+            DOB ,email  , gander ,numberNational , department  , phone1 , phone2
         } = req.body; 
     
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'The password and re-password do not match' });
+        if (password !== numberNational) {
+            return res.status(400).json({ message: 'The password and numberNational do not match' });
         }
         const morePhones = {};
         if(phone1){
