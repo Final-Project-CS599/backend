@@ -2,8 +2,8 @@ import dbConfig from '../../../DB/connection.js';
 
 export const uploadMaterial = async (req, res) => {
   try {
-    const m_instructor_id=req.user.id;
-    const { m_description, m_title,m_courseId, m_link } = req.body;
+    const m_instructor_id = req.user.id;
+    const { m_description, m_title, m_courseId, m_link } = req.body;
 
     let fileUrl = m_link;
     if (req.file) {
@@ -65,7 +65,7 @@ export const getMaterial = async (req, res) => {
 
 export const deleteMaterial = async (req, res) => {
   try {
-    const { m_id } = req.body;
+    const { m_id } = req.params;
 
     if (!m_id) {
       return res.status(400).json({ message: 'Material ID is required' });

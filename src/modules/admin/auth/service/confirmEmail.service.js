@@ -20,12 +20,6 @@ const confirmEmail = errorAsyncHandler(
             signature: process.env.TOKENSENDEMAIL_SIGNATURE,
             options: {expiresIn: '24h'}
         })
-        
-        // const { email } = verifyToken({
-        //     token: authorization,
-        //     signature: roleTypes.User === req.role ? process.env.TOKEN_SIGNATURE : process.env.TOKEN_SIGNATURE_ADMIN,
-        //     options: { expiresIn: '24h' }
-        // });
 
         const queriesTable = [
             { name: "superAdmin", emailColumn: "sAdmin_email", activeColumn: "sAdmin_active", dateColumn: "sAdmin_updatedAt" },

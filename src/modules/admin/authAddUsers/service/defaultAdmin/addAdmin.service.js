@@ -9,10 +9,10 @@ import { verifyToken } from "../../../../../utils/token/token.js";
 
 const addAdmin = errorAsyncHandler(
     async (req, res, next) => {
-        const {adminNationalID ,firstName,lastName ,sAdminNationalID, email, password , confirmPassword, adminRole, phone1 , phone2} = req.body;
-    
-        if(password !== confirmPassword){
-            return res.status(400).json({ message: 'The password and re-password do not match' });
+        const {adminNationalID ,firstName,lastName ,sAdminNationalID, email, password , adminRole, phone1 , phone2} = req.body;
+
+        if (password !== adminNationalID) {
+            return res.status(400).json({ message: "Password must be the same as Admin National ID" });
         }
 
         const morePhones = {};
