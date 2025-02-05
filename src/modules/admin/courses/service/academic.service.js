@@ -2,6 +2,8 @@ import dbConfig from '../../../../DB/connection.js';
 import { errorAsyncHandler } from '../../../../utils/response/error.response.js';
 import { successResponse } from '../../../../utils/response/success.response.js';
 
+
+//add academic couses
 export const addAcademic = errorAsyncHandler(async (req, res, next) => {
   const adminNationalID = req.user.id;
 
@@ -172,10 +174,10 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
   );
 });
 
+//update academic courses
 export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
-  const adminNationalID = req.user.id;
+  const adminNationalID = req.user.id;// Admin ID from authenticated user
   const { id } = req.params; // Course ID to update
-
   const {
     instructorName,
     department,
