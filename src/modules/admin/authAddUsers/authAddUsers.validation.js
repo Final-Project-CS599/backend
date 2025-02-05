@@ -49,7 +49,7 @@ export const addAdminValidationSchema = joi.object().keys({
     'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();
-
+    
 
 
 export const addInstructorValidationSchema = joi.object().keys({
@@ -66,7 +66,7 @@ export const addInstructorValidationSchema = joi.object().keys({
     // Email
     email: generalFieldsValidation.email.required(),
     // Password
-    password: generalFieldsValidation.passwordAddInstructor.required(),
+    password: generalFieldsValidation.passwordAddInstructor.required(),  
     confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
     // Department
     department: generalFieldsValidation.userName.required().messages({
