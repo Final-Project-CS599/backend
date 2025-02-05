@@ -125,7 +125,7 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
                       }
 
                       dbConfig.execute(
-                        `INSERT INTO Extra (e_id, e_Course_code, e_sections, e_price)
+                        `INSERT INTO Extra (e_courseId, e_Course_code, e_sections, e_price)
                                                     VALUES (?, ?, ? , ?)`,
                         [id, courseCode, trimmedSection, price],
                         (err, extraResult) => {
@@ -261,7 +261,7 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
                       }
 
                       dbConfig.execute(
-                        `UPDATE Extra SET e_id=?, e_Course_code=?, e_sections=?, e_price=? WHERE e_Course_code =?`,
+                        `UPDATE Extra SET e_courseId=?, e_Course_code=?, e_sections=?, e_price=? WHERE e_Course_code =?`,
                         [id, courseCodeUpdate, sections, price, courseCode],
                         (err, extraResult) => {
                           if (err) {
@@ -323,7 +323,7 @@ export const getAllCoursesExtra = errorAsyncHandler(async (req, res, next) => {
                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
             FROM courses
             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
-            INNER JOIN Extra ON courses.c_id = Extra.e_id 
+            INNER JOIN Extra ON courses.c_id = Extra.e_courseId 
             WHERE courses.c_type = "Extra"
             `,
     (err, data) => {
@@ -367,7 +367,7 @@ export const getCourseExtra = errorAsyncHandler(async (req, res, next) => {
                 CONCAT(Instructors.i_firstName, ' ', Instructors.i_lastName) as instructorName
             FROM courses
             INNER JOIN Instructors ON courses.c_instructorId = Instructors.i_id
-            INNER JOIN Extra ON courses.c_id = Extra.e_id
+            INNER JOIN Extra ON courses.c_id = Extra.e_courseId
             WHERE courses.c_type = "Extra"
             AND courses.c_id = ?
             `,

@@ -1,14 +1,18 @@
 // dotenv
 import dotenv from 'dotenv';
 import path from 'path';
+import cors from 'cors';
 // path .env
 dotenv.config({ path: path.resolve('.env.dev') });
 //express or app bootstrap
 import express from 'express';
 import bootstrap from './src/modules/app.controller.js';
-// Multer
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Cors
-import cors from 'cors';
 
 // express
 const app = express();
@@ -22,6 +26,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 bootstrap(app, express);
 
