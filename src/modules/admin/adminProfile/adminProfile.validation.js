@@ -8,12 +8,14 @@ const normalizeEgyptianPhone = (value) => {
 };
 
 export const validateEditProfile = [
-  body('primaryPhone').optional().trim().customSanitizer(normalizeEgyptianPhone)
+  body('primaryPhone').optional().trim().notEmpty().customSanitizer(normalizeEgyptianPhone)
   .isMobilePhone("ar-EG")
   .withMessage("Primary phone must be a valid Egyptian phone number"),
 
-  body('secondaryPhone').optional().trim().customSanitizer(normalizeEgyptianPhone)
-  .isMobilePhone("ar-EG")
+  body('secondaryPhone').optional().trim().custom((value) => {
+    if (!value) return true;
+    return normalizeEgyptianPhone(value).isMobilePhone("ar-EG");
+  })
   .withMessage("Secondary phone must be a valid Egyptian phone number"),
 
   body('newPassword').optional().trim().isLength({ min: 8 })
