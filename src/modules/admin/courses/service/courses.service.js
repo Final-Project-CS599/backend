@@ -2,7 +2,6 @@ import dbConfig from '../../../../DB/connection.js';
 import { errorAsyncHandler } from '../../../../utils/response/error.response.js';
 import { successResponse } from '../../../../utils/response/success.response.js';
 
-
 export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
   dbConfig.execute(
     `SELECT courses.c_id as courseId, courses.c_name as courseName, courses.c_type as courseType, 
@@ -26,56 +25,73 @@ export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
   );
 });
 
-
-
 export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
-  const { courseName, courseCode } = req.body;
+  const { courseName, courseCode } = req.query; // Access query parameters
 
-  // التحقق من المدخلات
   if (!courseName || !courseCode) {
     return next({ message: 'Course name and course code are required', status: 400 });
   }
 
-  // بداية المعاملة (Transaction)
-  const connection = await dbConfig.getConnection(); // الحصول على اتصال من مجموعة الاتصالات
-  await connection.beginTransaction();
+  // Step 1: Check if the course exists in the courses table
+  dbConfig.query(`SELECT * FROM courses WHERE c_name = ?`, [courseName], (error, courseData) => {
+    if (error) {
+      console.error('Error checking course:', error);
+      return next({ message: 'Internal server error', status: 500 });
+    }
 
-  try {
-    // التحقق مما إذا كان الكورس موجودًا في جدول الكورسات
-    const [courseData] = await connection.execute(`SELECT * FROM courses WHERE c_name = ?`, [courseName]);
     if (courseData.length === 0) {
-      await connection.rollback();
       return next({ message: 'Course not found in courses table', status: 404 });
     }
 
-    // حذف البيانات المرتبطة بالكورس في جدول الأكاديميك
-    const [academicData] = await connection.execute(`DELETE FROM academic WHERE aCourse_code = ?`, [courseCode]);
+    const courseId = courseData[0].c_id; // Assuming c_id is the primary key in the courses table
 
-    // حذف الكورس من جدول الكورسات
-    const [courseDeleteData] = await connection.execute(`DELETE FROM courses WHERE c_name = ?`, [courseName]);
+    // Step 2: Delete related records from the extra_course table
+    dbConfig.query(
+      `DELETE FROM Extra WHERE e_courseId = ?`,
+      [courseId],
+      (error, extraCourseDeleteData) => {
+        if (error) {
+          console.error('Error deleting from extra_course:', error);
+          return next({ message: 'Internal server error', status: 500 });
+        }
 
-    // إتمام المعاملة
-    await connection.commit();
+        // Step 3: Delete related records from the academic table
+        dbConfig.query(
+          `DELETE FROM academic WHERE aCourse_code = ?`,
+          [courseCode],
+          (error, academicDeleteData) => {
+            if (error) {
+              console.error('Error deleting from academic:', error);
+              return next({ message: 'Internal server error', status: 500 });
+            }
 
-    // إرسال استجابة ناجحة
-    return successResponse({
-      res,
-      message: academicData.affectedRows > 0
-        ? 'Course and related academic data deleted successfully'
-        : 'Course deleted successfully, but no related academic data found',
-      status: 200,
-    });
-  } catch (err) {
-    // في حالة حدوث خطأ، نقوم بالتراجع عن المعاملة
-    await connection.rollback();
-    return next({ message: `Error deleting course: ${err.message}`, status: 500 });
-  } finally {
-    // إعادة الاتصال إلى مجموعة الاتصالات
-    if (connection) connection.release();
-  }
+            // Step 4: Delete the course from the courses table
+            dbConfig.query(
+              `DELETE FROM courses WHERE c_name = ?`,
+              [courseName],
+              (error, courseDeleteData) => {
+                if (error) {
+                  console.error('Error deleting from courses:', error);
+                  return next({ message: 'Internal server error', status: 500 });
+                }
+
+                // Success response
+                return successResponse({
+                  res,
+                  message:
+                    extraCourseDeleteData.affectedRows > 0 || academicDeleteData.affectedRows > 0
+                      ? 'Course and all related data deleted successfully'
+                      : 'Course deleted successfully, but no related data found',
+                  status: 200,
+                });
+              }
+            );
+          }
+        );
+      }
+    );
+  });
 });
-
-
 
 // export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 //   const { courseName, courseCode } = req.body;
@@ -86,42 +102,42 @@ export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 
 //   let connection;
 //   try {
-//     connection = await dbConfig.connection();  
-//     await connection.beginTransaction();
+//     connection = await dbConfig.connection();
+//    dbConfig.beginTransaction();
 
-//     const [courseData] = await connection.execute(
+//     const [courseData] =dbConfig.execute(
 //       `SELECT c_id FROM courses WHERE c_name = ? AND c_code = ?`,
 //       [courseName, courseCode]
 //     );
 
 //     if (!courseData || courseData.length === 0) {
-//       await connection.rollback();
+//      dbConfig.rollback();
 //       return next(new Error('Course not found', { status: 404 }));
 //     }
 
 //     const courseId = courseData[0].c_id;
 
-//     const [extraData] = await connection.execute(
+//     const [extraData] =dbConfig.execute(
 //       `SELECT e_courseId FROM Extra WHERE e_courseId = ?`,
 //       [courseId]
 //     );
 
-//     const [academicData] = await connection.execute(
+//     const [academicData] =dbConfig.execute(
 //       `SELECT aCourse_code FROM academic WHERE aCourse_code = ?`,
 //       [courseCode]
 //     );
 
 //     if (extraData.length > 0) {
-//       await connection.execute(`DELETE FROM Extra WHERE e_courseId = ?`, [courseId]);
+//      dbConfig.execute(`DELETE FROM Extra WHERE e_courseId = ?`, [courseId]);
 //     }
 
 //     if (academicData.length > 0) {
-//       await connection.execute(`DELETE FROM academic WHERE aCourse_code = ?`, [courseCode]);
+//      dbConfig.execute(`DELETE FROM academic WHERE aCourse_code = ?`, [courseCode]);
 //     }
 
-//     await connection.execute(`DELETE FROM courses WHERE c_id = ?`, [courseId]);
+//    dbConfig.execute(`DELETE FROM courses WHERE c_id = ?`, [courseId]);
 
-//     await connection.commit();
+//    dbConfig.commit();
 
 //     return successResponse({
 //       res,
@@ -129,7 +145,7 @@ export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 //       status: 200,
 //     });
 //   } catch (err) {
-//     if (connection) await connection.rollback();
+//     if (connection)dbConfig.rollback();
 //     return next(new Error(`Error deleting course: ${err.message}`, { status: 500 }));
 //   } finally {
 //     if (connection) connection.release();
@@ -146,18 +162,18 @@ export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 
 //   // إنشاء اتصال بقاعدة البيانات
 //   const connection = await dbConfig.promise().getConnection();
-//   await connection.beginTransaction();
+//  dbConfig.beginTransaction();
 
 //   try {
 //     // البحث عن c_id الخاص بالكورس باستخدام courseName
-//     const [courseData] = await connection.execute(
-//       `SELECT c_id, c_type FROM courses WHERE c_name = ? AND c_code = ?`, 
+//     const [courseData] =dbConfig.execute(
+//       `SELECT c_id, c_type FROM courses WHERE c_name = ? AND c_code = ?`,
 //       [courseName, courseCode]
 //     );
 
 //     // التحقق من وجود الكورس
 //     if (courseData.length === 0) {
-//       await connection.rollback();
+//      dbConfig.rollback();
 //       throw new Error('Course not found');
 //     }
 
@@ -166,19 +182,19 @@ export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 
 //     // إذا كان الكورس من نوع Extra، نقوم بحذفه من جدول Extra
 //     if (courseType === 'Extra') {
-//       await connection.execute(`DELETE FROM Extra WHERE e_courseId = ?`, [courseId]);
+//      dbConfig.execute(`DELETE FROM Extra WHERE e_courseId = ?`, [courseId]);
 //     }
 
 //     // إذا كان الكورس من نوع Academic، نقوم بحذفه من جدول Academic
 //     if (courseType === 'Academic') {
-//       await connection.execute(`DELETE FROM academic WHERE course_id = ?`, [courseId]);
+//      dbConfig.execute(`DELETE FROM academic WHERE course_id = ?`, [courseId]);
 //     }
 
 //     // حذف الكورس من جدول Courses
-//     await connection.execute(`DELETE FROM courses WHERE c_id = ?`, [courseId]);
+//    dbConfig.execute(`DELETE FROM courses WHERE c_id = ?`, [courseId]);
 
 //     // تأكيد العملية
-//     await connection.commit();
+//    dbConfig.commit();
 
 //     return successResponse({
 //       res,
@@ -187,11 +203,10 @@ export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 //     });
 
 //   } catch (err) {
-//     await connection.rollback();
+//    dbConfig.rollback();
 //     throw new Error(`Error deleting course: ${err.message}`);
 //   } finally {
 //     // تحرير الاتصال بعد الانتهاء
 //     connection.release();
 //   }
 // });
-

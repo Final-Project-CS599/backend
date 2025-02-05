@@ -1,21 +1,17 @@
 import { Router } from 'express';
-import * as validators from './courses.validation.js';
-import { validation } from '../../../middleware/validation.middleware.js';
-import * as coursesServices from './service/courses.service.js';
-import * as academicServices from './service/academic.service.js';
-import * as extraServices from './service/extraCourse.service.js';
-import * as enrollStudent from '../../student/courses/controller.js';
-import * as paymentService from './service/payment.service.js';
-import getAllDepartment from './service/getDepartment.service.js';
 import { verifyToken } from '../../../middleware/auth.js';
-
+import * as academicServices from './service/academic.service.js';
+import * as coursesServices from './service/courses.service.js';
+import * as extraServices from './service/extraCourse.service.js';
+import getAllDepartment from './service/getDepartment.service.js';
+import * as paymentService from './service/payment.service.js';
 
 const router = Router();
 
 // Courses
 
 router.get('/getAllCourses', coursesServices.getAllCourses);
-router.delete('/deletedCourse', validation(validators.deletedCourse), coursesServices.deletedCourse);
+router.delete('/deleteCourse', coursesServices.deletedCourse);
 
 // router.delete('/deletedCourse',
 //   validation(validators.deletedCourse),
@@ -36,8 +32,9 @@ router.patch('/updateExtra/:id', verifyToken, extraServices.updateExtra);
 router.get('/getAllCoursesExtra', verifyToken, extraServices.getAllCoursesExtra);
 
 //payment
-router.post('/approvePayment', verifyToken, enrollStudent.enrollInCourse);
-router.get('/getPayment', paymentService.getPayments);
+router.post('/approvePayment', verifyToken, paymentService.approvePayment);
+router.delete('/cancelPayment/:id', verifyToken, paymentService.cancelPayment);
+router.get('/getPayments', paymentService.getPayments);
 router.get('/getExtraCourse/:id', extraServices.getCourseExtra);
 router.get('/getAcademicCourse/:id', academicServices.getCourseAcademic);
 
