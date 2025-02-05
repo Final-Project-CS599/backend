@@ -174,9 +174,9 @@ export const addAcademic = errorAsyncHandler(async (req, res, next) => {
 
 export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
   const adminNationalID = req.user.id;
+  const { id } = req.params; // Course ID to update
+
   const {
-    courseNameUpdate,
-    courseCodeUpdata,
     instructorName,
     department,
     category,
@@ -187,16 +187,30 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
     courseName,
   } = req.body;
 
+  // Validate required fields
+  if (
+    !instructorName ||
+    !department ||
+    !category ||
+    !description ||
+    !courseStartDate ||
+    !courseEndDate ||
+    !courseCode ||
+    !courseName
+  ) {
+    return next(new Error('All fields are required', { cause: 400 }));
+  }
+
   dbConfig.execute(
-    `SELECT * FROM superAdmin WHERE sAdmin_nationalID = ? `,
+    `SELECT * FROM superAdmin WHERE sAdmin_nationalID = ?`,
     [adminNationalID],
-    (err, data) => {
+    (err, adminData) => {
       if (err) {
-        return next(new Error('Error Server Database admin/superAdmin ', { cause: 500 }));
+        return next(new Error('Error Server Database admin/superAdmin', { cause: 500 }));
       }
-      if (!data.length) {
+      if (!adminData.length) {
         return next(
-          new Error('Access denied, Only admins or superAdmins can add courses', { cause: 403 })
+          new Error('Access denied, Only admins or superAdmins can update courses', { cause: 403 })
         );
       }
 
@@ -217,117 +231,93 @@ export const updateAcademic = errorAsyncHandler(async (req, res, next) => {
           const instructorId = instructorData[0].i_id;
 
           dbConfig.execute(
-            `SELECT * FROM courses WHERE c_adminNid =? AND c_name = ? AND c_type = "Academic" AND c_instructorId = ? AND c_description = ? AND c_category = ?
-                            AND c_start_date = ? AND c_end_date = ?`,
-            [
-              adminNationalID,
-              courseName,
-              instructorId,
-              description,
-              category,
-              courseStartDate,
-              courseEndDate,
-            ],
+            `SELECT * FROM courses WHERE c_id = ? AND c_type = "Academic"`,
+            [id],
             (err, courseData) => {
               if (err) {
-                return next(new Error('Error check course', { cause: 500 }));
+                return next(new Error('Error checking course', { cause: 500 }));
               }
-              if (courseData.length) {
-                return next(new Error('Course already exists', { cause: 409 }));
+              if (!courseData.length) {
+                return next(new Error('Course not found or unauthorized', { cause: 404 }));
               }
 
               dbConfig.execute(
-                `UPDATE courses SET c_adminNid  =? ,c_name = ?, c_type = "Academic", c_instructorId = ?, c_description = ?, c_category = ?, 
-                                    c_start_date = ?, c_end_date = ? WHERE c_name = ?`,
+                `UPDATE courses 
+                 SET c_name = ?, c_instructorId = ?, c_description = ?, c_category = ?, c_start_date = ?, c_end_date = ? 
+                 WHERE c_id = ?`,
                 [
-                  adminNationalID,
-                  courseNameUpdate,
+                  courseName,
                   instructorId,
                   description,
                   category,
                   courseStartDate,
                   courseEndDate,
-                  courseName,
+                  id,
                 ],
-                (err, courseData) => {
+                (err, updatedCourse) => {
                   if (err) {
-                    return next(
-                      new Error(`Error Server add course ${err.message}`, { cause: 500 })
-                    );
-                  }
-                  if (courseData.affectedRows === 0) {
-                    return next(new Error('Course not found', { cause: 404 }));
+                    return next(new Error('Error updating course', { cause: 500 }));
                   }
 
                   dbConfig.execute(
-                    `SELECT c_id FROM courses WHERE c_name = ?`,
-                    [courseNameUpdate],
-                    (err, idData) => {
+                    `SELECT * FROM department WHERE d_dept_name = ?`,
+                    [department],
+                    (err, departmentData) => {
                       if (err) {
-                        return next(new Error('Error fetching course ID', { cause: 500 }));
+                        return next(new Error('Error Server department', { cause: 500 }));
                       }
-                      if (!idData.length) {
-                        return next(new Error('Course ID not found', { cause: 404 }));
+                      if (!departmentData.length) {
+                        return next(new Error('Department not found', { cause: 404 }));
                       }
-                      const id = idData[0].c_id;
+                      const departmentId = departmentData[0].d_id;
 
                       dbConfig.execute(
-                        `SELECT * FROM department WHERE d_dept_name = ?`,
-                        [department],
-                        (err, dataDepartment) => {
+                        `SELECT * FROM academic WHERE aCourse_code = ?`,
+                        [courseCode],
+                        (err, academicData) => {
                           if (err) {
-                            return next(new Error('Error Server department', { cause: 500 }));
+                            return next(new Error('Error Server academic', { cause: 500 }));
                           }
-                          if (!dataDepartment.length) {
-                            return next(new Error('Department not found', { cause: 404 }));
+                          if (!academicData.length) {
+                            return next(new Error('Academic record not found', { cause: 404 }));
                           }
-                          const departmentId = dataDepartment[0].d_id;
 
                           dbConfig.execute(
-                            `SELECT * FROM academic WHERE aCourse_code = ?`,
-                            [courseCode],
-                            (err, dataAcademic) => {
+                            `UPDATE academic 
+                             SET course_id = ?, aDepartment_id = ?, aCourse_code = ? 
+                             WHERE aCourse_code = ?`,
+                            [id, departmentId, courseCode, courseCode],
+                            (err, updatedAcademic) => {
                               if (err) {
-                                return next(new Error('Error Server academic', { cause: 500 }));
+                                return next(
+                                  new Error('Error updating academic record', { cause: 500 })
+                                );
                               }
-                              if (!dataAcademic.length) {
-                                return next(new Error('Academic not found', { cause: 404 }));
+                              if (updatedAcademic.affectedRows === 0) {
+                                return next(
+                                  new Error('Academic record not found or not updated', {
+                                    cause: 404,
+                                  })
+                                );
                               }
 
-                              dbConfig.execute(
-                                `UPDATE academic SET course_id = ?, aDepartment_id = ?, aCourse_code = ? WHERE aCourse_code = ?`,
-                                [id, departmentId, courseCodeUpdata, courseCode],
-                                (err, academicData) => {
-                                  if (err) {
-                                    return next(new Error(`Error Server academic`, { cause: 500 }));
-                                  }
-                                  if (academicData.affectedRows === 0) {
-                                    return next(
-                                      new Error(`Academic record not found or not updated`, {
-                                        cause: 404,
-                                      })
-                                    );
-                                  }
-                                  return successResponse({
-                                    res,
-                                    message: 'Academic updated successfully',
-                                    status: 200,
-                                    data: {
-                                      adminNationalID,
-                                      courseName: courseNameUpdate,
-                                      courseCode,
-                                      courseCodeUpdata,
-                                      instructorName,
-                                      department,
-                                      courseType: 'Academic',
-                                      category,
-                                      description,
-                                      startDate: courseStartDate,
-                                      endDate: courseEndDate,
-                                    },
-                                  });
-                                }
-                              );
+                              return successResponse({
+                                res,
+                                message: 'Academic course updated successfully',
+                                status: 200,
+                                data: {
+                                  adminNationalID,
+                                  courseName,
+                                  courseCode,
+                                  instructorName,
+                                  department,
+                                  courseType: 'Academic',
+                                  category,
+                                  description,
+                                  startDate: courseStartDate,
+                                  endDate: courseEndDate,
+                                },
+                              });
                             }
                           );
                         }

@@ -23,17 +23,16 @@ router.get('/getAllCourses', coursesServices.getAllCourses);
 //
 // Academic
 router.post('/addAcademic', verifyToken, academicServices.addAcademic);
-router.patch('/updateAcademic', verifyToken ,academicServices.updateAcademic);
-router.get('/getAllCoursesAcademic', verifyToken , academicServices.getAllCoursesAcademic);
+router.patch('/updateAcademic/:id', verifyToken, academicServices.updateAcademic);
+router.get('/getAllCoursesAcademic', verifyToken, academicServices.getAllCoursesAcademic);
 
 // Department
 router.get('/getAllDepartment', getAllDepartment);
 
 //Extra
 router.post('/addExtra', verifyToken, extraServices.addExtra);
-router.patch('/updateExtra', verifyToken,extraServices.updateExtra);
+router.patch('/updateExtra/:id', verifyToken, extraServices.updateExtra);
 router.get('/getAllCoursesExtra', verifyToken, extraServices.getAllCoursesExtra);
-
 
 //payment
 router.post('/approvePayment', verifyToken, enrollStudent.enrollInCourse);

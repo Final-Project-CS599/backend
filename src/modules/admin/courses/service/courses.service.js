@@ -2,7 +2,6 @@ import dbConfig from '../../../../DB/connection.js';
 import { errorAsyncHandler } from '../../../../utils/response/error.response.js';
 import { successResponse } from '../../../../utils/response/success.response.js';
 
-
 export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
   dbConfig.execute(
     `SELECT courses.c_id as courseId, courses.c_name as courseName, courses.c_type as courseType, 
@@ -52,7 +51,6 @@ export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
 //     const [academicData] = await connection.execute(`DELETE FROM academic WHERE aCourse_code = ?`, [
 //       courseCode,
 
-
 //     ]);
 
 //     // Delete the course
@@ -81,7 +79,6 @@ export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
 //     connection.release();
 //   }
 // });
-
 
 // export const deletedCourse = errorAsyncHandler(async (req, res, next) => {
 //   const { courseName, courseCode } = req.body;
@@ -133,5 +130,3 @@ export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
 //     connection.release();
 //   }
 // });
-
-
