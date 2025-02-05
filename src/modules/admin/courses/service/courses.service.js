@@ -134,4 +134,3 @@ export const getAllCourses = errorAsyncHandler(async (req, res, next) => {
 //   }
 // });
 
-
