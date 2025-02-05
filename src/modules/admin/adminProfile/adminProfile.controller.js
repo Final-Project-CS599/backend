@@ -36,15 +36,17 @@ const viewProfile = asyncHandler(async (req, res, next) => {
     secondaryPhone: rows[0].phones ? rows[0].phones.split(',')[1] : '',
   };
 
-  res.json({ message: 'success', adminData });
+  res.status(200).json({ message: 'success', adminData });
 });
 
 const editProfile = asyncHandler(async (req, res, next) => {
   const nationalId = req.user.id;
   const { primaryPhone, secondaryPhone, newPassword, confirmPassword } = req.body;
 
-  if (newPassword && newPassword !== confirmPassword) {
-    return next(new AppError('Passwords do not match', 400));
+  if (newPassword) {  
+    if (newPassword !== confirmPassword) {  
+      return next(new AppError('Passwords do not match', 400));
+    }
   }
 
 
