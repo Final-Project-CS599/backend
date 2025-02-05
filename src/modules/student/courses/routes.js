@@ -1,19 +1,31 @@
 import express from 'express';
 import { verifyToken } from '../../../middleware/auth.js';
-import {
-  enrollInCourse,
-  getCourseById,
-  getCoursesByStudentId,
-  recommendCourses,
-  searchCourses,
-} from './controller.js';
+import * as coursesService from './controller.js';
+import multer from 'multer';
 
 const router = express.Router();
 
-router.get('/courses', verifyToken, getCoursesByStudentId);
-router.post('/courses/enroll', verifyToken, enrollInCourse);
-router.get('/courses/search', verifyToken, searchCourses);
-router.get('/courses/recommend', verifyToken, recommendCourses);
-router.get('/courses/:id', verifyToken, getCourseById);
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/student');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+router.get('/courses', verifyToken, coursesService.getCoursesByStudentId);
+router.post('/courses/enroll', verifyToken, coursesService.enrollInCourse);
+router.get('/courses/search', verifyToken, coursesService.searchCourses);
+router.get('/courses/recommend', verifyToken, coursesService.recommendCourses);
+router.post(
+  '/courses/addPayment',
+  verifyToken,
+  upload.single('file'),
+  coursesService.storePaymentData
+);
+router.get('/courses/:id', verifyToken, coursesService.getCourseById);
 
 export default router;

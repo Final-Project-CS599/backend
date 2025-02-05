@@ -13,33 +13,31 @@ const router = Router();
 
 // Courses
 
-router.patch('/updateCourses', validation(validators.updateCourses), coursesServices.updateCourses);
 router.get('/getAllCourses', coursesServices.getAllCourses);
-router.delete(
-  '/deletedCourse',
-  validation(validators.deletedCourse),
-  coursesServices.deletedCourses
-);
+// router.delete('/deletedCourse', validation(validators.deletedCourse), deletedCourses);
+
+// router.delete('/deletedCourse',
+//   validation(validators.deletedCourse),
+//   coursesServices.deletedCourses
+// );
 //
 // Academic
 router.post('/addAcademic', verifyToken, academicServices.addAcademic);
-router.patch('/updateAcademic', academicServices.updateAcademic);
-router.get('/getAllCoursesAcademic', academicServices.getAllCoursesAcademic);
+router.patch('/updateAcademic/:id', verifyToken, academicServices.updateAcademic);
+router.get('/getAllCoursesAcademic', verifyToken, academicServices.getAllCoursesAcademic);
 
 // Department
 router.get('/getAllDepartment', getAllDepartment);
 
 //Extra
 router.post('/addExtra', verifyToken, extraServices.addExtra);
-router.patch('/updateExtra', extraServices.updateExtra);
-router.get('/getAllCoursesExtra', extraServices.getAllCoursesExtra);
+router.patch('/updateExtra/:id', verifyToken, extraServices.updateExtra);
+router.get('/getAllCoursesExtra', verifyToken, extraServices.getAllCoursesExtra);
 
+//payment
 router.post('/approvePayment', verifyToken, enrollStudent.enrollInCourse);
-
 router.get('/getPayment', paymentService.getPayments);
-
 router.get('/getExtraCourse/:id', extraServices.getCourseExtra);
-
 router.get('/getAcademicCourse/:id', academicServices.getCourseAcademic);
 
 export default router;

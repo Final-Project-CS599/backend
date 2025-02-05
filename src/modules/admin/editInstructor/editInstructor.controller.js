@@ -48,12 +48,12 @@ const findInstructorById = asyncHandler(async (req, res, next) => {
 
   const query = `
         SELECT 
-            i.i_id as id,
-            i.i_firstName as firstName,
-            i.i_lastName as lastName,
-            i.i_email as email,
-            d.d_dept_name as department,
-            GROUP_CONCAT(ip.p_instructorPhone) as phones
+            i.i_id AS id,
+            i.i_firstName AS firstName,
+            i.i_lastName AS lastName,
+            i.i_email AS email,
+            d.d_dept_name AS department,
+            GROUP_CONCAT(ip.p_instructorPhone) AS phones
         FROM Instructors i
         LEFT JOIN department d ON i.i_departmentId = d.d_id
         LEFT JOIN InstructorsPhone ip ON i.i_id = ip.i_instructorId
@@ -127,9 +127,9 @@ const viewInstructorAcademicCourses = asyncHandler(async (req, res, next) => {
 
   const query = `
     SELECT DISTINCT
-        c.c_id as courseId,
-        c.c_name as courseName,
-        a.aCourse_code as courseCode
+        c.c_id AS courseId,
+        c.c_name AS courseName,
+        a.aCourse_code AS courseCode
     FROM courses c
     INNER JOIN academic a ON c.c_id = a.course_id
     WHERE c.c_instructorId = ?
@@ -150,10 +150,10 @@ const viewInstructorExtraCourses = asyncHandler(async (req, res, next) => {
 
   const query = `
   SELECT DISTINCT
-      c.c_id as courseId,
-      c.c_name as courseName,
-      e.e_Course_code as courseCode,
-      e.e_price as price
+      c.c_id AS courseId,
+      c.c_name AS courseName,
+      e.e_Course_code AS courseCode,
+      e.e_price AS price
   FROM courses c
   INNER JOIN Extra e ON c.c_id = e.e_courseId
   WHERE c.c_instructorId = ?

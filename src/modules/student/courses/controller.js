@@ -142,7 +142,19 @@ export const getCourseById = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Course ID is required' });
   }
 
-  const query = ` SELECT * FROM courses WHERE c_id = ? `;
+  // Query to fetch course details along with associated media
+  const query = `
+    SELECT 
+      courses.*, 
+      media.m_id AS media_id, 
+      media.m_title AS media_title, 
+      media.m_description AS media_description, 
+      media.m_link AS media_link, 
+      media.m_courseId AS media_course_id
+    FROM courses
+    LEFT JOIN media ON courses.c_id = media.m_courseId
+    WHERE courses.c_id = ?
+  `;
 
   dbConfig.query(query, [courseId], (err, results) => {
     if (err) {
@@ -151,9 +163,50 @@ export const getCourseById = asyncHandler(async (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ error: 'Course not' });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
-    res.status(200).json(results[0]);
+    // Group the results to combine course details with associated media
+    const courseDetails = {
+      ...results[0], // Spread the course details
+      media: results
+        .filter((row) => row.media_id !== null) // Filter out rows without media
+        .map((row) => ({
+          id: row.media_id,
+          title: row.media_title,
+          description: row.media_description,
+          link: row.media_link,
+          courseId: row.media_course_id,
+        })),
+    };
+
+    // Remove media-related fields from the course details
+    delete courseDetails.media_id;
+    delete courseDetails.media_title;
+    delete courseDetails.media_description;
+    delete courseDetails.media_link;
+    delete courseDetails.media_course_id;
+
+    res.status(200).json(courseDetails);
+  });
+});
+
+export const storePaymentData = asyncHandler(async (req, res) => {
+  const { student_id, admin_nid } = req.body;
+  if (!req.file || !student_id) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const img = req.file.filename;
+  const initiation_date = new Date().toISOString().split('T')[0];
+  const query = `INSERT INTO payment (img, initiation_date, student_id, admin_nid) VALUES (?, ?, ?, ?)`;
+  const values = [img, initiation_date, student_id, admin_nid || null];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error inserting payment record: ', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.status(201).json({ message: 'Payment record added successfully', id: result.insertId });
   });
 });
