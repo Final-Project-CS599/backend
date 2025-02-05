@@ -6,7 +6,7 @@ import { asyncHandler } from '../../../middleware/asyncHandler.js';
 const conn = dbConfig.promise();
 
 const viewProfile = asyncHandler(async (req, res, next) => {
-  const nationalId = req.user.id; // Fix destructuring
+  const nationalId = req.user.id; 
 
   const query = `
     SELECT 
@@ -29,7 +29,7 @@ const viewProfile = asyncHandler(async (req, res, next) => {
     return next(new AppError('Admin not found', 404));
   }
 
-  console.log(admins, 'admins'); // Corrected logging
+  console.log(admins, 'admins'); 
 
   const phoneNumbers = admins[0].phones ? admins[0].phones.split(',') : [];
 
