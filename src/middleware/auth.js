@@ -3,17 +3,14 @@ import { asyncHandler } from './asyncHandler.js';
 import jwt from 'jsonwebtoken';
 
 export const verifyToken = asyncHandler(async (req, res, next) => {
-  // Extract the token from the Authorization header
   const authHeader = req.headers['authorization'];
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return next(new AppError('Token is required. Please log in', 401));
   }
 
-  // Extract the token (remove "Bearer " from the header)
   const token = authHeader.split(' ')[1];
 
-  // Define an array of token signatures to try
   const tokenSignatures = [
     process.env.TOKEN_SIGNATURE, // Primary signature
     process.env.TOKEN_SIGNATURE_ADMIN, // Fallback signature 1
@@ -21,7 +18,6 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
 
   let decoded = null;
 
-  // Try each signature in sequence
   for (const signature of tokenSignatures) {
     try {
       if (!signature) continue;
