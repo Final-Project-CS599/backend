@@ -3,7 +3,7 @@ import joi from "joi" ;
 
 
 export const  generalFieldsValidation = {
-    nationalID : joi.string().pattern(new RegExp(/^[0-9]{14,}$/)).messages({
+    nationalID : joi.string().pattern(new RegExp(/^[0-9]{14}$/)).messages({
         'string.empty': "National ID is required",
         'string.pattern.base': "National ID must be 14 digits with no spaces or characters. (example: 01234567890123)"
     }),
