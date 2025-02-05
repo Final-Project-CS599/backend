@@ -47,6 +47,7 @@ export const  generalFieldsValidation = {
     course: joi.string().min(2).max(100),
     courseDescription: joi.string().min(20).max(500),
     courseDate: joi.date(),
+    courseCode: joi.string().pattern(new RegExp (/^[A-Za-z0-9]{5,}$/)),
 };
 
 

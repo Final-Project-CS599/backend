@@ -9,12 +9,13 @@ import * as paymentService from './service/payment.service.js';
 import getAllDepartment from './service/getDepartment.service.js';
 import { verifyToken } from '../../../middleware/auth.js';
 
+
 const router = Router();
 
 // Courses
 
 router.get('/getAllCourses', coursesServices.getAllCourses);
-// router.delete('/deletedCourse', validation(validators.deletedCourse), deletedCourses);
+router.delete('/deletedCourse', validation(validators.deletedCourse), coursesServices.deletedCourse);
 
 // router.delete('/deletedCourse',
 //   validation(validators.deletedCourse),
