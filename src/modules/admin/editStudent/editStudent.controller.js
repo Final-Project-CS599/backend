@@ -47,16 +47,16 @@ const findStudentById = asyncHandler(async (req, res, next) => {
 
   const query = `
         SELECT 
-            s.s_id as id,
-            s.s_first_name as firstName,
-            s.s_last_name as lastName,
-            s.s_middle_name as middleName,
-            s.s_email as email,
-            s.s_DOB as dateOfBirth,
-            s.s_gender as gender,
-            s.s_national_id as nationalId,
-            d.d_dept_name as department,
-            GROUP_CONCAT(sp.sp_phone) as phones
+            s.s_id AS id,
+            s.s_first_name AS firstName,
+            s.s_last_name AS lastName,
+            s.s_middle_name AS middleName,
+            s.s_email AS email,
+            s.s_DOB AS dateOfBirth,
+            s.s_gender AS gender,
+            s.s_national_id AS nationalId,
+            d.d_dept_name AS department,
+            GROUP_CONCAT(sp.sp_phone) AS phones
         FROM student s
         LEFT JOIN department d ON s.s_department_id = d.d_id
         LEFT JOIN student_phone sp ON s.s_id = sp.sp_student_id
@@ -74,7 +74,7 @@ const findStudentById = asyncHandler(async (req, res, next) => {
     dateOfBirth: new Date(students[0].dateOfBirth).toISOString().split('T')[0],
   };
 
-  res.json({ status: 'success', data: { student } });
+  res.status(200).json({ status: 'success', data: { student } });
 });
 
 const updateStudentById = asyncHandler(async (req, res, next) => {
@@ -138,9 +138,9 @@ const viewStudentAcademicCourses = asyncHandler(async (req, res, next) => {
 
   const query = `
               SELECT DISTINCT
-                c.c_id as courseId,
-                c.c_name as courseName,
-                a.aCourse_code as courseCode
+                c.c_id AS courseId,
+                c.c_name AS courseName,
+                a.aCourse_code AS courseCode
             FROM courses c
             INNER JOIN academic a ON c.c_id = a.course_id
             INNER JOIN enrollment e ON c.c_id = e.e_courseId
@@ -162,10 +162,10 @@ const viewStudentExtraCourses = asyncHandler(async (req, res, next) => {
 
   const query = `
         SELECT DISTINCT
-             c.c_id as courseId,
-             c.c_name as courseName,
-             e.e_Course_code as courseCode,
-             e.e_price as price
+             c.c_id AS courseId,
+             c.c_name AS courseName,
+             e.e_Course_code AS courseCode,
+             e.e_price AS price
          FROM courses c
          INNER JOIN Extra e ON c.c_id = e.e_courseId
          INNER JOIN enrollment enr ON c.c_id = enr.e_courseId

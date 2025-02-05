@@ -1,6 +1,6 @@
-import dbConfig from '../../../DB/connection.js';
-import { asyncHandler } from '../../../middleware/asyncHandler.js';
-import { successResponse } from '../../../utils/response/success.response.js';
+import dbConfig from "../../../DB/connection.js";
+import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import { successResponse } from "../../../utils/response/success.response.js";
 
 export const getInstructors = asyncHandler(async (req, res) => {
   try {
@@ -14,29 +14,17 @@ export const getInstructors = asyncHandler(async (req, res) => {
       FROM Instructors AS i
       JOIN courses AS c ON i.i_id = c.c_instructorId
       JOIN enrollment AS e ON c.c_id = e.e_courseId
-      WHERE e_studentId = ?
-      ORDER BY  i.i_firstName;
+      WHERE e.e_studentId = ?
+      ORDER BY i.i_firstName;
     `;
 
     const [results] = await dbConfig.promise().query(query, [studentId]);
 
-    if (results.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message: 'No instructors found for this student',
-        data: [],
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: 'No instructors found for this student',
-      data: results,
-    });
+    return successResponse(res, 200, results.length ? results : []);
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch instructors',
+      message: "Failed to fetch instructors",
       error: error.message,
     });
   }
@@ -61,15 +49,19 @@ export const getInstructorProfile = asyncHandler(async (req, res) => {
     if (!enrollmentCheck.length) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied: You are not enrolled in any course by this instructor.',
+        message:
+          "Access denied: You are not enrolled in any course by this instructor.",
       });
     }
 
     const query = `
-      SELECT  i.*
+      SELECT 
+        i.i_id AS Instructor_ID, 
+        i.i_firstName AS First_Name, 
+        i.i_lastName AS Last_Name, 
+        GROUP_CONCAT(c.c_name) AS Courses
       FROM Instructors AS i
       JOIN courses AS c ON i.i_id = c.c_instructorId
-      JOIN enrollment AS e ON c.c_id = e.e_courseId
       WHERE i.i_id = ?
       GROUP BY i.i_id;
     `;
@@ -79,15 +71,15 @@ export const getInstructorProfile = asyncHandler(async (req, res) => {
     if (!results.length) {
       return res.status(404).json({
         success: false,
-        message: 'Instructor not found.',
+        message: "Instructor not found.",
       });
     }
 
-    successResponse(res, 200, results[0]); // إرسال بيانات المعلم للطالب
+    successResponse(res, 200, results[0]);
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch instructor profile.',
+      message: "Failed to fetch instructor profile.",
       error: error.message,
     });
   }

@@ -2,6 +2,8 @@ import dbConfig from '../../../../DB/connection.js';
 import { errorAsyncHandler } from '../../../../utils/response/error.response.js';
 import { successResponse } from '../../../../utils/response/success.response.js';
 
+
+//add extra courses
 export const addExtra = errorAsyncHandler(async (req, res, next) => {
   const adminNationalID = req.user.id;
 
@@ -167,10 +169,10 @@ export const addExtra = errorAsyncHandler(async (req, res, next) => {
   );
 });
 
-//  Update extra again
+//  Update extra 
 export const updateExtra = errorAsyncHandler(async (req, res, next) => {
-  const { id } = req.params; // Course ID to update
   const adminNationalID = req.user.id; // Admin ID from authenticated user
+  const { id } = req.params; // Course ID to update
   const {
     instructorName,
     courseName,
@@ -178,7 +180,7 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
     price,
     category,
     description,
-    courseStartDate,
+    courseStartDate, 
     courseEndDate,
     sections,
   } = req.body;
@@ -203,13 +205,14 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
     [adminNationalID],
     (err, adminData) => {
       if (err) {
-        return next(new Error('Error verifying admin', { cause: 500 }));
+        return next(
+          new Error('Error Server Database admin/superAdmin', { cause: 500 }));
       }
       if (!adminData.length) {
-        return next(new Error('Admin not found', { cause: 404 }));
+        return next(new Error('Access denied, Only admins or superAdmins can update courses', { cause: 403 })
+      );
       }
 
-      // Step 2: Extract instructor first and last name
       const instructorNameParts = instructorName.trim().split(' ');
       const instructorFirstName = instructorNameParts[0] || null;
       const instructorLastName = instructorNameParts.slice(1).join(' ') || null;
@@ -219,7 +222,7 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
         [instructorFirstName, instructorLastName],
         (err, instructorData) => {
           if (err) {
-            return next(new Error('Error verifying instructor', { cause: 500 }));
+            return next(new Error('Error Server verifying instructor', { cause: 500 }));
           }
           if (!instructorData.length) {
             return next(new Error('Instructor not found', { cause: 404 }));
@@ -227,8 +230,8 @@ export const updateExtra = errorAsyncHandler(async (req, res, next) => {
           const instructorId = instructorData[0].i_id;
 
           dbConfig.execute(
-            `SELECT * FROM courses WHERE c_id = ? AND c_adminNid = ? AND c_type = 'Extra'`,
-            [id, adminNationalID],
+            `SELECT * FROM courses WHERE c_id = ? AND c_type = 'Extra'`,
+            [id],
             (err, courseData) => {
               if (err) {
                 return next(new Error('Error verifying course', { cause: 500 }));
