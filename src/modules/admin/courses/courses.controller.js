@@ -13,11 +13,6 @@ const router = Router();
 router.get('/getAllCourses', coursesServices.getAllCourses);
 router.delete('/deleteCourse', coursesServices.deletedCourse);
 
-// router.delete('/deletedCourse',
-//   validation(validators.deletedCourse),
-//   coursesServices.deletedCourses
-// );
-//
 // Academic
 router.post('/addAcademic', verifyToken, academicServices.addAcademic);
 router.patch('/updateAcademic/:id', verifyToken, academicServices.updateAcademic);

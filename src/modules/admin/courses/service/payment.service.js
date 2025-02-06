@@ -102,7 +102,7 @@ export const cancelPayment = errorAsyncHandler(async (req, res, next) => {
   }
 
   try {
-    // Step 1: Fetch student_id from the payment table
+    //  Fetch student_id from the payment table
     const fetchStudentQuery = `
       SELECT student_id
       FROM payment
@@ -116,7 +116,7 @@ export const cancelPayment = errorAsyncHandler(async (req, res, next) => {
 
     const { student_id } = paymentResults[0];
 
-    // Step 2: Fetch course_id from the extra_payment table using student_id
+    //  Fetch course_id from the extra_payment table using student_id
     const fetchCourseQuery = `
       SELECT course_id
       FROM extra_payment
@@ -132,7 +132,7 @@ export const cancelPayment = errorAsyncHandler(async (req, res, next) => {
 
     const { course_id } = extraPaymentResults[0];
 
-    // Step 3: Remove the student's enrollment from the enrollment table
+    //  Remove the student's enrollment from the enrollment table
     const deleteEnrollmentQuery = `
       DELETE FROM enrollment
       WHERE e_studentId = ? AND e_courseId = ?
@@ -145,14 +145,14 @@ export const cancelPayment = errorAsyncHandler(async (req, res, next) => {
       return next(new Error('Enrollment not found', { cause: 404 }));
     }
 
-    // Step 4: Delete the record from the extra_payment table
+    //  Delete the record from the extra_payment table
     const deleteExtraPaymentQuery = `
       DELETE FROM extra_payment
       WHERE student_id = ? AND course_id = ?
     `;
     await dbConfig.promise().query(deleteExtraPaymentQuery, [student_id, course_id]);
 
-    // Step 5: Delete the record from the payment table
+    // Delete the record from the payment table
     const deletePaymentQuery = `
       DELETE FROM payment
       WHERE id = ?

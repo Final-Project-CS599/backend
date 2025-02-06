@@ -3,15 +3,15 @@ import dbConfig from '../../../DB/connection.js';
 import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const editProfile = asyncHandler(async (req, res) => {
-  const studentId = req.user.id; // Get the student ID from the authenticated user
-  const { primaryPhone, secondaryPhone, password, birthDate, gender } = req.body; // Data to update
+  const studentId = req.user.id; 
+  const { primaryPhone, secondaryPhone, password, birthDate, gender } = req.body; 
 
-  // Create an array of phone numbers to update
+ 
   const phoneNumbers = [];
   if (primaryPhone) phoneNumbers.push(primaryPhone);
   if (secondaryPhone) phoneNumbers.push(secondaryPhone);
 
-  // Hash the password if provided
+  
   let hashedPassword = null;
   if (password) {
     const salt = await bcrypt.genSalt(10);
