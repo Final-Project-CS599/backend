@@ -70,10 +70,7 @@ const bootstrap = (app, express) => {
   app.use(`${baseUrl}/courses`, courseController);
   app.use(`${baseUrl}/instructorProfile`, instProfileController);
   app.use(`${baseUrl}/message`, MessageController);
-  //
-  app.use(`/auth/addUser`, authAddUsersController);
-  app.use(`/auth`, authController);
-  app.use('/updateDB', updateDBController);
+  // app.use('/updateDB', updateDBController);
   // app.use('/courses' , coursesController);
   app.use(`${baseUrl}/users`, userRoutes);
   app.use(`${baseUrl}/student`, updateStudentProfileRoutes);
