@@ -190,23 +190,70 @@ export const getCourseById = asyncHandler(async (req, res) => {
     res.status(200).json(courseDetails);
   });
 });
+export const storePaymentData = async (req, res) => {
+  const studentId = req.user.id;
+  const { course_id } = req.body; // Assuming course_id is sent in the request body
 
-export const storePaymentData = asyncHandler(async (req, res) => {
-  const { student_id, admin_nid } = req.body;
-  if (!req.file || !student_id) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
   }
 
-  const img = req.file.filename;
-  const initiation_date = new Date().toISOString().split('T')[0];
-  const query = `INSERT INTO payment (img, initiation_date, student_id, admin_nid) VALUES (?, ?, ?, ?)`;
-  const values = [img, initiation_date, student_id, admin_nid || null];
+  if (!course_id) {
+    return res.status(400).json({ success: false, message: 'Course ID is required' });
+  }
 
-  db.query(query, values, (err, result) => {
-    if (err) {
-      console.error('Error inserting payment record: ', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.status(201).json({ message: 'Payment record added successfully', id: result.insertId });
-  });
-});
+  const filePath = `uploads/student/${req.file.filename}`;
+
+  // Check if the student exists
+  const checkStudentQuery = 'SELECT s_id FROM student WHERE s_id = ?';
+  const [studentExists] = await dbConfig.promise().query(checkStudentQuery, [studentId]);
+
+  if (studentExists.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid student ID: Student does not exist',
+    });
+  }
+
+  // Check if the course exists
+  const checkCourseQuery = 'SELECT c_id FROM courses WHERE c_id = ?';
+  const [courseExists] = await dbConfig.promise().query(checkCourseQuery, [course_id]);
+
+  if (courseExists.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid course ID: Course does not exist',
+    });
+  }
+
+  try {
+    // Insert payment data into the payment table
+    const insertPaymentQuery = `
+      INSERT INTO payment (img, initiation_date, student_id, admin_nid)
+      VALUES (?, NOW(), ?, NULL)
+    `;
+    const [paymentResult] = await dbConfig
+      .promise()
+      .query(insertPaymentQuery, [filePath, studentId]);
+
+    // Insert into extra_payment table to link payment to course
+    const insertExtraPaymentQuery = `
+      INSERT INTO extra_payment (student_id, course_id)
+      VALUES (?, ?)
+    `;
+    await dbConfig.promise().query(insertExtraPaymentQuery, [studentId, course_id]);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Payment file uploaded and linked to course successfully',
+      filePath,
+      course_id,
+    });
+  } catch (error) {
+    console.error('Error storing payment data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while storing payment data',
+    });
+  }
+};

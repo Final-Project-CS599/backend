@@ -35,8 +35,8 @@ export const addAdminValidationSchema = joi.object().keys({
     email: generalFieldsValidation.email.required(),
     // Phone
     phone1 : generalFieldsValidation.phone.required(),
-    // Phone
-    phone2 : generalFieldsValidation.phone,
+    // Phone2
+    phone2 : generalFieldsValidation.phone2.optional(),
     // Role 
     adminRole:  generalFieldsValidation.userName.required().messages({
         'string.empty': 'adminRole is required',
@@ -49,7 +49,7 @@ export const addAdminValidationSchema = joi.object().keys({
     'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();
-    
+
 
 
 export const addInstructorValidationSchema = joi.object().keys({
@@ -66,7 +66,7 @@ export const addInstructorValidationSchema = joi.object().keys({
     // Email
     email: generalFieldsValidation.email.required(),
     // Password
-    password: generalFieldsValidation.passwordAddInstructor.required(),  
+    password: generalFieldsValidation.passwordAddInstructor.required(),
     confirmPassword: generalFieldsValidation.confirmPassword.valid(joi.ref('password')).required(),
     // Department
     department: generalFieldsValidation.userName.required().messages({
@@ -74,7 +74,9 @@ export const addInstructorValidationSchema = joi.object().keys({
     }), // min 2 and max 50 as length
     // phones
     phone1 : generalFieldsValidation.phone.required(),
-    phone2 : generalFieldsValidation.phone,
+    // Phone2
+    phone2 : generalFieldsValidation.phone2.optional(),
+    // Languages
     'ln': generalFieldsValidation.acceptLanguage
 
 }).options({allowUnknown: false}).required();
@@ -116,7 +118,8 @@ export const addStudentValidationSchema = joi.object().keys({
     }), // min 2 and max 50 as length
     // Phones
     phone1 : generalFieldsValidation.phone.required(),
-    phone2 : generalFieldsValidation.phone.optional(),
+    // Phone2
+    phone2 : generalFieldsValidation.phone2.optional(),
     // Languages
     'ln': generalFieldsValidation.acceptLanguage
 

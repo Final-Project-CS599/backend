@@ -3,7 +3,6 @@ import { errorAsyncHandler } from "../../../../../utils/response/error.response.
 import { successResponse } from "../../../../../utils/response/success.response.js";
 import { emailEvent } from "../../../../../utils/events/sendEmailEvent.js";
 import { generateHash } from "../../../../../utils/hash/hash.js";
-import { verifyToken } from "../../../../../utils/token/token.js";
 
 
 
@@ -16,11 +15,13 @@ const addAdmin = errorAsyncHandler(
         }
 
         const morePhones = {};
-        if(phone1){
+        if (phone1) {
             morePhones.phone1 = phone1;
         }
-        if(phone2){
-            morePhones.phone2 = phone2;
+        if (phone2 === null || phone2 === '') {
+            morePhones.phone2 = null;  // Assign null if the value is empty or null
+        } else {
+            morePhones.phone2 = phone2;  // Assign phone2 if it's a valid value
         }
 
         dbConfig.execute(` SELECT * FROM superAdmin WHERE sAdmin_nationalID = ? AND sAdmin_role = 'sAdmin' ` , 
@@ -81,37 +82,42 @@ const addAdmin = errorAsyncHandler(
                                     return next(new Error(`Error Server Database Failed to get data , execute query `, {cause:500}));
                                 }
 
-                                const phoneQueries = Object.entries(morePhones).map(([key , phone]) => {
+                                const phoneQueries = Object.entries(morePhones).map(([key, phone]) => {
                                     return new Promise((resolve, reject) => {
-                                        dbConfig.execute(
-                                            `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
-                                            [phone, adminNationalID] , 
-                                            (err , data) => {
-                                                if(err || !data.affectedRows){
-                                                    reject(err)
+                                        if (phone !== null) {
+                                            dbConfig.execute(
+                                                `INSERT INTO superAdminsPhone(p_number, sAdmin_nationalID) VALUES (?, ?)`,
+                                                [phone, adminNationalID],
+                                                (err, data) => {
+                                                    if (err || !data.affectedRows) {
+                                                        reject(err);
+                                                    }
+                                                    resolve({ [key]: phone });
                                                 }
-                                                resolve({ [key]: phone });
-                                            }
-                                        )
-                                    })
-                                })
-                                emailEvent.emit("sendEmail" , {email} );
+                                            );
+                                        } else {
+                                            resolve({ [key]: null });
+                                        }
+                                    });
+                                });
         
-                                Promise.all(phoneQueries).then((phones)=>{
+                                emailEvent.emit("sendEmail", { email });
+        
+                                Promise.all(phoneQueries).then((phones) => {
                                     const phonesResult = phones.reduce((acc, curr) => ({ ...acc, ...curr }), {});
                                     return successResponse({
-                                        res , message:"Admin added successfully" , status: 201 ,
+                                        res, message: "Admin added successfully", status: 201,
                                         data: {
-                                            admin:{
-                                                nationalID:adminNationalID ,
-                                                fullName: `${firstName} ${lastName} `,
+                                            admin: {
+                                                nationalID: adminNationalID,
+                                                fullName: `${firstName} ${lastName}`,
                                                 email,
                                                 role: "admin",
                                             },
                                             phone: phonesResult
                                         }
-                                    })
-                                })
+                                    });
+                                });
                             }
                         )
                     }
@@ -120,6 +126,7 @@ const addAdmin = errorAsyncHandler(
         )
     }
 );
+
 
 export default addAdmin;
 

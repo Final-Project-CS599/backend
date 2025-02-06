@@ -33,6 +33,8 @@ export const  generalFieldsValidation = {
     phone: joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/)).messages({
         'alternatives.match': "Please provide a valid phone number ex: (+201234567810 , 00201234567810 , 01234567810)"
     }),
+    phone2: joi.string().allow('', null).pattern(new RegExp(/^[0-9]{11,14}$/)),
+
     // Language
     acceptLanguage: joi.string().valid('en' , 'ar' ,'en-US' ,"en-US,en;q=0.9").default('en'),
     // DOB
@@ -47,6 +49,7 @@ export const  generalFieldsValidation = {
     course: joi.string().min(2).max(100),
     courseDescription: joi.string().min(20).max(500),
     courseDate: joi.date(),
+    courseCode: joi.string().pattern(new RegExp (/^[A-Za-z0-9]{5,}$/)),
 };
 
 
