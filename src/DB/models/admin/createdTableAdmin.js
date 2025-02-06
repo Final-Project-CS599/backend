@@ -16,7 +16,7 @@ export const createTableSuperAdmin = `CREATE TABLE IF NOT EXISTS superAdmin(
 
 export const createTableSuperAdminsPhones = `CREATE TABLE IF NOT EXISTS superAdminsPhone (
     p_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    p_number VARCHAR(255) NOT NULL ,
+    p_number VARCHAR(255) NULL ,
     sAdmin_nationalID VARCHAR(14) NOT NULL , 
     FOREIGN KEY (sAdmin_nationalID) REFERENCES superAdmin(sAdmin_nationalID) ON DELETE CASCADE ON UPDATE CASCADE
 );`;

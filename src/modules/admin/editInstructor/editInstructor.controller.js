@@ -152,8 +152,7 @@ const viewInstructorExtraCourses = asyncHandler(async (req, res, next) => {
   SELECT DISTINCT
       c.c_id AS courseId,
       c.c_name AS courseName,
-      e.e_Course_code AS courseCode,
-      e.e_price AS price
+      e.e_Course_code AS courseCode
   FROM courses c
   INNER JOIN Extra e ON c.c_id = e.e_courseId
   WHERE c.c_instructorId = ?

@@ -130,16 +130,16 @@ export const deleteAssignment = async (req, res, next) => {
 };
 
 export const searchAssignment = async (req, res, next) => {
-  const { ass } = req.query;
-  if (!ass) {
+  const { assignment } = req.query;
+  if (!assignment) {
     return res.status(400).json({ message: 'Search Query is Required' });
   }
 
-  const query = `SELECT * FROM assignment WHERE a_name LIKE ? OR a_type LIKE ?`;
+  const query = `SELECT * FROM assignment WHERE a_title LIKE ? OR a_type LIKE ?`;
 
-  dbConfig.execute(query, [`%${ass}%`, `%${ass}%`], (error, data) => {
+  dbConfig.execute(query, [`%${assignment}%`, `%${assignment}%`], (error, data) => {
     if (error) {
-      return res.status(500).json({ message: 'Failed to execute Query' });
+      return res.status(500).json({ message: 'Failed to execute Query', error: error.message });
     }
     if (data.length === 0) {
       return res.status(404).json({ message: 'No Assignment found' });
