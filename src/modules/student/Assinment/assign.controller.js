@@ -50,10 +50,9 @@ export const studentAssignment = asyncHandler(async (req, res) => {
 
 export const submitAssignment = asyncHandler(async (req, res) => {
   try {
-    const ta_student_id = req.user.id;
-    const { ta_assignment_id } = req.body;
+    const { ta_assignment_id, ta_student_id, ta_grade } = req.body;
 
-    if (!ta_student_id || !ta_assignment_id) {
+    if (!ta_student_id || !ta_assignment_id || !ta_grade) {
       return res.status(400).json({
         success: false,
         message: !ta_student_id
@@ -90,13 +89,13 @@ export const submitAssignment = asyncHandler(async (req, res) => {
       }
 
       const insertQuery = `
-          INSERT INTO takes_assignment (ta_assignment_id, ta_student_id)
-          VALUES (?, ?)
+          INSERT INTO takes_assignment (ta_assignment_id, ta_student_id,ta_grade)
+          VALUES (?, ?,?)
         `;
 
       dbConfig.query(
         insertQuery,
-        [ta_assignment_id, ta_student_id],
+        [ta_assignment_id, ta_student_id, ta_grade],
         (insertError, insertResults) => {
           if (insertError) {
             return res.status(500).json({

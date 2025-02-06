@@ -51,10 +51,9 @@ export const getexam = asyncHandler(async (req, res) => {
 
 export const takeExam = asyncHandler(async (req, res) => {
   try {
-    const tExam_studentId = req.user.id;
-    const { tExam_examId } = req.body;
+    const { tExam_examId, tExam_studentId, tExam_examGrade } = req.body;
 
-    if (!tExam_examId || !tExam_studentId) {
+    if (!tExam_examId || !tExam_studentId || !tExam_examGrade) {
       return res.status(400).json({
         success: false,
         message: !tExam_studentId
@@ -91,25 +90,29 @@ export const takeExam = asyncHandler(async (req, res) => {
       }
 
       const insertQuery = `
-        INSERT INTO takesExam (tExam_examId, tExam_studentId)
-        VALUES (?, ?)
+        INSERT INTO takesExam (tExam_examId, tExam_studentId,tExam_examGrade)
+        VALUES (?, ?,?)
       `;
 
-      dbConfig.query(insertQuery, [tExam_examId, tExam_studentId], (insertError, insertResults) => {
-        if (insertError) {
-          return res.status(500).json({
-            success: false,
-            message: 'Failed to submit Exam',
-            error: insertError.message,
+      dbConfig.query(
+        insertQuery,
+        [tExam_examId, tExam_studentId, tExam_examGrade],
+        (insertError, insertResults) => {
+          if (insertError) {
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to submit Exam',
+              error: insertError.message,
+            });
+          }
+
+          res.status(201).json({
+            success: true,
+            message: 'Exam submitted successfully',
+            submission_id: insertResults.insertId,
           });
         }
-
-        res.status(201).json({
-          success: true,
-          message: 'Exam submitted successfully',
-          submission_id: insertResults.insertId,
-        });
-      });
+      );
     });
   } catch (err) {
     res.status(500).json({

@@ -9,10 +9,16 @@ export const getCoursesByStudentId = asyncHandler(async (req, res) => {
   }
 
   const query = `
-    SELECT c.* 
+    SELECT 
+      c.*,
+      GROUP_CONCAT(DISTINCT ta.ta_grade) as assignment_grades,
+      GROUP_CONCAT(DISTINCT te.tExam_examGrade) as exam_grades
     FROM courses c
     INNER JOIN enrollment e ON c.c_id = e.e_courseId
-    WHERE e.e_studentId = ?;
+    LEFT JOIN takes_assignment ta ON ta.ta_student_id = e.e_studentId 
+    LEFT JOIN takesExam te ON te.tExam_studentId = e.e_studentId 
+    WHERE e.e_studentId = ?
+    GROUP BY c.c_id;
   `;
 
   dbConfig.query(query, [studentId], (err, results) => {
@@ -25,7 +31,45 @@ export const getCoursesByStudentId = asyncHandler(async (req, res) => {
       return res.status(200).json({ message: 'No courses found for this student', data: [] });
     }
 
-    res.status(200).json(results);
+    // Process the results to calculate final grades
+    const processedResults = results.map((course) => {
+      // Convert comma-separated grades to arrays and filter out null values
+      const assignmentGrades = course.assignment_grades
+        ? course.assignment_grades
+            .split(',')
+            .map(Number)
+            .filter((grade) => !isNaN(grade))
+        : [];
+
+      const examGrades = course.exam_grades
+        ? course.exam_grades
+            .split(',')
+            .map(Number)
+            .filter((grade) => !isNaN(grade))
+        : [];
+
+      const totalExamGrade = examGrades.length
+        ? examGrades.reduce((sum, grade) => sum + grade, 0)
+        : 0;
+
+      const totalAssignmentGrade = assignmentGrades.length
+        ? assignmentGrades.reduce((sum, grade) => sum + grade, 0)
+        : 0;
+
+      const finalGrade = totalAssignmentGrade + totalExamGrade;
+
+      return {
+        ...course,
+        assignment_grades: assignmentGrades,
+        exam_grades: examGrades,
+        final_grade: finalGrade,
+      };
+    });
+
+    res.status(200).json({
+      message: 'Courses retrieved successfully',
+      data: processedResults,
+    });
   });
 });
 
