@@ -16,11 +16,13 @@ const addStudent = errorAsyncHandler(
             return res.status(400).json({ message: 'The password and numberNational do not match' });
         }
         const morePhones = {};
-        if(phone1){
+        if (phone1) {
             morePhones.phone1 = phone1;
         }
-        if(phone2){
-            morePhones.phone2 = phone2;
+        if (phone2 === null || phone2 === '') {
+            morePhones.phone2 = null;  // Assign null if the value is empty or null
+        } else {
+            morePhones.phone2 = phone2;  // Assign phone2 if it's a valid value
         }
 
         dbConfig.execute( `SELECT * FROM superAdmin WHERE sAdmin_nationalID = ?` , 
@@ -122,16 +124,20 @@ const addStudent = errorAsyncHandler(
                                             const studentID = data.insertId;
                                             const phoneQueries = Object.entries(morePhones).map(([key , phone]) => {
                                                 return new Promise((resolve, reject) => {
-                                                    dbConfig.execute(
-                                                        `INSERT INTO student_phone(sp_phone, sp_student_id) VALUES (?, ?)`,
-                                                        [phone, studentID] , 
-                                                        (err , data) => {
-                                                            if(err || !data.affectedRows){
-                                                                reject(err)
+                                                    if (phone !== null) {
+                                                        dbConfig.execute(
+                                                            `INSERT INTO student_phone(sp_phone, sp_student_id) VALUES (?, ?)`,
+                                                            [phone, studentID] , 
+                                                            (err , data) => {
+                                                                if(err || !data.affectedRows){
+                                                                    reject(err)
+                                                                }
+                                                                resolve({ [key]: phone });
                                                             }
-                                                            resolve({ [key]: phone });
-                                                        }
-                                                    )
+                                                        )
+                                                    } else {
+                                                        resolve({ [key]: null });
+                                                    }
                                                 })
                                             })
 

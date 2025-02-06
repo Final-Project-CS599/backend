@@ -17,8 +17,10 @@ const addInstructor = errorAsyncHandler(async (req, res, next) => {
     if (phone1) {
         morePhones.phone1 = phone1;
     }
-    if (phone2) {
-        morePhones.phone2 = phone2;
+    if (phone2 === null || phone2 === '') {
+        morePhones.phone2 = null;  // Assign null if the value is empty or null
+    } else {
+        morePhones.phone2 = phone2;  // Assign phone2 if it's a valid value
     }
 
     dbConfig.execute(`SELECT * FROM superAdmin WHERE sAdmin_nationalID = ?`,
@@ -100,16 +102,20 @@ const addInstructor = errorAsyncHandler(async (req, res, next) => {
                         const instructorId = data.insertId;
                         const phoneQueries = Object.entries(morePhones).map(([key, phone]) => {
                             return new Promise((resolve, reject) => {
-                                dbConfig.execute(
-                                    `INSERT INTO InstructorsPhone(p_instructorPhone, i_instructorId) VALUES (?, ?)`,
-                                    [phone, instructorId],
-                                    (err, data) => {
-                                        if (err || !data.affectedRows) {
-                                            reject(err);
+                                if (phone !== null) {
+                                    dbConfig.execute(
+                                        `INSERT INTO InstructorsPhone(p_instructorPhone, i_instructorId) VALUES (?, ?)`,
+                                        [phone, instructorId],
+                                        (err, data) => {
+                                            if (err || !data.affectedRows) {
+                                                reject(err);
+                                            }
+                                            resolve({ [key]: phone });
                                         }
-                                        resolve({ [key]: phone });
-                                    }
-                                );
+                                    );
+                                } else {
+                                    resolve({ [key]: null });
+                                }
                             });
                         });
 
