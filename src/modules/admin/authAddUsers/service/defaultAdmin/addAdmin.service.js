@@ -3,7 +3,6 @@ import { errorAsyncHandler } from "../../../../../utils/response/error.response.
 import { successResponse } from "../../../../../utils/response/success.response.js";
 import { emailEvent } from "../../../../../utils/events/sendEmailEvent.js";
 import { generateHash } from "../../../../../utils/hash/hash.js";
-import { verifyToken } from "../../../../../utils/token/token.js";
 
 
 
