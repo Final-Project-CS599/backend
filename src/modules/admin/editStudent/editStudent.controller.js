@@ -80,7 +80,7 @@ const findStudentById = asyncHandler(async (req, res, next) => {
 const updateStudentById = asyncHandler(async (req, res, next) => {
   const AdminId = req.user.id;
   const { id } = req.params;
-  const { firstName, midName, lastName, email, department, nationalId } = req.body;
+  const { firstName, middleName, lastName, email, department, nationalId } = req.body;
 
   let queryParams = [];
   let changeFields = [];
@@ -90,9 +90,9 @@ const updateStudentById = asyncHandler(async (req, res, next) => {
     queryParams.push(firstName);
   }
 
-  if (midName) {
+  if (middleName) {
     changeFields.push('s_middle_name = ?');
-    queryParams.push(midName);
+    queryParams.push(middleName);
   }
 
   if (lastName) {
@@ -164,8 +164,7 @@ const viewStudentExtraCourses = asyncHandler(async (req, res, next) => {
         SELECT DISTINCT
              c.c_id AS courseId,
              c.c_name AS courseName,
-             e.e_Course_code AS courseCode,
-             e.e_price AS price
+             e.e_Course_code AS courseCode
          FROM courses c
          INNER JOIN Extra e ON c.c_id = e.e_courseId
          INNER JOIN enrollment enr ON c.c_id = enr.e_courseId
