@@ -11,4 +11,6 @@ router.get('/view/:assinId', verifyToken, assignmentServiece.getAssignmentById);
 
 router.delete('/delete/:assinId', assignmentServiece.deleteAssignment);
 router.get('/searchAssignment', assignmentServiece.searchAssignment);
+router.get('/viewStudents', assignmentServiece.getStudentForAssignment);
+
 export default router;

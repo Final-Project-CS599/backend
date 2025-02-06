@@ -1,4 +1,5 @@
 import dbConfig from '../../../DB/connection.js';
+import { asyncHandler } from '../../../middleware/asyncHandler.js';
 
 export const addAssignment = async (req, res, next) => {
   try {
@@ -174,3 +175,40 @@ export const getAssignmentById = async (req, res, next) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+export const getStudentForAssignment = asyncHandler(async (req, res) => {
+  const { courseId } = req.query;
+
+  if (!courseId) {
+    return res.status(400).json({ error: 'Course ID is required' });
+  }
+
+  dbConfig.query(
+    'SELECT e_studentId FROM enrollment WHERE e_courseId = ?',
+    [courseId],
+    (err, enrolments) => {
+      if (err) {
+        console.error('Error executing query:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      const studentIds = enrolments.map((row) => row.e_studentId);
+
+      if (studentIds.length === 0) {
+        return res.json({ message: 'No students found', data: [] });
+      }
+
+      dbConfig.query('SELECT * FROM student WHERE s_id IN (?)', [studentIds], (err, students) => {
+        if (err) {
+          console.error('Error executing query:', err);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        return res.status(200).json({
+          message: 'Your assignment search is done',
+          data: students,
+        });
+      });
+    }
+  );
+});
